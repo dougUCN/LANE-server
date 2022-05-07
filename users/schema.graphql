@@ -1,0 +1,19 @@
+# Technically can be imported via `from ariadne_jwt import jwt_schema`
+scalar GenericScalar
+
+type VerifyToken {
+    payload: GenericScalar
+}
+type RefreshToken {
+    token: String
+    refresh_token: String
+    payload: GenericScalar
+}
+type TokenAuth {
+    token: String
+    refresh_token: String
+    payload: GenericScalar
+}
+type RevokeToken {
+    revoked: Int
+}

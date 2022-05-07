@@ -1,0 +1,23 @@
+type Histogram {
+    id: ID!
+    data: [Int]
+    nbins: Int!
+    type: String
+    created: Datetime
+}
+
+input HistogramInput {
+    id: ID!
+    data: [Int]   
+    nbins: Int
+    type: String
+    isLive: Boolean
+}
+
+type HistogramPayload {
+    message: String!
+    success: Boolean!
+}
+
+"Datetime is in UTC"
+scalar Datetime

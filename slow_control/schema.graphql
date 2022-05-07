@@ -1,0 +1,55 @@
+type Device {
+  name: String!
+  state: String
+  currentState: String
+  isOnline: Boolean
+}
+
+type DevicePayload {
+  message: String!
+  success: Boolean!
+}
+
+type DeviceStates {
+  """
+  `device`, `state`, `time` need to be equal length arrays
+
+  Indicates the time at which a device is set to a state
+  """
+  device: [String]
+  state: [String]
+  time: [Float]
+}
+
+type Run {
+  """
+  - `qOrder` designates the priority in which the runfile is run (higher = larger priority)
+  - `currentTime` [seconds] is only updated during a live run
+  """
+  name: String!
+  qOrder: Int
+  startTime: Datetime
+  status: RunStatus
+  deviceStates: DeviceStates
+  runTime: Float!
+  currentTime: Float
+}
+
+type RunInput {
+  name: String!
+  qOrder: Int
+  deviceStates: DeviceStates
+  state: RunStatus
+  runTime: Float!
+}
+
+type RunPayload {
+  message: String!
+  success: Boolean!
+}
+
+enum RunStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+}
