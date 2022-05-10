@@ -2,7 +2,7 @@
 Common histogram-related functions
 """
 
-def histogram_payload( message, success=True ):
+def histogram_payload( message, success ):
     return {'message': message, 
             'success': success,
             }
@@ -26,6 +26,8 @@ def clean_hist_input( hist ):
 
 def chooseDatabase( isLive = None ):
     '''Really janky way of choosing whether to write to live database or static database
+
+    Defaults to `data` database for histograms
     '''
     if isLive: 
         return "live"
