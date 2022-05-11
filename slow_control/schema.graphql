@@ -1,13 +1,13 @@
 type Device {
-  name: String!
-  states: String
+  name: String
+  states: [String]
   currentState: String
   isOnline: Boolean
 }
 
 input DeviceInput {
   name: String!
-  states: String
+  states: [String]
   currentState: String
   isOnline: Boolean
 }
@@ -41,14 +41,17 @@ input DeviceStatesInput {
 
 type Run {
   """
+  - `name` can be duplicated as each run is auto assigned an `id` on instantiation
   - `qOrder` designates the priority in which the runfile is run (larger = higher priority). Default = 0
   - `timeElapsed` [seconds] is only updated during a live run
-  - `startTime` is in UTC
+  - `startTime` and `submitted` are in UTC
   - `runTime` is the total amount of time required for the run to complete
   """
-  name: String!
+  id: Int
+  name: String
   qOrder: Int
   startTime: Datetime
+  submitted: Datetime
   status: RunStatus
   deviceStates: DeviceStates
   runTime: Float
@@ -57,6 +60,7 @@ type Run {
 
 input RunInput {
   """
+  - `name` can be duplicated as each run is auto assigned an `id` on instantiation
   - `qOrder` designates the priority in which the runfile is run (larger = higher priority). Default = 0
   - `timeElapsed` [seconds] is only updated during a live run
   - `startTime` is in UTC

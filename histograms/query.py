@@ -18,15 +18,17 @@ def _get_histogram( id, database_name):
     return Histogram.objects.using( database_name ).get(id=id)
 
 @database_sync_to_async
-def _filter_histograms(ids, types, minDate, maxDate, 
+def _filter_histograms(ids, names, types, minDate, maxDate, 
                         minBins, maxBins, isLive):
-    if (all([arg is None for arg in (ids, types, minDate, maxDate, minBins, maxBins)])
+    if (all([arg is None for arg in (ids, names, types, minDate, maxDate, minBins, maxBins)])
          and (isLive == False)):
         raise ValueError("At least one field filter must be specified")   
 
     queryset = Histogram.objects.using( chooseDatabase(isLive) ).all()
     if ids:
         queryset = queryset.filter(id__in=ids)
+    if names:
+        queryset = queryset.filter(name__in=names)
     if types:
         queryset = queryset.filter(type__in=types)
     if minDate:
@@ -63,11 +65,10 @@ async def resolve_histogram(*_, id):
     return histogram
 
 @query.field("getHistograms")
-async def resolve_histograms(*_, ids=None, types=None,
-                            minDate=None, maxDate=None, 
-                            minBins=None, maxBins=None,
-                            isLive=False):
-    histograms = await _filter_histograms(ids, types, minDate, maxDate, 
+async def resolve_histograms(*_, ids=None, names=None, types=None,
+                            minDate=None, maxDate=None,  minBins=None, 
+                            maxBins=None, isLive=False):
+    histograms = await _filter_histograms(ids, names, types, minDate, maxDate, 
                                         minBins, maxBins, isLive)
     for i, hist in enumerate(histograms):
         histograms[i].data = commsep_to_int( hist.data )

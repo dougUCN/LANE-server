@@ -1,16 +1,16 @@
 from django.db import models
-from .common import EnumState
 
 class Runfile(models.Model):
     name = models.CharField(max_length=500)
-    q_order = models.PositiveIntegerField(default=0)
-    start_time = models.DateTimeField(null=True)
-    device_states = models.JSONField(null=True)
-    runtime = models.FloatField(default = 0)
-    status = models.CharField(max_length=100, default=EnumState["QUEUED"])
+    qOrder = models.IntegerField()
+    startTime = models.DateTimeField(null=True)
+    deviceStates = models.JSONField(null=True)
+    runTime = models.FloatField(default = 0)
+    submitted = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(blank=True, max_length=100)
 
 class Device(models.Model):
-    name = models.CharField(max_length=100)
-    states = models.TextField()
-    current_state = models.TextField()
-    is_online = models.BooleanField(default = False)
+    name = models.CharField(max_length=100, unique=True)
+    states = models.TextField(blank=True)
+    currentState = models.TextField(blank=True)
+    isOnline = models.BooleanField()

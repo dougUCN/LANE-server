@@ -17,8 +17,9 @@ from .query import _filter_histograms
 async def source_live_histograms(obj, info):
     while True:
         await asyncio.sleep(SUB_SLEEP_TIME)
-        yield await _filter_histograms(ids=None, types=None, minDate=None, maxDate=None, 
-                        minBins=None, maxBins=None, isLive=True)
+        yield await _filter_histograms(ids=None, names=None, types=None, 
+                                        minDate=None, maxDate=None, minBins=None, 
+                                        maxBins=None, isLive=True)
 
 """
 Subscription

@@ -4,10 +4,13 @@ from .models import Runfile, Device
 from channels.db import database_sync_to_async
 
 from .common import  (run_payload, device_payload, DATABASE,
-                        clean_run_input, clean_device_input)
+                        clean_run_input, clean_device_input,
+                        runInputField, deviceInputField)
 
 from .messaging import slowControlCmd, COMMAND
 
+device_string_field = ['states', 'currentState']
+run_string_field = ['status']
 
 """
 Asynchronous database access 
@@ -15,14 +18,27 @@ Asynchronous database access
 
 @database_sync_to_async
 def _create_run( clean_run ):
+    # Django does not like saving null values in the string fields
+    # and prefers blank strs
+    for field in run_string_field:
+        if clean_run[field] is None:
+            clean_run[field] = ''
     new_run = Runfile( **clean_run)
     new_run.save(using = DATABASE)
     return True
 
 @database_sync_to_async
 def _update_run( clean_run ):
+    '''Returns (updated fields, success)'''
     in_database = Runfile.objects.using( DATABASE ).get(name=clean_run['name'])
-    return True
+    updatedFields = []
+    for attr in runInputField:
+        if attr == 'name':
+            continue
+        elif (clean_run[attr] is not None) and hasattr(in_database, attr):
+            setattr(in_database, attr, clean_run[attr])
+            updatedFields.append(attr)
+    return (updatedFields, True)
 
 
 @database_sync_to_async
@@ -32,14 +48,27 @@ def _delete_run( name ):
 
 @database_sync_to_async
 def _create_device( clean_device ):
+    # Django does not like saving null values in the string fields
+    # and prefers blank strs
+    for field in device_string_field:
+        if clean_device[field] is None:
+            clean_device[field] = ''
     new_device = Device( **clean_device)
     new_device.save(using = DATABASE)
     return True
 
 @database_sync_to_async
 def _update_device( clean_device ):
-    in_database = Runfile.objects.using( DATABASE ).get(name=clean_device['name'])
-    return True
+    '''Returns (updated fields, success)'''
+    in_database = Device.objects.using( DATABASE ).get(name=clean_device['name'])
+    updatedFields = []
+    for attr in deviceInputField:
+        if attr == 'name':
+            continue
+        elif (clean_device[attr] is not None) and hasattr(in_database, attr):
+            setattr(in_database, attr, clean_device[attr])
+            updatedFields.append(attr)
+    return (updatedFields, True)
 
 @database_sync_to_async
 def _delete_device( name ):
@@ -62,8 +91,8 @@ async def create_run(*_, run):
 @mutation.field('updateRun')
 async def update_run(*_, run):
     clean_run = clean_run_input( run )
-    status = await _update_run( clean_run )
-    return run_payload(f'', success = status)
+    updatedFields, status = await _update_run( clean_run )
+    return run_payload(f'Updated fields {updatedFields}', success = status)
 
 @mutation.field('deleteRun')
 async def delete_run(*_, name):
@@ -107,8 +136,8 @@ async def create_device(*_, device):
 @mutation.field('updateDevice')
 async def update_device(*_, device):
     clean_device = clean_device_input( device )
-    status = await _update_device( clean_device )
-    return device_payload(f'Device updated', success = status)
+    updatedFields, status = await _update_device( clean_device )
+    return run_payload(f'Updated fields {updatedFields}', success = status)
 
 @mutation.field('deleteDevice')
 async def delete_delete(*_, name):

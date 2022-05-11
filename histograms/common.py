@@ -12,14 +12,17 @@ def clean_hist_input( hist ):
     '''
     nbins = hist.get('nbins')
     data = hist.get('data')
+
     if (nbins is None) and data:
         nbins = len(data)
     elif data is None:
         nbins = 0 
+
     return {
             'id': hist['id'],
             'data': int_to_commsep( data ),
             'nbins': nbins,
+            'name': hist.get('name'),
             'type': hist.get('type'),
             'database': chooseDatabase( hist.get('isLive') ),
             }
@@ -45,4 +48,7 @@ def int_to_commsep( list_of_ints ):
 def commsep_to_int( string ):
     '''Converts a string of comma separated integers into a list of ints
     '''
-    return [int(x) for x in string.split(',')]
+    if string == '':
+        return []
+    else:
+        return [int(x) for x in string.split(',')]

@@ -5,6 +5,8 @@ from channels.db import database_sync_to_async
 
 from .common import  histogram_payload, clean_hist_input, chooseDatabase
 
+hist_string_field = ['data', 'name', 'type']
+run_string_field = ['name', 'status']
 
 """
 Asynchronous database access 
@@ -12,8 +14,15 @@ Asynchronous database access
 
 @database_sync_to_async
 def _create_histogram( clean_hist, database_name):
+    # Django does not like saving null values in the string fields
+    # and prefers blank strs
+    for field in hist_string_field:
+        if clean_hist[field] is None:
+            clean_hist[field] = ''
+
     new_hist = Histogram(id = clean_hist['id'], data=clean_hist['data'],
-                             nbins=clean_hist['nbins'], type=clean_hist['type'],)
+                             nbins=clean_hist['nbins'], type=clean_hist['type'],
+                             name = clean_hist['name'])
     new_hist.save(using = database_name)
     return True
 
@@ -25,6 +34,8 @@ def _update_histogram( clean_hist, database_name):
         in_database.nbins = clean_hist['nbins']
     if clean_hist['type']:
         in_database.type = clean_hist['type']
+    if clean_hist['name']:
+        in_database.name = clean_hist['name']
     in_database.save(using = database_name)
     return True
 

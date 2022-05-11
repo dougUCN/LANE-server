@@ -9,6 +9,7 @@ type Query {
   """
   getHistograms(
     ids: [ID]
+    names: [String]
     minDate: Datetime
     maxDate: Datetime
     minBins: Int
@@ -23,7 +24,7 @@ type Query {
   """
   Gets the information of a run in the database
   """
-  getRun(name: String!): Run
+  getRun(id: ID!): Run
 
   """
   Applies optional filters to retrieve a list of runs
@@ -34,6 +35,8 @@ type Query {
     names: [String]
     minStartDate: Datetime
     maxStartDate: Datetime
+    minSubDate: Datetime
+    maxSubDate: Datetime
     status: RunStatus
   ): [Run]
 
@@ -45,7 +48,7 @@ type Query {
 
   Not specifying any filters returns all devices
   """
-  getDevices(names: [String], isOnline: Boolean): Device
+  getDevices(names: [String], isOnline: Boolean): [Device]
 }
 
 type Mutation {

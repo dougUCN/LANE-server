@@ -1,22 +1,24 @@
 type Histogram {
-    id: ID!
-    data: [Int]
-    nbins: Int!
-    type: String
-    created: Datetime
+  id: ID
+  name: String
+  data: [Int]
+  nbins: Int
+  type: String
+  created: Datetime
 }
 
 input HistogramInput {
-    id: ID!
-    data: [Int]   
-    nbins: Int
-    type: String
-    isLive: Boolean
+  id: ID!
+  name: String
+  data: [Int]
+  nbins: Int
+  type: String
+  isLive: Boolean
 }
 
 type HistogramPayload {
-    message: String!
-    success: Boolean!
+  message: String!
+  success: Boolean!
 }
 
 "Datetime is in UTC"
