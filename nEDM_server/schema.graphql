@@ -28,14 +28,14 @@ type Query {
   """
   Applies optional filters to retrieve a list of runs
 
-  Not specifying any filters throws an error message
+  Not specifying any filters returns all runs queued
   """
   getRuns(
     names: [String]
     minStartDate: Datetime
     maxStartDate: Datetime
     status: RunStatus
-  ): [Runs]
+  ): [Run]
 
   "Gets information on a device"
   getDevice(name: String!): Device
@@ -43,7 +43,7 @@ type Query {
   """
   Applies optional filters to retrieve a list of devices
 
-  Not specifying any filters throws an error message
+  Not specifying any filters returns all devices
   """
   getDevices(names: [String], isOnline: Boolean): Device
 }
@@ -75,14 +75,24 @@ type Mutation {
   deleteHistogram(id: ID!, isLive: Boolean): HistogramPayload!
 
   """
-  Adds a run into the database queue
+  Adds a run into the queue
   """
-  qRun(run: RunInput!): RunPayload!
+  createRun(run: RunInput!): RunPayload!
+
+  """
+  Updates the properties of a run
+  """
+  updateRun(run: RunInput!): RunPayload!
+
+  """
+  Deletes a run
+  """
+  deleteRun(name: String!): RunPayload!
 
   """
   Removes all non-live runs from the queue
   """
-  clearRunQ: RunPayload!
+  clearRuns: RunPayload!
 
   """
   Instructs the slow control to start processing runs in the queue
@@ -103,9 +113,19 @@ type Mutation {
   refreshDevices: DevicePayload!
 
   """
-  Updates the properties of a run
+  Creates a slow control device in the database
   """
-  updateRun(run: RunInput!): RunPayload
+  createDevice(device: DeviceInput!): DevicePayload!
+
+  """
+  Updates the properties of a slow control device in the database
+  """
+  updateDevice(device: DeviceInput!): DevicePayload!
+
+  """
+  Deletes a device
+  """
+  deleteDevice(name: String!): DevicePayload!
 
   "Confirms validity of a token"
   verifyToken(token: String!): VerifyToken

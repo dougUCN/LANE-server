@@ -1,8 +1,15 @@
 from ariadne import make_executable_schema, load_schema_from_path, gql
+
 from histograms.query import query as h_query
 from histograms.mutation import mutation as h_mutation
 from histograms.subscription import subscription as h_subscription
 from histograms.scalar import datetime_scalar
+
+from slow_control.query import query as s_query
+from slow_control.mutation import mutation as s_mutation
+from slow_control.subscription import subscription as s_subscription
+from slow_control.enum import run_status_enum
+
 from ariadne_jwt import GenericScalar
 from users.schema import mutation as u_mutation
 
@@ -19,5 +26,6 @@ for file in schema_files:
 
 schema = make_executable_schema(type_defs, 
                                 h_query, h_mutation, h_subscription,
-                                u_mutation, GenericScalar,
-                                datetime_scalar,)
+                                u_mutation, datetime_scalar, GenericScalar, 
+                                s_query, s_mutation, s_subscription,
+                                run_status_enum,)

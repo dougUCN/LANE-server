@@ -1,6 +1,13 @@
 type Device {
   name: String!
-  state: String
+  states: String
+  currentState: String
+  isOnline: Boolean
+}
+
+input DeviceInput {
+  name: String!
+  states: String
   currentState: String
   isOnline: Boolean
 }
@@ -12,34 +19,54 @@ type DevicePayload {
 
 type DeviceStates {
   """
-  `device`, `state`, `time` need to be equal length arrays
+  `device`, `state`, `time` are equal length lists
 
-  Indicates the time at which a device is set to a state
+  Indicates the time [seconds] at which a device is set to a state
   """
-  device: [String]
-  state: [String]
-  time: [Float]
+  device: [String]!
+  state: [String]!
+  time: [Float]!
+}
+
+input DeviceStatesInput {
+  """
+  `device`, `state`, `time` are equal length lists
+
+  Indicates the time [seconds] at which a device is set to a state
+  """
+  device: [String]!
+  state: [String]!
+  time: [Float]!
 }
 
 type Run {
   """
-  - `qOrder` designates the priority in which the runfile is run (higher = larger priority)
-  - `currentTime` [seconds] is only updated during a live run
+  - `qOrder` designates the priority in which the runfile is run (larger = higher priority). Default = 0
+  - `timeElapsed` [seconds] is only updated during a live run
+  - `startTime` is in UTC
+  - `runTime` is the total amount of time required for the run to complete
   """
   name: String!
   qOrder: Int
   startTime: Datetime
   status: RunStatus
   deviceStates: DeviceStates
-  runTime: Float!
-  currentTime: Float
+  runTime: Float
+  timeElapsed: Float
 }
 
-type RunInput {
+input RunInput {
+  """
+  - `qOrder` designates the priority in which the runfile is run (larger = higher priority). Default = 0
+  - `timeElapsed` [seconds] is only updated during a live run
+  - `startTime` is in UTC
+  - `runTime` is the total amount of time required for the run to complete
+  """
   name: String!
   qOrder: Int
-  deviceStates: DeviceStates
-  state: RunStatus
+  startTime: Datetime
+  deviceStates: DeviceStatesInput
+  status: RunStatus
   runTime: Float!
 }
 
