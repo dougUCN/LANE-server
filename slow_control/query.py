@@ -21,7 +21,7 @@ def _filter_runs( names, minStartDate, maxStartDate, minSubDate, maxSubDate, sta
     if names:
         queryset = queryset.filter(name__in=names)
     if status:
-        queryset = queryset.filter(status__in=status)
+        queryset = queryset.filter(status__exact=status)
     if minStartDate:
         queryset = queryset.filter(startTime__gte=minStartDate)
     if maxStartDate:
@@ -56,8 +56,8 @@ Queries
 query = QueryType()
 
 @query.field("getRun")
-async def resolve_run(*_, name):
-    return await _get_run( name )
+async def resolve_run(*_, id):
+    return await _get_run( id )
 
 @query.field("getRuns")
 async def resolve_runs(*_, names=None, minStartDate=None, maxStartDate=None, 

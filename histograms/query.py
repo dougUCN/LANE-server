@@ -22,7 +22,8 @@ def _filter_histograms(ids, names, types, minDate, maxDate,
                         minBins, maxBins, isLive):
     if (all([arg is None for arg in (ids, names, types, minDate, maxDate, minBins, maxBins)])
          and (isLive == False)):
-        raise ValueError("At least one field filter must be specified")   
+        raise ValueError("At least one field filter must be specified\n\
+(isLive=False alone is not sufficient as that pulls too many histograms)")   
 
     queryset = Histogram.objects.using( chooseDatabase(isLive) ).all()
     if ids:

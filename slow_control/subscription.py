@@ -1,6 +1,6 @@
 from ariadne import SubscriptionType
 
-from .common import EnumState, clean_live_run_output
+from .common import EnumState, calc_time_elapsed
 import asyncio
 
 subscription = SubscriptionType()
@@ -17,13 +17,14 @@ async def source_live_run(obj, info):
     while True:
         # Keep checking the database until a live run appears
         await asyncio.sleep(SUB_SLEEP_TIME)
-        run = await _filter_runs(names=None, minStartDate=None,
-                                maxStartDate=None, status=EnumState['RUNNING']) 
+        run = await _filter_runs(names=None, minStartDate=None, maxStartDate=None, 
+                                minSubDate=None, maxSubDate=None, status=EnumState['RUNNING']) 
 
         if run: 
             # I expect either an empty list or a list with one item 
             # (should not be more than one live run at a time)
-            yield clean_live_run_output(run[0])
+            run[0].timeElapsed = calc_time_elapsed(run[0])
+            yield run[0]
         else:
             yield None
 

@@ -5,10 +5,16 @@ from channels.db import database_sync_to_async
 
 from .common import  (run_payload, device_payload, DATABASE,
                         clean_run_input, clean_device_input,
-                        runInputField, deviceInputField)
+                        runInputField, deviceInputField,
+                        EnumState)
 
 from .messaging import slowControlCmd, COMMAND
 
+from .query import _filter_runs
+
+# These fields are string fields in the django model
+# that may be defined as None on instantiation.
+# These will be replaced with an empty str
 device_string_field = ['states', 'currentState']
 run_string_field = ['status']
 
@@ -28,22 +34,21 @@ def _create_run( clean_run ):
     return True
 
 @database_sync_to_async
-def _update_run( clean_run ):
+def _update_run( id, clean_run ):
     '''Returns (updated fields, success)'''
-    in_database = Runfile.objects.using( DATABASE ).get(name=clean_run['name'])
+    in_database = Runfile.objects.using( DATABASE ).get(pk=id)
     updatedFields = []
     for attr in runInputField:
-        if attr == 'name':
-            continue
-        elif (clean_run[attr] is not None) and hasattr(in_database, attr):
+        if (clean_run[attr] is not None) and hasattr(in_database, attr):
             setattr(in_database, attr, clean_run[attr])
             updatedFields.append(attr)
+    in_database.save(using = DATABASE)
     return (updatedFields, True)
 
 
 @database_sync_to_async
-def _delete_run( name ):
-    Runfile.objects.using( DATABASE ).get(name=name).delete()
+def _delete_run( id ):
+    Runfile.objects.using( DATABASE ).get(pk=id).delete()
     return True
 
 @database_sync_to_async
@@ -63,11 +68,12 @@ def _update_device( clean_device ):
     in_database = Device.objects.using( DATABASE ).get(name=clean_device['name'])
     updatedFields = []
     for attr in deviceInputField:
-        if attr == 'name':
+        if attr == 'name': # Device name is effectively the PK so avoid changing
             continue
         elif (clean_device[attr] is not None) and hasattr(in_database, attr):
             setattr(in_database, attr, clean_device[attr])
             updatedFields.append(attr)
+    in_database.save(using = DATABASE)
     return (updatedFields, True)
 
 @database_sync_to_async
@@ -89,20 +95,27 @@ async def create_run(*_, run):
     return run_payload(f'created run {clean_run["name"]}', success = status)
 
 @mutation.field('updateRun')
-async def update_run(*_, run):
-    clean_run = clean_run_input( run )
-    updatedFields, status = await _update_run( clean_run )
+async def update_run(*_, id, run):
+    clean_run = clean_run_input( run , update=True)
+    updatedFields, status = await _update_run( id, clean_run )
     return run_payload(f'Updated fields {updatedFields}', success = status)
 
 @mutation.field('deleteRun')
-async def delete_run(*_, name):
-    status = await _delete_run( name )
-    return run_payload(f'deleted runfile {name}', success = status)
+async def delete_run(*_, id):
+    status = await _delete_run( id )
+    return run_payload(f'deleted runfile with id: {id}', success = status)
 
 @mutation.field('clearRuns')
 async def clear_runs(*_):
-    status = slowControlCmd( COMMAND['CLEAR'] )
-    return run_payload(f'Clear command sent', success = status)
+    """Message slow control the CLEAR comm and delete Queued/Completed runs from the DB""" 
+    comm_status = slowControlCmd( COMMAND['CLEAR'] )
+    for state in [EnumState['QUEUED'], EnumState['COMPLETED']]:
+        filtered_runs = await _filter_runs(names=None, minStartDate=None, maxStartDate=None,
+                             minSubDate=None, maxSubDate=None, status=state)
+        for run in filtered_runs:
+            await _delete_run( run.id )
+
+    return run_payload(f'Queued and Completed runs cleared in DB and slow control', success = comm_status)
 
 @mutation.field('startRuns')
 async def start_runs(*_):
@@ -135,7 +148,7 @@ async def create_device(*_, device):
 
 @mutation.field('updateDevice')
 async def update_device(*_, device):
-    clean_device = clean_device_input( device )
+    clean_device = clean_device_input( device , update=True)
     updatedFields, status = await _update_device( clean_device )
     return run_payload(f'Updated fields {updatedFields}', success = status)
 

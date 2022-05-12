@@ -85,12 +85,12 @@ type Mutation {
   """
   Updates the properties of a run
   """
-  updateRun(run: RunInput!): RunPayload!
+  updateRun(id: ID!, run: RunUpdateInput!): RunPayload!
 
   """
   Deletes a run
   """
-  deleteRun(name: String!): RunPayload!
+  deleteRun(id: ID!): RunPayload!
 
   """
   Removes all non-live runs from the queue
