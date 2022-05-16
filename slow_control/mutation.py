@@ -6,17 +6,11 @@ from channels.db import database_sync_to_async
 from .common import  (run_payload, device_payload, DATABASE,
                         clean_run_input, clean_device_input,
                         runInputField, deviceInputField,
-                        EnumState)
+                        EnumState, run_string_field, device_string_field)
 
 from .messaging import slowControlCmd, COMMAND
 
 from .query import _filter_runs
-
-# These fields are string fields in the django model
-# that may be defined as None on instantiation.
-# These will be replaced with an empty str
-device_string_field = ['states', 'currentState']
-run_string_field = ['status']
 
 """
 Asynchronous database access 

@@ -2,6 +2,14 @@
 Common histogram-related functions
 """
 
+# Input fields as defined by graphql schema
+histInputField = ['id', 'name', 'x', 'y', 'type', 'isLive']
+
+# These fields are string fields in the django model
+# that may be defined as None on instantiation.
+# These will be replaced with an empty str
+hist_string_field = ['x', 'y', 'name', 'type']
+
 def histogram_payload( message, success ):
     return {'message': message, 
             'success': success,
@@ -10,22 +18,41 @@ def histogram_payload( message, success ):
 def clean_hist_input( hist ):
     '''Takes histogram input from graphQL resolver and prepares to put it into the database
     '''
-    nbins = hist.get('nbins')
-    data = hist.get('data')
+    histInput = {}
+    for field in histInputField:
+        histInput[field] = hist.get( field )
 
-    if (nbins is None) and data:
-        nbins = len(data)
-    elif data is None:
-        nbins = 0 
+    histInput = get_length_data( histInput )
 
-    return {
-            'id': hist['id'],
-            'data': int_to_commsep( data ),
-            'nbins': nbins,
-            'name': hist.get('name'),
-            'type': hist.get('type'),
-            'database': chooseDatabase( hist.get('isLive') ),
-            }
+    # Convert x and y data list into strings
+    if histInput['x']:
+        histInput['x'] = commsep_to_int(histInput['x'])
+    if histInput['y']:
+        histInput['y'] = commsep_to_int(histInput['y'])
+
+    return histInput
+
+def get_length_data( histInput ):
+    '''Calculate length property from histogram input'''
+    if (histInput['x'] is None) and (histInput['y'] is None):
+        # If both x and y data values are not specified
+        histInput['len'] = None
+    elif histInput['x'] and histInput['y']:
+        # If both x and y are defined
+        histInput['len'] = len(histInput['y'])
+        if len(histInput['x']) != histInput['len']:
+            raise ValueError('Histogram x and y input lists not the same length')
+    elif histInput['x'] and (histInput['y'] is None):
+        # If x is specified but y is not
+        histInput['len'] = len(histInput['x'])
+    elif (histInput['x'] is none) and histInput['y']:
+        # If y is specified but x is not
+        histInput['len'] = len(histInput['y'])
+    else:
+        histInput['len'] = None
+
+    return histInput
+
 
 def chooseDatabase( isLive = None ):
     '''Really janky way of choosing whether to write to live database or static database

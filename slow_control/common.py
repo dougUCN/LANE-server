@@ -4,12 +4,19 @@ from django.utils.timezone import make_aware
 DATABASE = "live" # Devices and runfiles should be stored to the live database
 
 
+# Fields as defined in the graphql schema
 deviceStatesFields = ['device', 'state', 'time']
 
 runInputField = ['name', 'qOrder','startTime', 
                 'deviceStates', 'status', 'runTime']
 
 deviceInputField = ['name',  'states',  'currentState', 'isOnline']
+
+# These fields are string fields in the django model
+# that may be defined as None on instantiation.
+# These will be replaced with an empty str
+device_string_field = ['states', 'currentState']
+run_string_field = ['status']
 
 EnumState = {
             "QUEUED": "Queued",

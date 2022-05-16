@@ -12,8 +12,6 @@ type Query {
     names: [String]
     minDate: Datetime
     maxDate: Datetime
-    minBins: Int
-    maxBins: Int
     types: [String]
     isLive: Boolean
   ): [Histogram]

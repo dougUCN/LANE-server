@@ -18,11 +18,14 @@ async def source_live_histograms(obj, info):
     while True:
         await asyncio.sleep(SUB_SLEEP_TIME)
         histograms = await _filter_histograms(ids=None, names=None, types=None, 
-                                        minDate=None, maxDate=None, minBins=None, 
-                                        maxBins=None, isLive=True)
+                                        minDate=None, maxDate=None, isLive=True)
         if histograms:
             for i, hist in enumerate(histograms):
-                histograms[i].data = commsep_to_int( hist.data )
+                histograms[i].x = commsep_to_int( hist.x )
+                histograms[i].y = commsep_to_int( hist.y )
+                if histograms[i].x and histograms[i].y:
+                    histograms[i].xCurrent = histograms[i].x[-1]
+                    histograms[i].yCurrent = histograms[i].y[-1]
             yield histograms
 
 
