@@ -17,9 +17,14 @@ from .query import _filter_histograms
 async def source_live_histograms(obj, info):
     while True:
         await asyncio.sleep(SUB_SLEEP_TIME)
-        yield await _filter_histograms(ids=None, names=None, types=None, 
+        histograms = await _filter_histograms(ids=None, names=None, types=None, 
                                         minDate=None, maxDate=None, minBins=None, 
                                         maxBins=None, isLive=True)
+        if histograms:
+            for i, hist in enumerate(histograms):
+                histograms[i].data = commsep_to_int( hist.data )
+            yield histograms
+
 
 """
 Subscription
@@ -27,9 +32,4 @@ Subscription
 
 @subscription.field("getLiveHistograms")
 def resolve_live_histograms(histograms, info):
-    if histograms:
-        for i, hist in enumerate(histograms):
-            histograms[i].data = commsep_to_int( hist.data )
-        return histograms
-    else:
-        return []
+    return histograms
