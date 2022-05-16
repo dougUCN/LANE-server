@@ -26,11 +26,17 @@ def clean_hist_input( hist ):
 
     # Convert x and y data list into strings
     if histInput['x']:
-        histInput['x'] = commsep_to_int(histInput['x'])
+        histInput['x'] = int_to_commsep(histInput['x'])
     if histInput['y']:
-        histInput['y'] = commsep_to_int(histInput['y'])
+        histInput['y'] = int_to_commsep(histInput['y'])
 
     return histInput
+
+def clean_hist_output( hist ):
+    '''Takes histogram from django model and outputs to graphql format'''
+    hist.x = commsep_to_int( hist.x )
+    hist.y = commsep_to_int( hist.y )
+    return hist
 
 def get_length_data( histInput ):
     '''Calculate length property from histogram input'''

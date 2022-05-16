@@ -1,6 +1,6 @@
 from ariadne import SubscriptionType
 
-from .common import  commsep_to_int
+from .common import clean_hist_output
 import asyncio
 import datetime
 
@@ -21,8 +21,7 @@ async def source_live_histograms(obj, info):
                                         minDate=None, maxDate=None, isLive=True)
         if histograms:
             for i, hist in enumerate(histograms):
-                histograms[i].x = commsep_to_int( hist.x )
-                histograms[i].y = commsep_to_int( hist.y )
+                histograms[i] = clean_hist_output(hist)
                 if histograms[i].x and histograms[i].y:
                     histograms[i].xCurrent = histograms[i].x[-1]
                     histograms[i].yCurrent = histograms[i].y[-1]
