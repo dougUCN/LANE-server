@@ -32,7 +32,7 @@ def main():
     parser.add_argument('-hi','--high', type=int, default=HIGH, 
                     help=f'Largest possible integer value in a histogram (default={HIGH})')
     parser.add_argument('--delete', action='store_true', help='Deletes the histograms instead of creating (if they exist)')
-    parser.add_argument('--force', action='store_true', help='Overwrite any existing entries in the database')
+    parser.add_argument('--force', action='store_true')
     args = parser.parse_args()
 
     currentHists, response = listHistograms(isLive='false')

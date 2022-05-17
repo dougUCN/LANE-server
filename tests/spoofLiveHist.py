@@ -37,7 +37,7 @@ def main():
                     help=f'Seconds to pause between cycles (default={PAUSE})')
     parser.add_argument('-n', '--nCycles', type=int, default=NCYCLES,
                     help=f'Number of cycles for which this test is repeated (default={NCYCLES})')
-    parser.add_argument('--force', action='store_true', help='Overwrite any existing entries in the database')
+    parser.add_argument('--force', action='store_true')
     args = parser.parse_args()
 
     
