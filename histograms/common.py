@@ -42,7 +42,7 @@ def get_length_data( histInput ):
     '''Calculate length property from histogram input'''
     if (histInput['x'] is None) and (histInput['y'] is None):
         # If both x and y data values are not specified
-        histInput['len'] = None
+        histInput['len'] = 0
     elif histInput['x'] and histInput['y']:
         # If both x and y are defined
         histInput['len'] = len(histInput['y'])
@@ -51,11 +51,11 @@ def get_length_data( histInput ):
     elif histInput['x'] and (histInput['y'] is None):
         # If x is specified but y is not
         histInput['len'] = len(histInput['x'])
-    elif (histInput['x'] is none) and histInput['y']:
+    elif (histInput['x'] is None) and histInput['y']:
         # If y is specified but x is not
         histInput['len'] = len(histInput['y'])
     else:
-        histInput['len'] = None
+        histInput['len'] = 0
 
     return histInput
 
