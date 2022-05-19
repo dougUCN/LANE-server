@@ -25,6 +25,8 @@ async def source_live_run(obj, info):
             # run at a time
             run[0].timeElapsed = calc_time_elapsed(run[0])
             yield run[0]
+        else:
+            yield None
 
 
 """

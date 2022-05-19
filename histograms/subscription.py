@@ -26,6 +26,8 @@ async def source_live_histograms(obj, info):
                     histograms[i].xCurrent = histograms[i].x[-1]
                     histograms[i].yCurrent = histograms[i].y[-1]
             yield histograms
+        else:
+            yield None
 
 
 """
