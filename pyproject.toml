@@ -1,0 +1,7 @@
+# Configuration of python black settings goes here
+# When calling python black on this directory it searches 
+# automatically for a file named `pyproject.toml`
+
+[tool.black]
+line-length = 200
+skip-string-normalization = true
