@@ -41,7 +41,7 @@ def main():
     args = parser.parse_args()
 
     
-    currentHists, response = listHistograms(isLive='true')
+    currentHists, response = listHistograms(isLive=True)
     numAlive = np.arange(args.numAlive)
     overlap = list(set(numAlive) & set(currentHists))
     
@@ -72,11 +72,11 @@ Run with the --force flag to continue.""")
         for id in histsToMake:
             params ={
                 'id': id,
-                'x': 'null',
-                'y': 'null', 
+                'x': None,
+                'y': None, 
                 'name': f'{runHeader}{id}', 
                 'type': 'live_test', 
-                'isLive': 'true',
+                'isLive': True,
             }
             createHistogram( **params )
 
@@ -91,9 +91,9 @@ Run with the --force flag to continue.""")
                     'id': id,
                     'x': xData[id],
                     'y': yData[id], 
-                    'name': 'null', 
-                    'type': 'null', 
-                    'isLive': 'true',
+                    'name': None, 
+                    'type': None, 
+                    'isLive': True,
                 }
                 updateHistogram(**params)
             time.sleep(1)
@@ -104,8 +104,8 @@ Run with the --force flag to continue.""")
         # Cleanup the live histograms you created at the end of each cycle
         print('Cleaning up live histograms')
         for id in histsToMake:
-            deleteHistogram(id, isLive='true')
-        currentHists, response = listHistograms(isLive='true')
+            deleteHistogram(id, isLive=True)
+        currentHists, response = listHistograms(isLive=True)
         print(f'Current histograms in database: {currentHists}')
     
     print('Done')

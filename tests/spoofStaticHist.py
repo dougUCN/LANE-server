@@ -35,7 +35,7 @@ def main():
     parser.add_argument('--force', action='store_true')
     args = parser.parse_args()
 
-    currentHists, response = listHistograms(isLive='false')
+    currentHists, response = listHistograms(isLive=False)
     num = np.arange(args.offset, args.num + args.offset)
     overlap = list(set(num) & set(currentHists))
 
@@ -44,8 +44,8 @@ def main():
 Run with the --force flag to continue""")
     elif args.delete and args.force:
         for id in overlap:
-            deleteHistogram(id, isLive='false')
-        currentHists, response = listHistograms(isLive='false')
+            deleteHistogram(id, isLive=False)
+        currentHists, response = listHistograms(isLive=False)
         print(f'Current histograms in database: {currentHists}')
         sys.exit()
 
@@ -74,12 +74,12 @@ Run with the --force flag to continue.""")
             'y': rng.integers(low=args.low, high=args.high, size=args.length).tolist(), 
             'name': f'{runHeader}{id}', 
             'type': 'static_test', 
-            'isLive': 'false',
+            'isLive': False,
         }
         createHistogram( **params )
 
     # Check histograms inserted in database
-    currentHists, response = listHistograms(isLive='false')
+    currentHists, response = listHistograms(isLive=False)
     print(f'Current histograms in database: {currentHists}')
 
 

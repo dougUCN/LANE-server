@@ -11,7 +11,16 @@ def print_response(response):
 
 def make_replacements(string, replacements):
     for key, value in replacements.items():
-        string = string.replace(key, str(value))
+        if type(value) == str:
+            # Need to add quotes around inserted strings
+            string = string.replace(key, f'"{value}"')
+        elif type(value) == bool:
+            # graphql expects 'true' or 'false'
+            string = string.replace(key, str(value).lower())
+        elif value is None:
+            string = string.replace(key, 'null')
+        else:
+            string = string.replace(key, str(value))
     return string
 
 def check_response_errors(response):
@@ -28,7 +37,7 @@ def make_query(query, url=ENDPOINT, headers=None):
         raise Exception("Query failed to run by returning code of {}. {}".format(request.status_code, query))
 
 
-def listHistograms(isLive='false'):
+def listHistograms(isLive=False):
     '''kwargs get directly converted to strings'''
     replacements = {'$ISLIVE': isLive}
     query = """query list{
@@ -59,8 +68,8 @@ def createHistogram(id, x, y, name, type, isLive):
                             x:$XDATA, 
                             y:$YDATA,
                             isLive:$ISLIVE, 
-                            type: "$TYPE",
-                            name: "$NAME"
+                            type: $TYPE,
+                            name: $NAME
                         } ) 
                 {
                     message
@@ -83,8 +92,8 @@ def updateHistogram(id, x, y, name, type, isLive):
                             x:$XDATA, 
                             y:$YDATA,
                             isLive:$ISLIVE, 
-                            type:"$TYPE",
-                            name: "$NAME"
+                            type: $TYPE,
+                            name: $NAME
                         } ) 
                 {
                     message
