@@ -10,19 +10,21 @@ histInputField = ['id', 'name', 'x', 'y', 'type', 'isLive']
 # These will be replaced with an empty str
 hist_string_field = ['x', 'y', 'name', 'type']
 
-def histogram_payload( message, success ):
-    return {'message': message, 
-            'success': success,
-            }
 
-def clean_hist_input( hist ):
-    '''Takes histogram input from graphQL resolver and prepares to put it into the database
-    '''
+def histogram_payload(message, success):
+    return {
+        'message': message,
+        'success': success,
+    }
+
+
+def clean_hist_input(hist):
+    '''Takes histogram input from graphQL resolver and prepares to put it into the database'''
     histInput = {}
     for field in histInputField:
-        histInput[field] = hist.get( field )
+        histInput[field] = hist.get(field)
 
-    histInput = get_length_data( histInput )
+    histInput = get_length_data(histInput)
 
     # Convert x and y data list into strings
     if histInput['x']:
@@ -32,13 +34,15 @@ def clean_hist_input( hist ):
 
     return histInput
 
-def clean_hist_output( hist ):
+
+def clean_hist_output(hist):
     '''Takes histogram from django model and outputs to graphql format'''
-    hist.x = commsep_to_int( hist.x )
-    hist.y = commsep_to_int( hist.y )
+    hist.x = commsep_to_int(hist.x)
+    hist.y = commsep_to_int(hist.y)
     return hist
 
-def get_length_data( histInput ):
+
+def get_length_data(histInput):
     '''Calculate length property from histogram input'''
     if (histInput['x'] is None) and (histInput['y'] is None):
         # If both x and y data values are not specified
@@ -60,27 +64,27 @@ def get_length_data( histInput ):
     return histInput
 
 
-def chooseDatabase( isLive = None ):
+def chooseDatabase(isLive=None):
     '''Really janky way of choosing whether to write to live database or static database
 
     Defaults to `data` database for histograms
     '''
-    if isLive: 
+    if isLive:
         return "live"
     else:
         return "data"
 
-def int_to_commsep( list_of_ints ):
-    '''Converts a list of integers into a comma separated integer list
-    '''
+
+def int_to_commsep(list_of_ints):
+    '''Converts a list of integers into a comma separated integer list'''
     if list_of_ints:
         return ','.join([str(i) for i in list_of_ints])
     else:
         return None
 
-def commsep_to_int( string ):
-    '''Converts a string of comma separated integers into a list of ints
-    '''
+
+def commsep_to_int(string):
+    '''Converts a string of comma separated integers into a list of ints'''
     if string == '':
         return []
     else:

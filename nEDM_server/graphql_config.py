@@ -13,19 +13,28 @@ from slow_control.enum import run_status_enum
 from ariadne_jwt import GenericScalar
 from users.schema import mutation as u_mutation
 
-schema_files = ["nEDM_server/schema.graphql", 
-                "histograms/schema.graphql",
-                "users/schema.graphql",
-                "slow_control/schema.graphql",
-                ]
+schema_files = [
+    "nEDM_server/schema.graphql",
+    "histograms/schema.graphql",
+    "users/schema.graphql",
+    "slow_control/schema.graphql",
+]
 
 type_defs = []
 
 for file in schema_files:
-    type_defs.append( gql( load_schema_from_path(file) ) )
+    type_defs.append(gql(load_schema_from_path(file)))
 
-schema = make_executable_schema(type_defs, 
-                                h_query, h_mutation, h_subscription,
-                                u_mutation, datetime_scalar, GenericScalar, 
-                                s_query, s_mutation, s_subscription,
-                                run_status_enum,)
+schema = make_executable_schema(
+    type_defs,
+    h_query,
+    h_mutation,
+    h_subscription,
+    u_mutation,
+    datetime_scalar,
+    GenericScalar,
+    s_query,
+    s_mutation,
+    s_subscription,
+    run_status_enum,
+)

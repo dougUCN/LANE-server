@@ -1,13 +1,15 @@
 from os import replace
 import sys
 from webbrowser import get
-import requests 
+import requests
 import json
 
 ENDPOINT = 'http://127.0.0.1:8000/graphql/'
 
+
 def print_response(response):
     print(json.dumps(response, indent=2))
+
 
 def make_replacements(string, replacements):
     for key, value in replacements.items():
@@ -23,11 +25,13 @@ def make_replacements(string, replacements):
             string = string.replace(key, str(value))
     return string
 
+
 def check_response_errors(response):
     error = response.get("errors")
     if error is not None:
         print_response(error)
         sys.exit()
+
 
 def make_query(query, url=ENDPOINT, headers=None):
     request = requests.post(url, json={'query': query}, headers=headers)
@@ -57,10 +61,10 @@ def listHistograms(isLive=False):
     check_response_errors(response)
     return histograms, response
 
+
 def createHistogram(id, x, y, name, type, isLive):
     '''kwargs get directly converted to strings'''
-    replacements = {'$ID':id, '$XDATA':x, '$YDATA':y,
-                    '$NAME': name, '$TYPE': type, '$ISLIVE': isLive}
+    replacements = {'$ID': id, '$XDATA': x, '$YDATA': y, '$NAME': name, '$TYPE': type, '$ISLIVE': isLive}
     query = """mutation create{
                 createHistogram( 
                         hist:{
@@ -81,10 +85,10 @@ def createHistogram(id, x, y, name, type, isLive):
     check_response_errors(response)
     return response
 
+
 def updateHistogram(id, x, y, name, type, isLive):
     '''kwargs get directly converted to strings'''
-    replacements = {'$ID':id, '$XDATA':x, '$YDATA':y,
-                    '$NAME': name, '$TYPE': type, '$ISLIVE': isLive}
+    replacements = {'$ID': id, '$XDATA': x, '$YDATA': y, '$NAME': name, '$TYPE': type, '$ISLIVE': isLive}
     query = """mutation update{
                 updateHistogram( 
                         hist:{
@@ -104,9 +108,10 @@ def updateHistogram(id, x, y, name, type, isLive):
     response = make_query(query)
     check_response_errors(response)
 
+
 def deleteHistogram(id, isLive):
     '''kwargs get directly converted to strings'''
-    replacements = {'$ID':id, '$ISLIVE': isLive}
+    replacements = {'$ID': id, '$ISLIVE': isLive}
     query = """mutation delete{
                     deleteHistogram(id: $ID, isLive: $ISLIVE)
                     {

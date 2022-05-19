@@ -14,7 +14,7 @@ from pathlib import Path
 from .security import *
 
 # JWT Token Auth settings
-from users.settings import GRAPHQL_JWT 
+from users.settings import GRAPHQL_JWT
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -54,10 +54,7 @@ MIDDLEWARE = [
     'ariadne_jwt.middleware.JSONWebTokenMiddleware',
 ]
 
-AUTHENTICATION_BACKENDS = [
-    'ariadne_jwt.backends.JSONWebTokenBackend',
-    'django.contrib.auth.backends.ModelBackend'
-]
+AUTHENTICATION_BACKENDS = ['ariadne_jwt.backends.JSONWebTokenBackend', 'django.contrib.auth.backends.ModelBackend']
 
 ROOT_URLCONF = 'nEDM_server.urls'
 
@@ -90,14 +87,14 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'data.sqlite3',
     },
-    'default': { # Making the users database the default as the other databases may be backed up/deleted
+    'default': {  # Making the users database the default as the other databases may be backed up/deleted
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'users/users.sqlite3',
     },
     'live': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'liveData.sqlite3',
-    }
+    },
 }
 
 
