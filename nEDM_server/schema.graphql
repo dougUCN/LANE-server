@@ -141,12 +141,16 @@ type Mutation {
 type Subscription {
   """
   Retrieves a list of live histograms.
+
+  Returns null every second when no data to publish
   """
   getLiveHistograms: [Histogram]
 
   """
   Retrieves the current run. The only live updating field is
   `currentTime`
+
+  Returns null every second when no data to publish
   """
   getLiveRun: Run
 }
