@@ -5,3 +5,10 @@
 [tool.black]
 line-length = 200
 skip-string-normalization = true
+extend_exclude = '''(
+    fast_daq_worker/sis3316 |
+    fast_daq_worker/tools |
+    slow_control_worker/switcher |
+    slow_control_worker/zmqLANL
+)
+'''
