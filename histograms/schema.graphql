@@ -2,9 +2,31 @@ type Histogram {
   """
   - `id`: unique integer identifier of a histogram
   - `name`: String, can be duplicate
+  - `x`: Array of x points
+  - `y`: Array of y points
   - `len`: Number of data points
-  - `xCurrent`: The last added x data point. Only updated when `getLiveHistograms` subscription is called
-  - `yCurrent`: The last added y data point. Only updated when `getLiveHistograms` subscription is called
+  - `type`: Additional meta data
+  - `created`: Datetime when histogram was made in the database
+  """
+  id: ID
+  name: String
+  y: [Int]
+  x: [Int]
+  len: Int
+  type: String
+  created: Datetime
+}
+
+type LiveHistogram {
+  """
+  - `id`: unique integer identifier of a histogram
+  - `name`: String, can be duplicate
+  - `x`: Array of x points
+  - `y`: Array of y points
+  - `len`: Number of data points
+  - `xCurrent`: The last added x data point
+  - `yCurrent`: The last added y data point
+  - `yMax`: The largest y value in the in y
   - `type`: Additional meta data
   - `created`: Datetime when histogram was made in the database
   """
@@ -15,6 +37,7 @@ type Histogram {
   len: Int
   xCurrent: Int
   yCurrent: Int
+  yMax: Int
   type: String
   created: Datetime
 }

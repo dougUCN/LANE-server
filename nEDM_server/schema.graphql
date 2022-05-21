@@ -144,7 +144,7 @@ type Subscription {
 
   Returns null every second when no data to publish
   """
-  getLiveHistograms: [Histogram]
+  getLiveHistograms: [LiveHistogram]
 
   """
   Retrieves the current run. The only live updating field is

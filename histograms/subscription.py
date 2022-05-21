@@ -2,7 +2,7 @@ from ariadne import SubscriptionType
 
 from .common import clean_hist_output
 import asyncio
-import datetime
+import numpy as np
 
 subscription = SubscriptionType()
 
@@ -25,6 +25,7 @@ async def source_live_histograms(obj, info):
                 if histograms[i].x and histograms[i].y:
                     histograms[i].xCurrent = histograms[i].x[-1]
                     histograms[i].yCurrent = histograms[i].y[-1]
+                    histograms[i].yMax = np.amax(histograms[i].y)
             yield histograms
         else:
             yield None
