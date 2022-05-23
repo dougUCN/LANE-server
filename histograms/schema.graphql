@@ -50,7 +50,7 @@ input HistogramInput {
   - `xrange`: Range of the x axis (NOT automatically calculated)
   - `yrange`: Range of the y axis (NOT automatically calculated)
   - `type`: Additional meta data
-  - `isLive`: Whether histogram gets put in the live database or the static one
+  - `isLive`: Whether histogram gets put in the live database or the static one (default: static)
   """
   id: ID!
   name: String

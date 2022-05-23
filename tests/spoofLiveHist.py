@@ -13,13 +13,14 @@ For testing options run `python spoofLiveHist.py --help`
 """
 
 import datetime, time, argparse
+from tkinter import Y
 from gqlComms import listHistograms, createHistogram, deleteHistogram, updateHistogram
 import numpy as np
 
 NUMALIVE = 4
 LIVETIME = 20
 PAUSE = 5
-NCYCLES = 2
+NCYCLES = 1
 LOW = 0
 HIGH = 1000
 
@@ -54,21 +55,20 @@ def main():
     args = parser.parse_args()
 
     currentHists, response = listHistograms(isLive=True)
-    numAlive = np.arange(args.numAlive)
-    overlap = list(set(numAlive) & set(currentHists))
+    histsToMake = np.arange(args.numAlive)
+    overlap = list(set(histsToMake) & set(currentHists))
 
-    if currentHists and not args.force:
+    if overlap and not args.force:
         raise Exception(
             """WARNING: There currently exist histograms in the live database!
-This script will not overwrite existing histograms.
-Run with the --force flag to continue."""
+Run with the --force flag to force an overwrite!"""
         )
 
-    # Safeguards to make sure existing histograms are not written over
-    if overlap:
-        print(f"Existing histograms of id:{overlap} will not be overwritten")
-
-    histsToMake = [x for x in numAlive if x not in overlap]
+    elif overlap and args.force:
+        print(f"Deleting histograms {overlap}")
+        for id in overlap:
+            deleteHistogram(id, isLive=True)
+        print(f"Delete completed")
 
     now = datetime.datetime.now()
     runHeader = now.strftime("%Y%m%d_run")
@@ -83,8 +83,6 @@ Run with the --force flag to continue."""
         for id in histsToMake:
             params = {
                 'id': id,
-                'x': None,
-                'y': None,
                 'name': f'{runHeader}{id}',
                 'type': 'live_test',
                 'isLive': True,
@@ -92,18 +90,29 @@ Run with the --force flag to continue."""
             createHistogram(**params)
 
         print('Live updating histograms')
-        yData = {new_list: [] for new_list in histsToMake}
-        xData = {new_list: [] for new_list in histsToMake}
+        data = '['
+        FIRST = True
         for t in range(args.liveTime):
             for id in histsToMake:
-                xData[id].append(t)
-                yData[id].append(rng.integers(low=args.low, high=args.high))
+                y = rng.integers(low=args.low, high=args.high)
+
+                if FIRST:
+                    yMin = y
+                    yMax = y
+                    FIRST = False
+                else:
+                    if y < yMin:
+                        yMin = y
+                    if y > yMax:
+                        yMax = y
+
+                data = data + f'{{x:{t},y:{y}}},'
+
                 params = {
                     'id': id,
-                    'x': xData[id],
-                    'y': yData[id],
-                    'name': None,
-                    'type': None,
+                    'data': data + ']',
+                    'xrange': {'min': 0, 'max': t},
+                    'yrange': {'min': yMin, 'max': yMax},
                     'isLive': True,
                 }
                 updateHistogram(**params)
