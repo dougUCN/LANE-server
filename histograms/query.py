@@ -71,8 +71,4 @@ async def resolve_histogram(*_, id):
 
 @query.field("getHistograms")
 async def resolve_histograms(*_, ids=None, names=None, types=None, minDate=None, maxDate=None, isLive=False):
-    histograms = await _filter_histograms(ids, names, types, minDate, maxDate, isLive)
-    for i, hist in enumerate(histograms):
-        histograms[i] = hist
-
-    return histograms
+    return await _filter_histograms(ids, names, types, minDate, maxDate, isLive)
