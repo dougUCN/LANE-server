@@ -38,8 +38,8 @@ def main():
     args = parser.parse_args()
 
     currentHists, response = listHistograms(isLive=False)
-    num = np.arange(args.offset, args.num + args.offset)
-    overlap = list(set(num) & set(currentHists))
+    histsToMake = np.arange(args.offset, args.num + args.offset)
+    overlap = list(set(histsToMake) & set(currentHists))
 
     if args.delete and not args.force:
         raise Exception(
@@ -59,12 +59,12 @@ Run with the --force flag to delete"""
             """WARNING: There currently exist histograms in the static database!
 Run with the --force flag to force an overwrite."""
         )
+    elif overlap and args.force:
+        print(f"Deleting histograms {overlap}")
+        for id in overlap:
+            deleteHistogram(id, isLive=False)
+        print(f"Delete completed")
 
-    # Safeguards to make sure existing histograms are not written over
-    if overlap:
-        print(f"Existing histograms of id:{overlap} will not be overwritten")
-
-    histsToMake = [x for x in num if x not in overlap]
     now = datetime.datetime.now()
     runHeader = now.strftime("%Y%m%d_run")
 
