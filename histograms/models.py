@@ -1,12 +1,12 @@
 from django.db import models
-from django.core.validators import int_list_validator
 
 
 class Histogram(models.Model):
     id = models.PositiveBigIntegerField(primary_key=True)
     name = models.CharField(blank=True, max_length=500)
-    x = models.TextField(blank=True, validators=[int_list_validator])
-    y = models.TextField(blank=True, validators=[int_list_validator])
-    len = models.PositiveBigIntegerField()
+    data = models.JSONField(null=True)
+    xrange = models.JSONField(null=True)
+    yrange = models.JSONField(null=True)
+    len = models.PositiveBigIntegerField(null=True)
     created = models.DateTimeField(auto_now_add=True)
     type = models.CharField(blank=True, max_length=100)

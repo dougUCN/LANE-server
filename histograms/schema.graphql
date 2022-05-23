@@ -2,16 +2,18 @@ type Histogram {
   """
   - `id`: unique integer identifier of a histogram
   - `name`: String, can be duplicate
-  - `x`: Array of x points
-  - `y`: Array of y points
+  - `data`: List of x y coordinates
+  - `xrange`: Range of the x axis (NOT automatically calculated)
+  - `yrange`: Range of the y axis (NOT automatically calculated)
   - `len`: Number of data points
   - `type`: Additional meta data
   - `created`: Datetime when histogram was made in the database
   """
   id: ID
   name: String
-  y: [Int]
-  x: [Int]
+  data: [Point]
+  xrange: Range
+  yrange: Range
   len: Int
   type: String
   created: Datetime
@@ -21,23 +23,21 @@ type LiveHistogram {
   """
   - `id`: unique integer identifier of a histogram
   - `name`: String, can be duplicate
-  - `x`: Array of x points
-  - `y`: Array of y points
+  - `data`: List of x y coordinates
+  - `xrange`: Range of the x axis (NOT automatically calculated)
+  - `yrange`: Range of the y axis (NOT automatically calculated)
   - `len`: Number of data points
-  - `xCurrent`: The last added x data point
-  - `yCurrent`: The last added y data point
-  - `yMax`: The largest y value in the in y
+  - `current`: The last added `Point`
   - `type`: Additional meta data
   - `created`: Datetime when histogram was made in the database
   """
   id: ID
   name: String
-  y: [Int]
-  x: [Int]
+  data: [Point]
+  xrange: Range
+  yrange: Range
   len: Int
-  xCurrent: Int
-  yCurrent: Int
-  yMax: Int
+  current: Point
   type: String
   created: Datetime
 }
@@ -46,15 +46,43 @@ input HistogramInput {
   """
   - `id`: unique integer identifier of a histogram
   - `name`: String, can be duplicate
+  - `data`: List of x y coordinates
+  - `xrange`: Range of the x axis (NOT automatically calculated)
+  - `yrange`: Range of the y axis (NOT automatically calculated)
   - `type`: Additional meta data
   - `isLive`: Whether histogram gets put in the live database or the static one
   """
   id: ID!
   name: String
-  y: [Int]
-  x: [Int]
+  data: [PointInput]
+  xrange: Range
+  yrange: Range
   type: String
   isLive: Boolean
+}
+
+type Point {
+  "coordinate in a format compatible with an SVG plotter"
+  x: Float
+  y: Float
+}
+
+input PointInput {
+  "coordinate in a format compatible with an SVG plotter"
+  x: Float!
+  y: Float!
+}
+
+type Range {
+  "Gives the minimum and maximum range of an axis"
+  min: Float
+  max: Float
+}
+
+input RangeInput {
+  "Gives the minimum and maximum range of an axis"
+  min: Float!
+  max: Float!
 }
 
 type HistogramPayload {

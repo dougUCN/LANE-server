@@ -2,7 +2,7 @@ from ariadne import QueryType
 from .models import Histogram
 from channels.db import database_sync_to_async
 
-from .common import chooseDatabase, clean_hist_output
+from .common import chooseDatabase
 
 """ Asynchronous generator for database access 
 Note that we cannot pass querysets out from the generator, 
@@ -66,15 +66,13 @@ async def list_histograms(*_, isLive=False):
 
 @query.field("getHistogram")
 async def resolve_histogram(*_, id):
-    # histogram = Histogram.objects.using( chooseDatabase() ).get(id=id)
-    histogram = await _get_histogram(id=id, database_name=chooseDatabase())
-    return clean_hist_output(histogram)
+    return await _get_histogram(id=id, database_name=chooseDatabase())
 
 
 @query.field("getHistograms")
 async def resolve_histograms(*_, ids=None, names=None, types=None, minDate=None, maxDate=None, isLive=False):
     histograms = await _filter_histograms(ids, names, types, minDate, maxDate, isLive)
     for i, hist in enumerate(histograms):
-        histograms[i] = clean_hist_output(hist)
+        histograms[i] = hist
 
     return histograms

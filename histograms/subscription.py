@@ -1,6 +1,5 @@
 from ariadne import SubscriptionType
 
-from .common import clean_hist_output
 import asyncio
 import numpy as np
 
@@ -21,11 +20,8 @@ async def source_live_histograms(obj, info):
         histograms = await _filter_histograms(ids=None, names=None, types=None, minDate=None, maxDate=None, isLive=True)
         if histograms:
             for i, hist in enumerate(histograms):
-                histograms[i] = clean_hist_output(hist)
-                if histograms[i].x and histograms[i].y:
-                    histograms[i].xCurrent = histograms[i].x[-1]
-                    histograms[i].yCurrent = histograms[i].y[-1]
-                    histograms[i].yMax = np.amax(histograms[i].y)
+                if hist['data']:
+                    histograms[i].current = hist['data'][-1]
             yield histograms
         else:
             yield None
