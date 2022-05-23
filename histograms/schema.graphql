@@ -55,8 +55,8 @@ input HistogramInput {
   id: ID!
   name: String
   data: [PointInput]
-  xrange: Range
-  yrange: Range
+  xrange: RangeInput
+  yrange: RangeInput
   type: String
   isLive: Boolean
 }
