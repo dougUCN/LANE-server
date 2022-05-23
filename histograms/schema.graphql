@@ -9,14 +9,14 @@ type Histogram {
   - `type`: Additional meta data
   - `created`: Datetime when histogram was made in the database
   """
-  id: ID
+  id: ID!
   name: String
-  data: [Point]
+  data: [Point!]
   xrange: Range
   yrange: Range
   len: Int
   type: String
-  created: Datetime
+  created: Datetime!
 }
 
 type LiveHistogram {
@@ -31,7 +31,7 @@ type LiveHistogram {
   - `type`: Additional meta data
   - `created`: Datetime when histogram was made in the database
   """
-  id: ID
+  id: ID!
   name: String
   data: [Point!]
   xrange: Range
@@ -39,7 +39,7 @@ type LiveHistogram {
   len: Int
   current: Point
   type: String
-  created: Datetime
+  created: Datetime!
 }
 
 input HistogramInput {
@@ -54,7 +54,7 @@ input HistogramInput {
   """
   id: ID!
   name: String
-  data: [PointInput]
+  data: [PointInput!]
   xrange: RangeInput
   yrange: RangeInput
   type: String
@@ -63,8 +63,8 @@ input HistogramInput {
 
 type Point {
   "coordinate in a format compatible with an SVG plotter"
-  x: Float
-  y: Float
+  x: Float!
+  y: Float!
 }
 
 input PointInput {
@@ -75,8 +75,8 @@ input PointInput {
 
 type Range {
   "Gives the minimum and maximum range of an axis"
-  min: Float
-  max: Float
+  min: Float!
+  max: Float!
 }
 
 input RangeInput {
