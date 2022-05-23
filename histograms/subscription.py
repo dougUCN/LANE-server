@@ -19,10 +19,9 @@ async def source_live_histograms(obj, info):
         await asyncio.sleep(SUB_SLEEP_TIME)
         histograms = await _filter_histograms(ids=None, names=None, types=None, minDate=None, maxDate=None, isLive=True)
         if histograms:
-            # for i, hist in enumerate(histograms):
-            #     if hist['data']:
-            #         print(hist['data'])
-            #         histograms[i].current = hist['data'][-1]
+            for i, hist in enumerate(histograms):
+                if hist.data:
+                    hist.current = hist.data[-1]
             yield histograms
         else:
             yield None
