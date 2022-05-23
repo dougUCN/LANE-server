@@ -33,7 +33,7 @@ type LiveHistogram {
   """
   id: ID
   name: String
-  data: [Point]
+  data: [Point!]
   xrange: Range
   yrange: Range
   len: Int
