@@ -13,7 +13,6 @@ For testing options run `python spoofLiveHist.py --help`
 """
 
 import datetime, time, argparse
-from tkinter import Y
 from gqlComms import listHistograms, createHistogram, deleteHistogram, updateHistogram
 import numpy as np
 
