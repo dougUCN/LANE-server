@@ -90,28 +90,16 @@ Run with the --force flag to force an overwrite!"""
 
         print('Live updating histograms')
         data = '['
-        FIRST = True
         for t in range(args.liveTime):
             for id in histsToMake:
                 y = rng.integers(low=args.low, high=args.high)
-
-                if FIRST:
-                    yMin = y
-                    yMax = y
-                    FIRST = False
-                else:
-                    if y < yMin:
-                        yMin = y
-                    if y > yMax:
-                        yMax = y
-
                 data = data + f'{{x:{t},y:{y}}},'
 
                 params = {
                     'id': id,
                     'data': data + ']',
                     'xrange': {'min': 0, 'max': t},
-                    'yrange': {'min': yMin, 'max': yMax},
+                    'yrange': {'min': args.low, 'max': args.high},
                     'isLive': True,
                 }
                 updateHistogram(**params)

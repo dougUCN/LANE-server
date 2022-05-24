@@ -80,7 +80,7 @@ Run with the --force flag to force an overwrite."""
             'id': id,
             'data': toSvgCoords(x, y),
             'xrange': {'min': x[0], 'max': x[-1]},
-            'yrange': {'min': np.amin(y), 'max': np.amax(y)},
+            'yrange': {'min': args.low, 'max': args.high},
             'name': f'{runHeader}{id}',
             'type': 'static_test',
             'isLive': False,
