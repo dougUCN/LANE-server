@@ -58,11 +58,14 @@ def check_response_errors(response):
 
 
 def make_query(query, url=ENDPOINT, headers=None):
+    '''
+    Sends a query to the URL. Returns a response json if successful
+    '''
     request = requests.post(url, json={'query': query}, headers=headers)
     if request.status_code == 200:
         return check_response_errors(request.json())
     else:
-        raise Exception("Query failed to run by returning code of {}. {}".format(request.status_code, query))
+        raise Exception('Query failed to run by returning code of {}. {}'.format(request.status_code, query))
 
 
 def toSvgCoords(xList, yList):
