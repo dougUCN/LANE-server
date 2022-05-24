@@ -85,7 +85,7 @@ Run with the --force flag to force an overwrite!"""
                 'id': id,
                 'name': f'{runHeader}{id}',
                 'type': 'live_test',
-                'xrange': {'min': 0, 'max': args.liveTime},
+                'xrange': {'min': 0, 'max': 10},
                 'yrange': {'min': args.low, 'max': args.high},
                 'isLive': True,
             }
@@ -102,6 +102,7 @@ Run with the --force flag to force an overwrite!"""
                     'id': id,
                     'data': data[id] + ']',
                     'isLive': True,
+                    'xrange': {'min': 0, 'max': t + 10},
                 }
                 updateHistogram(**params)
             time.sleep(1)
