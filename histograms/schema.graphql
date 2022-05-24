@@ -3,8 +3,8 @@ type Histogram {
   - `id`: unique integer identifier of a histogram
   - `name`: String, can be duplicate
   - `data`: List of x y coordinates
-  - `xrange`: Range of the x axis (NOT automatically calculated)
-  - `yrange`: Range of the y axis (NOT automatically calculated)
+  - `xrange`: Range of the x axis to plot
+  - `yrange`: Range of the y axis to plot
   - `len`: Number of data points
   - `type`: Additional meta data
   - `created`: Datetime when histogram was made in the database
@@ -12,8 +12,8 @@ type Histogram {
   id: ID!
   name: String
   data: [Point!]
-  xrange: Range
-  yrange: Range
+  xrange: Range!
+  yrange: Range!
   len: Int
   type: String
   created: Datetime!
@@ -24,8 +24,8 @@ type LiveHistogram {
   - `id`: unique integer identifier of a histogram
   - `name`: String, can be duplicate
   - `data`: List of x y coordinates
-  - `xrange`: Range of the x axis (NOT automatically calculated)
-  - `yrange`: Range of the y axis (NOT automatically calculated)
+  - `xrange`: Range of the x axis to plot
+  - `yrange`: Range of the y axis to plot
   - `len`: Number of data points
   - `current`: The last added `Point`
   - `type`: Additional meta data
@@ -34,8 +34,8 @@ type LiveHistogram {
   id: ID!
   name: String
   data: [Point!]
-  xrange: Range
-  yrange: Range
+  xrange: Range!
+  yrange: Range!
   len: Int
   current: Point
   type: String
@@ -47,8 +47,27 @@ input HistogramInput {
   - `id`: unique integer identifier of a histogram
   - `name`: String, can be duplicate
   - `data`: List of x y coordinates
-  - `xrange`: Range of the x axis (NOT automatically calculated)
-  - `yrange`: Range of the y axis (NOT automatically calculated)
+  - `xrange`: Range of the x axis to plot
+  - `yrange`: Range of the y axis to plot
+  - `type`: Additional meta data
+  - `isLive`: Whether histogram gets put in the live database or the static one (default: static)
+  """
+  id: ID!
+  name: String
+  data: [PointInput!]
+  xrange: RangeInput!
+  yrange: RangeInput!
+  type: String
+  isLive: Boolean
+}
+
+input HistogramUpdateInput {
+  """
+  - `id`: unique integer identifier of a histogram
+  - `name`: String, can be duplicate
+  - `data`: List of x y coordinates
+  - `xrange`: Range of the x axis to plot
+  - `yrange`: Range of the y axis to plot
   - `type`: Additional meta data
   - `isLive`: Whether histogram gets put in the live database or the static one (default: static)
   """

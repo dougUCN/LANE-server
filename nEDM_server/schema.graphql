@@ -66,7 +66,7 @@ type Mutation {
 
   IF `isLive`, alters the Live database. Default = False
   """
-  updateHistogram(hist: HistogramInput!): HistogramPayload!
+  updateHistogram(hist: HistogramUpdateInput!): HistogramPayload!
 
   """
   Deletes a histogram in the database
