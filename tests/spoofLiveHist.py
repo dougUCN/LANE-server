@@ -84,6 +84,8 @@ Run with the --force flag to force an overwrite!"""
                 'id': id,
                 'name': f'{runHeader}{id}',
                 'type': 'live_test',
+                'xrange': {'min': 0, 'max': t},
+                'yrange': {'min': args.low, 'max': args.high},
                 'isLive': True,
             }
             createHistogram(**params)
@@ -98,8 +100,6 @@ Run with the --force flag to force an overwrite!"""
                 params = {
                     'id': id,
                     'data': data + ']',
-                    'xrange': {'min': 0, 'max': t},
-                    'yrange': {'min': args.low, 'max': args.high},
                     'isLive': True,
                 }
                 updateHistogram(**params)
