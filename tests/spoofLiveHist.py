@@ -84,7 +84,7 @@ Run with the --force flag to force an overwrite!"""
                 'id': id,
                 'name': f'{runHeader}{id}',
                 'type': 'live_test',
-                'xrange': {'min': 0, 'max': t},
+                'xrange': {'min': 0, 'max': args.liveTime},
                 'yrange': {'min': args.low, 'max': args.high},
                 'isLive': True,
             }
