@@ -74,6 +74,7 @@ Run with the --force flag to force an overwrite!"""
 
     # PRNG
     rng = np.random.default_rng()
+    initial_data = {id: '[' for id in histsToMake}
 
     for cycle in range(args.nCycles):
         print(f'Cycle {cycle + 1}/{args.nCycles}')
@@ -91,15 +92,15 @@ Run with the --force flag to force an overwrite!"""
             createHistogram(**params)
 
         print('Live updating histograms')
-        data = '['
+        data = initial_data
         for t in range(args.liveTime):
             for id in histsToMake:
                 y = rng.integers(low=args.low, high=args.high)
-                data = data + f'{{x:{t},y:{y}}},'
+                data[id] = data[id] + f'{{x:{t},y:{y}}},'
 
                 params = {
                     'id': id,
-                    'data': data + ']',
+                    'data': data[id] + ']',
                     'isLive': True,
                 }
                 updateHistogram(**params)

@@ -43,7 +43,7 @@ def main():
 
     if args.delete and not args.force:
         raise Exception(
-            f"""WARNING: You are about to delete histograms with IDs from {num[0]} to {num[-1]}
+            f"""WARNING: You are about to delete histograms with IDs from {histsToMake[0]} to {histsToMake[-1]}
 Run with the --force flag to delete"""
         )
 
