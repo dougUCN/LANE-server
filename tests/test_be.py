@@ -7,6 +7,6 @@ Note that Pytest requires the filename and test functions to start with `test_*`
 """
 
 
-def listHistograms():
+def test_listHistograms():
     _, response = listHistograms(isLive=False)
     assert response
