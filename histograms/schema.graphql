@@ -12,8 +12,8 @@ type Histogram {
   id: ID
   name: String
   data: [Point!]
-  xrange: Range
-  yrange: Range
+  xrange: Range!
+  yrange: Range!
   len: Int
   type: String
   created: Datetime
@@ -34,8 +34,8 @@ type LiveHistogram {
   id: ID
   name: String
   data: [Point!]
-  xrange: Range
-  yrange: Range
+  xrange: Range!
+  yrange: Range!
   len: Int
   current: Point
   type: String
