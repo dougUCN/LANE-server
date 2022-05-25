@@ -100,7 +100,11 @@ def dict_to_query(input):
 
 
 def listHistograms(isLive=False):
-    '''kwargs get directly converted to strings'''
+    '''
+    kwargs get directly converted to strings
+
+    returns: (histograms, response)
+    '''
     replacements = {'$ISLIVE': isLive}
     query = """query list{
                 listHistograms(isLive:$ISLIVE)
@@ -116,7 +120,11 @@ def listHistograms(isLive=False):
 
 
 def createHistogram(id, data=None, name=None, type=None, xrange=None, yrange=None, isLive=False):
-    '''kwargs get directly converted to strings'''
+    '''
+    kwargs get directly converted to strings
+
+    returns: response
+    '''
     replacements = {'$ID': id, '$DATA': data, '$XRANGE': xrange, '$YRANGE': yrange, '$NAME': name, '$TYPE': type, '$ISLIVE': isLive}
     query = """mutation create{
                 createHistogram( 
@@ -135,12 +143,15 @@ def createHistogram(id, data=None, name=None, type=None, xrange=None, yrange=Non
                 }
                 }"""
     query = make_replacements(query, replacements)
-    response = make_query(query)
-    return response
+    return make_query(query)
 
 
 def updateHistogram(id, data=None, name=None, type=None, xrange=None, yrange=None, isLive=False):
-    '''kwargs get directly converted to strings'''
+    '''
+    kwargs get directly converted to strings
+
+    returns: response
+    '''
     replacements = {'$ID': id, '$DATA': data, '$XRANGE': xrange, '$YRANGE': yrange, '$NAME': name, '$TYPE': type, '$ISLIVE': isLive}
     query = """mutation update{
                 updateHistogram( 
@@ -159,7 +170,7 @@ def updateHistogram(id, data=None, name=None, type=None, xrange=None, yrange=Non
                 }
             }"""
     query = make_replacements(query, replacements)
-    response = make_query(query)
+    return make_query(query)
 
 
 def deleteHistogram(id, isLive):
