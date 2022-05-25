@@ -10,5 +10,5 @@ from gqlComms import listHistograms
 
 
 def test_listHistograms():
-    _, response = listHistograms(isLive=False)
-    assert response
+    histogramList, _ = listHistograms(isLive=False)
+    assert isinstance(histogramList, list)
