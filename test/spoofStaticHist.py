@@ -8,7 +8,7 @@ Make sure the BE is running before starting this script
 For testing options run `python spoofStaticHist.py --help`
 """
 import datetime
-from gqlComms import listHistograms, createHistogram, deleteHistogram, toSvgCoords
+from gqlComms import listHistograms, createHistogram, deleteHistogram, toSvgStr
 import numpy as np
 import argparse
 import sys
@@ -37,7 +37,7 @@ def main():
     parser.add_argument('--force', action='store_true')
     args = parser.parse_args()
 
-    currentHists, response = listHistograms(isLive=False)
+    currentHists = listHistograms(isLive=False)
     histsToMake = np.arange(args.offset, args.num + args.offset)
     overlap = list(set(histsToMake) & set(currentHists))
 
@@ -50,7 +50,7 @@ Run with the --force flag to delete"""
     elif args.delete and args.force:
         for id in overlap:
             deleteHistogram(id, isLive=False)
-        currentHists, response = listHistograms(isLive=False)
+        currentHists = listHistograms(isLive=False)
         print(f'Current histograms in database: {currentHists}')
         sys.exit()
 
@@ -78,7 +78,7 @@ Run with the --force flag to force an overwrite."""
         y = rng.integers(low=args.low, high=args.high, size=args.length)
         params = {
             'id': id,
-            'data': toSvgCoords(x, y),
+            'data': toSvgStr(x, y),
             'xrange': {'min': x[0], 'max': x[-1]},
             'yrange': {'min': args.low, 'max': args.high},
             'name': f'{runHeader}{id}',
@@ -88,7 +88,7 @@ Run with the --force flag to force an overwrite."""
         createHistogram(**params)
 
     # Check histograms inserted in database
-    currentHists, response = listHistograms(isLive=False)
+    currentHists = listHistograms(isLive=False)
     print(f'Current histograms in database: {currentHists}')
 
 

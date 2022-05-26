@@ -5,6 +5,7 @@ from typing import Type
 import requests
 import json
 import numpy as np
+import datetime
 
 ENDPOINT = 'http://127.0.0.1:8000/graphql/'
 
@@ -33,8 +34,9 @@ def dump_response(response):
 
 def make_replacements(string, replacements):
     for key, value in replacements.items():
-        if type(value) == bool:
-            # graphql expects 'true' or 'false'
+        if isinstance(value, str) and (value[0] != '[') and (value[0] != '{'):
+            string = string.replace(key, f'"{str(value)}"')
+        elif isinstance(value, bool):
             string = string.replace(key, str(value).lower())
         elif value is None:
             string = string.replace(key, 'null')
@@ -42,6 +44,8 @@ def make_replacements(string, replacements):
             string = string.replace(key, json.dumps(value, cls=NpEncoder))
         elif isinstance(value, dict):
             string = string.replace(key, dict_to_query(value))
+        elif isinstance(value, datetime.datetime):
+            string = string.replace(key, f'"{value.isoformat()}"')
         else:
             string = string.replace(key, str(value))
     return string
@@ -68,14 +72,14 @@ def make_query(query, url=ENDPOINT, headers=None):
         raise Exception('Query failed to run by returning code of {}. {}'.format(request.status_code, query))
 
 
-def toSvgCoords(xList, yList):
+def toSvgStr(xList, yList):
     '''
-    Takes two lists x and y and creates a dictionary
-    [{"x": x0, "y": y0},
-    {"x": x1, "y": y1},
-    ...]
+    Takes two lists x and y and creates a string
+    "[{x: x0, y: y0},
+    {x: x1, y: y1},
+    ...]"
 
-    Then converts it into a string for a graphql query
+    That is compatible for a graphql query string
     '''
     output = ['[']
     for x, y in zip(xList, yList):
@@ -85,9 +89,21 @@ def toSvgCoords(xList, yList):
     return ''.join(output)
 
 
+def toSvgCoords(xList, yList):
+    '''
+    Takes two lists x and y and creates a dictionary
+    [{"x": x0, "y": y0},
+    {"x": x1, "y": y1},
+    ...]
+    '''
+    return [{'x': x, 'y': y} for (x, y) in zip(xList, yList)]
+
+
 def dict_to_query(input):
     '''
     Basically removes quotes from any string keys in a dictionary
+
+    TODO: Make recursive to apply to dicts of any depth
     '''
     if type(input) == dict:
         output = ['{']
@@ -99,29 +115,36 @@ def dict_to_query(input):
         return input
 
 
-def listHistograms(isLive=False):
+def listHistograms(ids=None, names=None, minDate=None, maxDate=None, types=None, isLive=False):
     '''
-    kwargs get directly converted to strings
-
-    returns: (histograms, response)
+    Returns a list of all histograms in the database
     '''
-    replacements = {'$ISLIVE': isLive}
-    query = """query list{
-                listHistograms(isLive:$ISLIVE)
-            }"""
+    replacements = {'$IDS': ids, '$NAMES': names, "$MINDATE": minDate, "$MAXDATE": maxDate, "$TYPES": types, "$ISLIVE": isLive}
+    query = """query getHistograms{
+                        getHistograms( 
+                                ids: $IDS
+                                names: $NAMES
+                                minDate: $MINDATE,
+                                maxDate: $MAXDATE,
+                                types: $TYPES,
+                                isLive: $ISLIVE
+                                )
+                            {
+                                id
+                            }
+                        }"""
     query = make_replacements(query, replacements)
     response = make_query(query)
 
     histograms = []
-    for id in response["data"]["listHistograms"]:
-        histograms.append(int(id))
+    for res in response["data"]["getHistograms"]:
+        histograms.append(int(res["id"]))
+    return histograms
 
-    return histograms, response
 
-
-def createHistogram(id, data=None, name=None, type=None, xrange=None, yrange=None, isLive=False):
+def createHistogram(id, xrange, yrange, data=None, name=None, type=None, isLive=False):
     '''
-    kwargs get directly converted to strings
+    Create a histogram in the database
 
     returns: response
     '''
@@ -134,8 +157,8 @@ def createHistogram(id, data=None, name=None, type=None, xrange=None, yrange=Non
                             xrange:$XRANGE,
                             yrange:$YRANGE, 
                             isLive:$ISLIVE, 
-                            type: "$TYPE",
-                            name: "$NAME"
+                            type: $TYPE,
+                            name: $NAME
                         } ) 
                 {
                     message
@@ -146,9 +169,79 @@ def createHistogram(id, data=None, name=None, type=None, xrange=None, yrange=Non
     return make_query(query)
 
 
+def getHistogram(id):
+    '''
+    Get the information from a histogram in the database
+
+    returns: response
+    '''
+    replacements = {'$ID': id}
+    query = """query getHistogram{
+                getHistogram(id: $ID){
+                        id
+                        data{
+                            x
+                            y
+                        }
+                        xrange{
+                            min
+                            max
+                        }
+                        yrange{
+                            min
+                            max
+                        }    
+                        name               
+                        type
+                        len
+                        created
+                    }
+                }"""
+    query = make_replacements(query, replacements)
+    return make_query(query)
+
+
+def getHistograms(ids=None, names=None, minDate=None, maxDate=None, types=None, isLive=False):
+    '''
+    Retrieve multiple histograms according to filters
+    '''
+    replacements = {'$IDS': ids, '$NAMES': names, "$MINDATE": minDate, "$MAXDATE": maxDate, "$TYPES": types, "$ISLIVE": isLive}
+    query = """query getHistograms{
+                        getHistograms( 
+                            ids: $IDS
+                            names: $NAMES
+                            minDate: $MINDATE,
+                            maxDate: $MAXDATE,
+                            types: $TYPES,
+                            isLive: $ISLIVE,
+                            )
+                            {
+                                id
+                                name
+                                len
+                                data {
+                                    x
+                                    y
+                                }
+                                xrange {
+                                    min
+                                    max
+                                }
+                                yrange {
+                                    min
+                                    max
+                                }
+                                type
+                                created
+                            }
+                        }"""
+    query = make_replacements(query, replacements)
+    return make_query(query)
+
+
 def updateHistogram(id, data=None, name=None, type=None, xrange=None, yrange=None, isLive=False):
     '''
-    kwargs get directly converted to strings
+    Updates a histogram in the database
 
     returns: response
     '''
@@ -161,8 +254,8 @@ def updateHistogram(id, data=None, name=None, type=None, xrange=None, yrange=Non
                             xrange:$XRANGE,
                             yrange:$YRANGE, 
                             isLive:$ISLIVE, 
-                            type: "$TYPE",
-                            name: "$NAME"
+                            type: $TYPE,
+                            name: $NAME
                         } ) 
                 {
                     message
@@ -173,8 +266,12 @@ def updateHistogram(id, data=None, name=None, type=None, xrange=None, yrange=Non
     return make_query(query)
 
 
-def deleteHistogram(id, isLive):
-    '''kwargs get directly converted to strings'''
+def deleteHistogram(id, isLive=False):
+    '''
+    deletes a histogram from the database
+
+    returns: response
+    '''
     replacements = {'$ID': id, '$ISLIVE': isLive}
     query = """mutation delete{
                     deleteHistogram(id: $ID, isLive: $ISLIVE)

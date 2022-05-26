@@ -53,7 +53,7 @@ def main():
     parser.add_argument('--force', action='store_true')
     args = parser.parse_args()
 
-    currentHists, response = listHistograms(isLive=True)
+    currentHists = listHistograms(isLive=True)
     histsToMake = np.arange(args.numAlive)
     overlap = list(set(histsToMake) & set(currentHists))
 
@@ -114,7 +114,7 @@ Run with the --force flag to force an overwrite!"""
         print('Cleaning up live histograms')
         for id in histsToMake:
             deleteHistogram(id, isLive=True)
-        currentHists, response = listHistograms(isLive=True)
+        currentHists = listHistograms(isLive=True)
         print(f'Current histograms in database: {currentHists}')
 
     print('Done')

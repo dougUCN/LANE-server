@@ -1,11 +1,10 @@
 type Query {
-  "Retrieves a histogram corresponding to `id`"
+  "Retrieves a histogram corresponding to `id` from the static database"
   getHistogram(id: ID!): Histogram
 
   """
-  Applies optional filters to retrieve a list of histograms.
-
-  Not specifying any filters throws an error message
+  Applies optional filters to retrieve a list of histograms from either
+  the live or static database
   """
   getHistograms(
     ids: [ID]
