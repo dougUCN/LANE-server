@@ -1,7 +1,6 @@
 anyio==3.5.0
 ariadne==0.14.1
 ariadne-django==0.2.0
-ariadne-jwt==0.1.7
 asgiref==3.4.1
 attrs==21.4.0
 autobahn==21.2.1

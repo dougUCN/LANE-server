@@ -123,15 +123,6 @@ type Mutation {
   Deletes a device
   """
   deleteDevice(name: String!): DevicePayload!
-
-  "Confirms validity of a token"
-  verifyToken(token: String!): VerifyToken
-
-  "Obtain a brand new token with renewed expiration time for non-expired tokens"
-  refreshToken(token: String!): RefreshToken
-
-  "Authenticates the user and obtains a JSON Web Token"
-  tokenAuth(username: String!, password: String!): TokenAuth
 }
 
 type Subscription {

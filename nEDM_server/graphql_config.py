@@ -10,13 +10,9 @@ from slow_control.mutation import mutation as s_mutation
 from slow_control.subscription import subscription as s_subscription
 from slow_control.enum import run_status_enum
 
-from ariadne_jwt import GenericScalar
-from users.schema import mutation as u_mutation
-
 schema_files = [
     "nEDM_server/schema.graphql",
     "histograms/schema.graphql",
-    "users/schema.graphql",
     "slow_control/schema.graphql",
 ]
 
@@ -30,9 +26,7 @@ schema = make_executable_schema(
     h_query,
     h_mutation,
     h_subscription,
-    u_mutation,
     datetime_scalar,
-    GenericScalar,
     s_query,
     s_mutation,
     s_subscription,
