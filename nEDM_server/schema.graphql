@@ -15,9 +15,6 @@ type Query {
     isLive: Boolean
   ): [Histogram]
 
-  "Lists all IDs of histograms in the database"
-  listHistograms(isLive: Boolean): [ID]
-
   """
   Gets the information of a run in the database
   """

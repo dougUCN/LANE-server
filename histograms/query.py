@@ -11,11 +11,6 @@ so we must evaluate the query set before returning
 
 
 @database_sync_to_async
-def _list_histograms(database_name):
-    return list(Histogram.objects.using(database_name).all().values_list('id', flat=True))
-
-
-@database_sync_to_async
 def _get_histogram(id, database_name):
     return Histogram.objects.using(database_name).get(id=id)
 
@@ -42,16 +37,6 @@ Queries
 """
 
 query = QueryType()
-
-
-@query.field("listHistograms")
-async def list_histograms(*_, isLive=False):
-    '''
-    Lists the IDs of all histograms in the database
-
-    If isLive, pulls from live database
-    '''
-    return await _list_histograms(database_name=chooseDatabase(isLive))
 
 
 @query.field("getHistogram")
