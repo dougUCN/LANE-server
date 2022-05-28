@@ -1,0 +1,65 @@
+name: LANE_Backend
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env: # Note that env variables are only accessible from within a `steps` context
+  PYTHON_VERSION: 3.6.9
+  NODE_VERSION: 16
+
+jobs:
+  python_black_check:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install black
+
+      - name: Python black code check
+        run: black . --check
+
+  BE_server_runs_and_passes_tests:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r dependencies.txt
+
+      - name: Generate secret key and security file
+        run: python test/genSecurityFile.py --debug True
+
+      - name: Generate live database
+        run: python manage.py migrate --database=live
+
+      - name: Run BE in background
+        run: |
+          daphne nEDM_server.asgi:application &
+          sleep 1
+
+      - name: Unit tests
+        run: pytest test -v --no-header
