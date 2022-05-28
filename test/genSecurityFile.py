@@ -11,9 +11,12 @@ args = parser.parse_args()
 
 if args.rootdir and args.rootdir[-1] == '/':
     rootdir = args.rootdir[:-1]
-else:
+elif args.rootdir:
     rootdir = args.rootdir
-
+else:
+    # Auto detect root directory of (should be `server`)
+    stream = os.popen('git rev-parse --show-toplevel')  # Get root directory of server
+    rootdir = f'{stream.read()[:-1]}/nEDM_server'  # Last char of stream should be newline
 
 filename = f'{rootdir}/security.py'
 
