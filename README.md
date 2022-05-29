@@ -1,13 +1,11 @@
-# LANE Backend
-
-This Readme is for contributors only looking to work on the LANE Backend. Otherwise, refer to the documentation on the [main repository](https://github.com/dougUCN/LANE.git)
+# LANE server
 
 ### 1. Getting started
 
 Begin by cloning the repository:
 
 ```
-git clone https://github.com/dougUCN/LANE_backend.git --recurse-submodules
+git clone https://github.com/dougUCN/LANE-server.git --recurse-submodules
 ```
 
 ### 2. Setting up a virtual environment:
@@ -70,7 +68,7 @@ http://127.0.0.1:8000/graphql/
 
 ### Set up the precommit linting hook
 
-[black](https://black.readthedocs.io/en/stable/) is utilized to lint the backend code
+[black](https://black.readthedocs.io/en/stable/) is utilized to lint the server code
 
 It is recommended to set up a precommit hook to ensure that code is being properly formatted
 
