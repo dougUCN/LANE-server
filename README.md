@@ -5,7 +5,7 @@
 Begin by cloning the repository:
 
 ```
-git clone https://github.com/dougUCN/LANE-server.git --recurse-submodules
+git clone https://github.com/dougUCN/LANE-server.git
 ```
 
 ### 2. Setting up a virtual environment:
