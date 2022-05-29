@@ -66,25 +66,4 @@ http://127.0.0.1:8000/graphql/
 
 # Contributing
 
-### Set up the precommit linting hook
-
-[black](https://black.readthedocs.io/en/stable/) is utilized to lint the server code
-
-It is recommended to set up a precommit hook to ensure that code is being properly formatted
-
-In the root directory, run
-
-```
-cp .githooks/pre-commit .git/hooks/pre-commit
-chmod +x .git/hooks/pre-commit
-```
-
-Note that `black` checks the `pyproject.toml` file in the root directory of the folder passed to it for configuration settings
-
-Upon opening a pull request on `main`, linting checks will be applied with the same settings as the precommit
-
-### Propagating changes to the main repository
-
-The BE repo `main` branch is a submodule in the [main repository](https://github.com/dougUCN/LANE.git)
-
-When `main` in the BE repo has been updated via PR, this change must be propagated to `main` in the LANE repo as a separate PR.
+See the [contribution guidelines](CONTRIBUTING.md)
