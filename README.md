@@ -10,7 +10,7 @@ git clone https://github.com/dougUCN/LANE-server.git
 
 ### 2. Setting up a virtual environment:
 
-In the `server` directory
+In the root directory
 
 ```
 python3 -m venv venv
@@ -34,7 +34,7 @@ the line that states `dataclasses==0.8` in dependencies.txt**
 
 ### 3. Generating a secret key
 
-In the directory `server`, with venv enabled, run
+In the root directory, with venv enabled, run
 
 ```
 python tests/genSecurityFile.py # --debug True <-- Only use this flag if in development!
@@ -46,15 +46,15 @@ python tests/genSecurityFile.py # --debug True <-- Only use this flag if in deve
 
 ### 4. Generate the live database
 
-In `server`, with venv enabled, run
+In the root directory, with venv enabled, run
 
 ```bash
 python manage.py migrate --database=live
 ```
 
-### 5. Running the BE
+### 5. Running the server
 
-In `server`, make sure the venv is running, and run the following command to start the BE:
+In the root directory, with venv enabled, run the following command to start the server:
 
 ```
 daphne nEDM_server.asgi:application

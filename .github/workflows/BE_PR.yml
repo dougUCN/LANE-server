@@ -1,4 +1,4 @@
-name: LANE_Backend
+name: LANE_Server
 
 on:
   push:
@@ -32,7 +32,7 @@ jobs:
       - name: Python black code check
         run: black . --check
 
-  BE_server_runs_and_passes_tests:
+  server_runs_and_passes_tests:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout repo
