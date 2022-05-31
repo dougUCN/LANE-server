@@ -7,8 +7,7 @@ on:
     branches: [main]
 
 env: # Note that env variables are only accessible from within a `steps` context
-  # PYTHON_VERSION: 3.6.9
-  PYTHON_VERSION: 3.8
+  PYTHON_VERSION: 3.6.9
   NODE_VERSION: 16
 
 jobs:
