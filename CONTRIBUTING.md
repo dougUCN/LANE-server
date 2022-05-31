@@ -43,17 +43,21 @@ Django default settings are such that the `/` at the end of the above urls is _m
 
 Ariadne implements [subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws/blob/master/PROTOCOL.md) protocol for GraphQL subscriptions. Unfortunately, this is not a maintained library. Furthermore, as of May 2022 Ariadne has not implemented support for [graphql-ws](https://github.com/enisdenjo/graphql-ws), which is an active library for a similar protocol. Fundamentally, `graphql-ws` and `subscriptions-transport-ws` are different protocols, and as such any clients attempting to access the server with `graphql-ws` for subscriptions will be unsuccessful
 
-### 5. Databases
+### 5. Production server
+
+The production server runs on Python 3.6.9
+
+### 6. Databases
 
 LANE utilizes [sqlite](https://www.sqlite.org/index.html) for databases. These are locally hosted files on the production computer, which admittedly is inferior to cloud/external hosting. Unfortunately, attempting to access an externally hosted SQL database conflicts with Lab policy.
 
 LANE has 3 databases:
 
-| Name      | Location                     |
-| --------- | ---------------------------- |
-| `default` | `server/users/users.sqlite3` |
-| `data`    | `server/data.sqlite3`        |
-| `live`    | `server/liveData.sqlite3`    |
+| Name      | Location              |
+| --------- | --------------------- |
+| `default` | `db/users.sqlite3`    |
+| `data`    | `db/data.sqlite3`     |
+| `live`    | `db/liveData.sqlite3` |
 
 `default` stores only user information
 

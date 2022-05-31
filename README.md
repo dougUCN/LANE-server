@@ -29,9 +29,6 @@ Install dependencies
 python3 -m pip install -r dependencies.txt
 ```
 
-**Note that if you're running a version of python > 3.6 you MUST remove
-the line that states `dataclasses==0.8` in dependencies.txt**
-
 ### 3. Generating a secret key
 
 In the root directory, with venv enabled, run
