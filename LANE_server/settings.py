@@ -81,15 +81,15 @@ WSGI_APPLICATION = 'LANE_server.wsgi.application'
 DATABASES = {
     'data': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'data.sqlite3',
+        'NAME': BASE_DIR / 'db/data.sqlite3',
     },
     'default': {  # Making the users database the default as the other databases may be backed up/deleted
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'users/users.sqlite3',
+        'NAME': BASE_DIR / 'db/users.sqlite3',
     },
     'live': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'liveData.sqlite3',
+        'NAME': BASE_DIR / 'db/liveData.sqlite3',
     },
 }
 
