@@ -1,19 +1,19 @@
 from ariadne import make_executable_schema, load_schema_from_path, gql
 
-from histograms.query import query as h_query
-from histograms.mutation import mutation as h_mutation
-from histograms.subscription import subscription as h_subscription
-from histograms.scalar import datetime_scalar
+from apps.histograms.query import query as h_query
+from apps.histograms.mutation import mutation as h_mutation
+from apps.histograms.subscription import subscription as h_subscription
+from apps.histograms.scalar import datetime_scalar
 
-from slow_control.query import query as s_query
-from slow_control.mutation import mutation as s_mutation
-from slow_control.subscription import subscription as s_subscription
-from slow_control.enum import run_status_enum
+from apps.slow_control.query import query as s_query
+from apps.slow_control.mutation import mutation as s_mutation
+from apps.slow_control.subscription import subscription as s_subscription
+from apps.slow_control.enum import run_status_enum
 
 schema_files = [
-    "LANE_server/schema.graphql",
-    "histograms/schema.graphql",
-    "slow_control/schema.graphql",
+    "api/schema.graphql",
+    "api/histograms.graphql",
+    "api/slow_control.graphql",
 ]
 
 type_defs = []

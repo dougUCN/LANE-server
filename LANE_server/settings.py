@@ -35,9 +35,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'ariadne_django',
-    'histograms',
-    'slow_control',
     'channels',
+    'apps.histograms',
+    'apps.slow_control',
 ]
 
 MIDDLEWARE = [
