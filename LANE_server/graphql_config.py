@@ -11,7 +11,7 @@ from slow_control.subscription import subscription as s_subscription
 from slow_control.enum import run_status_enum
 
 schema_files = [
-    "nEDM_server/schema.graphql",
+    "LANE_server/schema.graphql",
     "histograms/schema.graphql",
     "slow_control/schema.graphql",
 ]

@@ -1,5 +1,5 @@
 """
-ASGI config for nEDM_server project.
+ASGI config for LANE_server project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -12,7 +12,7 @@ import django
 
 # Required to locate these up here before importing app-related things
 # Otherwise daphne will not run properly
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'nEDM_server.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'LANE_server.settings')
 django.setup()
 
 from django.core.asgi import get_asgi_application

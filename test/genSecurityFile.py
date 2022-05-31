@@ -16,7 +16,7 @@ elif args.rootdir:
 else:
     # Auto detect root directory of (should be `server`)
     stream = os.popen('git rev-parse --show-toplevel')  # Get root directory of server
-    rootdir = f'{stream.read()[:-1]}/nEDM_server'  # Last char of stream should be newline
+    rootdir = f'{stream.read()[:-1]}/LANE_server'  # Last char of stream should be newline
 
 filename = f'{rootdir}/security.py'
 
