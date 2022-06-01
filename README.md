@@ -29,15 +29,12 @@ Install dependencies
 python3 -m pip install -r dependencies.txt
 ```
 
-**Note that if you're running a version of python > 3.6 you will have to remove
-the line that states `dataclasses==0.8` in dependencies.txt**
-
 ### 3. Generating a secret key
 
 In the root directory, with venv enabled, run
 
 ```
-python tests/genSecurityFile.py # --debug True <-- Only use this flag if in development!
+python test/genSecurityFile.py # --debug True <-- Only use this flag if in development!
 ```
 
 **SECURITY WARNING: keep the secret key used in production secret!**
@@ -57,7 +54,7 @@ python manage.py migrate --database=live
 In the root directory, with venv enabled, run the following command to start the server:
 
 ```
-daphne nEDM_server.asgi:application
+daphne LANE_server.asgi:application
 ```
 
 Basic queries can now be tested at the graphql endpoint, located at

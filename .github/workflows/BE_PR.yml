@@ -58,7 +58,7 @@ jobs:
 
       - name: Run BE in background
         run: |
-          daphne nEDM_server.asgi:application &
+          daphne LANE_server.asgi:application &
           sleep 1
 
       - name: Unit tests
