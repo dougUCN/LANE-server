@@ -11,9 +11,9 @@ from apps.slow_control.subscription import subscription as s_subscription
 from apps.slow_control.enum import run_status_enum
 
 schema_files = [
-    "api/schema.graphql",
-    "api/histograms.graphql",
-    "api/slow_control.graphql",
+    "schema/schema.graphql",
+    "schema/histograms.graphql",
+    "schema/slow_control.graphql",
 ]
 
 type_defs = []
