@@ -7,8 +7,9 @@ type Query {
   to retrieve a paginated response of histograms from either the live or static database
   (specified by `isLive`, which defaults to `false`)
 
-  Pagination arguments are `first` which specifies how many histograms desired (default 100),
-  and `after` which is a cursor. If `after` is not specified, the first page is retrieved
+  Pagination arguments:
+  - `first`: Specifies how many histograms desired (default 100)
+  - `after`: An opaque cursor. If `after` is not specified, the first page is retrieved
   """
   getHistograms(
     ids: [ID]
