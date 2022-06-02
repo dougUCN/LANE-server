@@ -3,17 +3,25 @@ type Query {
   getHistogram(id: ID!): Histogram
 
   """
-  Applies optional filters to retrieve a list of histograms from either
-  the live or static database
+  Applies an optional set of filters (`ids`, `minID`, `maxID`, `names`, `minDate`, `maxDate`, `types`)
+  to retrieve a paginated response of histograms from either the live or static database
+  (specified by `isLive`, which defaults to `false`)
+
+  Pagination arguments are `first` which specifies how many histograms desired (default 100),
+  and `after` which is a cursor. If `after` is not specified, the first page is retrieved
   """
   getHistograms(
     ids: [ID]
+    minID: ID
+    maxID: ID
     names: [String]
     minDate: Datetime
     maxDate: Datetime
     types: [String]
     isLive: Boolean
-  ): [Histogram]
+    first: Int
+    after: String
+  ): HistPage
 
   """
   Gets the information of a run in the database

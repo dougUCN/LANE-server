@@ -44,7 +44,6 @@ type LiveHistogram {
 
 input HistogramInput {
   """
-  - `id`: unique integer identifier of a histogram
   - `name`: String, can be duplicate
   - `data`: List of x y coordinates
   - `xrange`: Range of the x axis to plot
@@ -52,7 +51,6 @@ input HistogramInput {
   - `type`: Additional meta data
   - `isLive`: Whether histogram gets put in the live database or the static one (default: static)
   """
-  id: ID!
   name: String
   data: [PointInput!]
   xrange: RangeInput!
@@ -93,20 +91,26 @@ input PointInput {
 }
 
 type Range {
-  "Gives the minimum and maximum range of an axis"
+  "Gives a minimum and maximum for a range of values"
   min: Float!
   max: Float!
 }
 
 input RangeInput {
-  "Gives the minimum and maximum range of an axis"
+  "A minimum and maximum for a range of values"
   min: Float!
   max: Float!
 }
 
 type HistogramPayload {
+  """
+  Return value of a mutation affecting histograms. 
+  
+  `id` describes the id of the histogram modified
+  """
   message: String!
   success: Boolean!
+  ids: ID!
 }
 
 "Datetime is in UTC"
