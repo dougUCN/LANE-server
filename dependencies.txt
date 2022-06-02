@@ -18,6 +18,7 @@ cryptography==36.0.2
 daphne==3.0.2
 dataclasses==0.8; python_version < "3.7"
 Django==3.2.12
+django-cursor-pagination==0.1.5
 graphql-core==3.1.7
 hyperlink==21.0.0
 idna==3.3
