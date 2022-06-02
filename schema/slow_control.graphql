@@ -23,7 +23,6 @@ type DevicePayload {
   """
   message: String!
   success: Boolean!
-  name: String!
 }
 
 type DeviceStates {
@@ -102,12 +101,9 @@ input RunUpdateInput {
 type RunPayload {
   """
   Return value of a mutation affecting runs.
-
-  `id` describes the id of the Run modified
   """
   message: String!
   success: Boolean!
-  id: ID
 }
 
 enum RunStatus {

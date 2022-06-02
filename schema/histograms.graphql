@@ -44,6 +44,7 @@ type LiveHistogram {
 
 input HistogramInput {
   """
+  - `id`: unique integer identifier of a histogram
   - `name`: String, can be duplicate
   - `data`: List of x y coordinates
   - `xrange`: Range of the x axis to plot
@@ -51,6 +52,7 @@ input HistogramInput {
   - `type`: Additional meta data
   - `isLive`: Whether histogram gets put in the live database or the static one (default: static)
   """
+  id: ID!
   name: String
   data: [PointInput!]
   xrange: RangeInput!
@@ -104,13 +106,10 @@ input RangeInput {
 
 type HistogramPayload {
   """
-  Return value of a mutation affecting histograms. 
-  
-  `id` describes the id of the histogram modified
+  Return value of a mutation affecting histograms.
   """
   message: String!
   success: Boolean!
-  ids: ID!
 }
 
 "Datetime is in UTC"
