@@ -26,30 +26,12 @@ HIGH = 1000
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument(
-        '-na',
-        '--numAlive',
-        type=int,
-        default=NUMALIVE,
-        help=f'Max number of live histograms at a given moment (default={NUMALIVE})',
-    )
+    parser.add_argument('-na', '--numAlive', type=int, default=NUMALIVE, help=f'Max number of live histograms at a given moment (default={NUMALIVE})')
     parser.add_argument('-lw', '--low', type=int, default=LOW, help=f'Smallest possible integer value in a histogram (default={LOW})')
     parser.add_argument('-hi', '--high', type=int, default=HIGH, help=f'Largest possible integer value in a histogram (default={HIGH})')
-    parser.add_argument(
-        '-lt',
-        '--liveTime',
-        type=int,
-        default=LIVETIME,
-        help=f'Seconds histograms stay live before they are removed (default={LIVETIME})',
-    )
+    parser.add_argument('-lt', '--liveTime', type=int, default=LIVETIME, help=f'Seconds histograms stay live before they are removed (default={LIVETIME})')
     parser.add_argument('-p', '--pause', type=int, default=PAUSE, help=f'Seconds to pause between cycles (default={PAUSE})')
-    parser.add_argument(
-        '-n',
-        '--nCycles',
-        type=int,
-        default=NCYCLES,
-        help=f'Number of cycles for which this test is repeated (default={NCYCLES})',
-    )
+    parser.add_argument('-n', '--nCycles', type=int, default=NCYCLES, help=f'Number of cycles for which this test is repeated (default={NCYCLES})')
     parser.add_argument('--force', action='store_true')
     args = parser.parse_args()
 
