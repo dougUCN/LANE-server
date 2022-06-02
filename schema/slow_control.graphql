@@ -16,8 +16,14 @@ input DeviceInput {
 }
 
 type DevicePayload {
+  """
+  Return value of a mutation affecting devices.
+
+  `name` returns the name of the Device modified
+  """
   message: String!
   success: Boolean!
+  name: String!
 }
 
 type DeviceStates {
@@ -50,7 +56,7 @@ type Run {
   - `startTime` and `submitted` are in UTC
   - `runTime` is the total amount of time required for the run to complete
   """
-  id: Int
+  id: Int!
   name: String
   qOrder: Int
   startTime: Datetime
@@ -94,8 +100,14 @@ input RunUpdateInput {
 }
 
 type RunPayload {
+  """
+  Return value of a mutation affecting runs.
+
+  `id` describes the id of the Run modified
+  """
   message: String!
   success: Boolean!
+  id: ID
 }
 
 enum RunStatus {
