@@ -239,13 +239,13 @@ def getHistograms(ids=None, names=None, minDate=None, maxDate=None, types=None, 
     return make_query(query)
 
 
-def updateHistogram(id, data=None, name=None, type=None, xrange=None, yrange=None, isLive=False):
+def updateHistogram(id, data=None, type=None, xrange=None, yrange=None, isLive=False):
     '''
     Updates a histogram in the database
 
     returns: response
     '''
-    replacements = {'$ID': id, '$DATA': data, '$XRANGE': xrange, '$YRANGE': yrange, '$NAME': name, '$TYPE': type, '$ISLIVE': isLive}
+    replacements = {'$ID': id, '$DATA': data, '$XRANGE': xrange, '$YRANGE': yrange, '$TYPE': type, '$ISLIVE': isLive}
     query = """mutation update{
                 updateHistogram( 
                         hist:{
@@ -255,7 +255,6 @@ def updateHistogram(id, data=None, name=None, type=None, xrange=None, yrange=Non
                             yrange:$YRANGE, 
                             isLive:$ISLIVE, 
                             type: $TYPE,
-                            name: $NAME
                         } ) 
                 {
                     message

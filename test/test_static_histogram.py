@@ -71,8 +71,8 @@ class TestStaticHistogram:
                 'data': gqlc.toSvgStr(self.X[new_id], self.Y[new_id]),
                 'xrange': {'min': self.X[new_id][0], 'max': self.X[new_id][-1]},
                 'yrange': {'min': self.LOW, 'max': self.HIGH},
-                'name': 'unit_test',
-                'type': f'unit_test_run{new_id}',
+                'name': f'unit_test_name',
+                'type': f'unit_test_type{new_id}',
                 'isLive': False,
             }
             # Histgoram expected to recieve back for later queries
@@ -123,7 +123,7 @@ class TestStaticHistogram:
         createdDuringTest = gqlc.listHistograms(minDate=firstCreated, maxDate=datetime.datetime.utcnow(), isLive=False)
         createdAfterNow = gqlc.listHistograms(minDate=datetime.datetime.utcnow(), isLive=False)
         nameFilter = gqlc.listHistograms(names=[x['name'] for _, x in self.expected.items()])
-        typeFilter = gqlc.listHistograms(types=[self.expected[firstID]['type']])
+        typeFilter = gqlc.listHistograms(types=[x['type'] for _, x in self.expected.items()])
 
         assert len(createdDuringTest) == self.NUM and createdAfterNow == [] and len(nameFilter) == self.NUM and len(typeFilter) >= 4
 
