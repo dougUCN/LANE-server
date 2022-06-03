@@ -65,8 +65,8 @@ Run with the --force flag to force an overwrite!"""
         for id in histsToMake:
             params = {
                 'id': id,
-                'name': f'{runHeader}{id}',
-                'type': 'live_test',
+                'name': f'{runHeader}1',
+                'type': f'detector{id}',
                 'xrange': {'min': 0, 'max': 10},
                 'yrange': {'min': args.low, 'max': args.high},
                 'isLive': True,

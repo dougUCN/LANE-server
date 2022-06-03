@@ -3,26 +3,33 @@ type Query {
   getHistogram(id: ID!): Histogram
 
   """
-  Applies an optional set of filters (`ids`, `minID`, `maxID`, `names`, `minDate`, `maxDate`, `types`)
-  to retrieve a paginated response of histograms from either the live or static database
+  Applies an optional set of filters (`ids`, `names`, `minDate`, `maxDate`, `types`)
+  to retrieve histograms from either the live or static database
   (specified by `isLive`, which defaults to `false`)
-
-  Pagination arguments:
-  - `first`: Specifies how many histograms desired (default 100)
-  - `after`: An opaque cursor. If `after` is not specified, the first page is retrieved
   """
   getHistograms(
     ids: [ID]
-    minID: ID
-    maxID: ID
     names: [String]
     minDate: Datetime
     maxDate: Datetime
     types: [String]
     isLive: Boolean
-    first: Int
-    after: String
-  ): HistPage
+  ): [Histogram]
+
+  """
+  Returns a page of table entries for the EMS main page, where
+  each entry contains a run name and additional metadata for
+  a group of histograms
+
+  Entries are sorted by date
+
+  Cursor pagination arguments:
+  - `first`: Number of entries to retrieve (default 100)
+  - `after`: An opaque string cursor
+
+  If `after` is not specified, returns the first page
+  """
+  getTableEntries(first: Int, after: String): TablePage
 
   """
   Gets the information of a run in the database

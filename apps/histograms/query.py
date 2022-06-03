@@ -1,7 +1,7 @@
 from ariadne import QueryType
 from .models import Histogram
 from channels.db import database_sync_to_async
-
+from cursor_pagination import CursorPaginator
 from .common import chooseDatabase
 
 """ Asynchronous generator for database access 
@@ -17,6 +17,7 @@ def _get_histogram(id, database_name):
 
 @database_sync_to_async
 def _filter_histograms(ids, names, types, minDate, maxDate, isLive):
+    """Applies filters onto queryset"""
     queryset = Histogram.objects.using(chooseDatabase(isLive)).all()
     if ids:
         queryset = queryset.filter(id__in=ids)

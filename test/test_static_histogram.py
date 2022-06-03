@@ -71,8 +71,8 @@ class TestStaticHistogram:
                 'data': gqlc.toSvgStr(self.X[new_id], self.Y[new_id]),
                 'xrange': {'min': self.X[new_id][0], 'max': self.X[new_id][-1]},
                 'yrange': {'min': self.LOW, 'max': self.HIGH},
-                'name': f'unit_test_run{new_id}',
-                'type': 'unit_test',
+                'name': 'unit_test',
+                'type': f'unit_test_run{new_id}',
                 'isLive': False,
             }
             # Histgoram expected to recieve back for later queries

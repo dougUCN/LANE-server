@@ -18,8 +18,6 @@ input DeviceInput {
 type DevicePayload {
   """
   Return value of a mutation affecting devices.
-
-  `name` returns the name of the Device modified
   """
   message: String!
   success: Boolean!
@@ -84,7 +82,6 @@ input RunInput {
 
 input RunUpdateInput {
   """
-  - `name` can be duplicated as each run is auto assigned an `id` on instantiation
   - `qOrder` designates the priority in which the runfile is run (larger = higher priority). Default=0
   - `status` defaults to `QUEUED`
   - `startTime` is in UTC
