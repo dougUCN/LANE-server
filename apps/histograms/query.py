@@ -43,7 +43,7 @@ def _paginate_hist_table(first, after):
     page = paginator.page(first=first, after=after)
     pageInfo = {'hasNextPage': page.has_next, 'endCursor': paginator.cursor(page[-1])}
     edges = [{'node': p, 'cursor': paginator.cursor(p)} for p in page]
-    return {'edges': edges, 'pageInfo':pageInfo}
+    return {'edges': edges, 'pageInfo': pageInfo}
 
 
 """
