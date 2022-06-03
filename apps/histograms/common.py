@@ -10,6 +10,9 @@ histInputField = ['id', 'name', 'data', 'xrange', 'yrange', 'type', 'isLive']
 # These will be replaced with an empty str
 hist_string_field = ['name', 'type']
 
+LIVE_DATABASE = "live"
+STATIC_DATABASE = "data"
+
 
 def histogram_payload(message, success):
     return {
@@ -35,6 +38,6 @@ def chooseDatabase(isLive=None):
     Defaults to `data` database for histograms
     '''
     if isLive:
-        return "live"
+        return LIVE_DATABASE
     else:
-        return "data"
+        return STATIC_DATABASE

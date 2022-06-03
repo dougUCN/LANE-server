@@ -1,6 +1,6 @@
 type Query {
-  "Retrieves a histogram corresponding to `id` from the static database"
-  getHistogram(id: ID!): Histogram
+  "Retrieves a histogram corresponding to `id` from the static or live database"
+  getHistogram(id: ID!, isLive: Boolean): Histogram
 
   """
   Applies an optional set of filters (`ids`, `names`, `minDate`, `maxDate`, `types`)
@@ -21,7 +21,7 @@ type Query {
   each entry contains a run name and additional metadata for
   a group of histograms
 
-  Entries are sorted by date
+  Entries are sorted by creation date in descending order
 
   Cursor pagination arguments:
   - `first`: Number of entries to retrieve (default 100)
@@ -29,7 +29,7 @@ type Query {
 
   If `after` is not specified, returns the first page
   """
-  getTableEntries(first: Int, after: String): TablePage
+  getHistTableEntries(first: Int, after: String): HistTablePage
 
   """
   Gets the information of a run in the database

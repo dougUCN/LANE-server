@@ -1,9 +1,15 @@
 from ariadne import MutationType
-from .models import Histogram
-
+from .models import Histogram, HistTable
 from channels.db import database_sync_to_async
 
-from .common import histogram_payload, clean_hist_input, chooseDatabase, hist_string_field
+from .common import (
+    histogram_payload,
+    clean_hist_input,
+    chooseDatabase,
+    hist_string_field,
+    STATIC_DATABASE,
+    LIVE_DATABASE,
+)
 
 """
 Asynchronous database access 
@@ -18,6 +24,21 @@ def _create_histogram(clean_hist, database_name):
         if clean_hist[field] is None:
             clean_hist[field] = ''
 
+    # Update HistTable entry
+    table_entry = HistTable.objects.using(STATIC_DATABASE).filter(name=clean_hist['name'])
+    if table_entry:  # Evaluating queryset here instead of using .exists() is more efficient in this case
+        table_entry.histIDs.append(clean_hist['id'])
+        table_entry.save(using=STATIC_DATABASE)
+    else:
+        # If this is the first histogram with a certain name,
+        # create a new entry in the HistTable
+        new_table_entry = HistTable(
+            name=clean_hist['name'],
+            histIDs=[clean_hist['id']],
+            isLive=(database_name is LIVE_DATABASE),
+        )
+        new_table_entry.save(using=STATIC_DATABASE)
+
     # Remove the isLive argument from the dict so django model
     # does not throw any error at unexpected kwarg
     try:
@@ -25,6 +46,7 @@ def _create_histogram(clean_hist, database_name):
     except KeyError:
         pass
 
+    # Create new histogram
     new_hist = Histogram(**clean_hist)
     new_hist.save(using=database_name)
     return True
@@ -48,7 +70,15 @@ def _update_histogram(clean_hist, database_name):
 
 @database_sync_to_async
 def _delete_histogram(id, database_name):
-    Histogram.objects.using(database_name).get(id=id).delete()
+    to_delete = Histogram.objects.using(database_name).get(id=id)
+
+    # Update HistTable entry
+    table_entry = HistTable.objects.using(STATIC_DATABASE).filter(name=to_delete.name)
+    table_entry.histIDs.remove(id)
+    if not table_entry.histIDs:
+        table_entry.delete()
+
+    to_delete.delete()
     return True
 
 

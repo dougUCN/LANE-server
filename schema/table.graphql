@@ -1,4 +1,4 @@
-type TablePage {
+type HistTablePage {
   """
   Paginated response to a query with a table of runs
   """
@@ -23,13 +23,16 @@ type Edge {
   argument to paginate starting after this edge
   """
   cursor: String
-  node: TableEntry
+  node: HistTableEntry
 }
 
-type TableEntry {
+type HistTableEntry {
   """
-  - `name`:
+  - `name`: Run name of a group of histograms
+  - `created`: Time when the first histogram with `name` was created in the db
+  - `histIDs`: List of histogram IDs with `name`
   """
   name: String
-  startTime: Datetime
+  created: Datetime
+  histIDs: [ID]
 }
