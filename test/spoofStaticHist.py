@@ -9,7 +9,7 @@ For testing options run `python spoofStaticHist.py --help`
 
 If database is not empty, appends new histograms
 """
-import datetime
+
 from gqlComms import (
     listHistograms,
     createHistogram,
@@ -38,8 +38,7 @@ def main():
     parser.add_argument('-hi', '--high', type=int, default=HIGH, help=f'Largest possible integer value in a histogram (default={HIGH})')
     args = parser.parse_args()
 
-    now = datetime.datetime.now()
-    runHeader = now.strftime("%Y%m%d_run")
+    runHeader = 'run'
 
     # PRNG
     rng = np.random.default_rng()

@@ -20,7 +20,7 @@ class TestHistTable:
         """
         Tests creation of histogram table entries
         """
-        runHeader = "000000_run"
+        runHeader = "run"
 
         # Get first unoccupied run index and hist id
         data = gqlc.getHistTable(first=1)['data']['getHistTableEntries']

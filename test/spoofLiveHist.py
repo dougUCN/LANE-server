@@ -12,7 +12,7 @@ pauses for [pause] seconds before repeating the cycle [nCycles] times
 For testing options run `python spoofLiveHist.py --help`
 """
 
-import datetime, time, argparse
+import time, argparse
 from gqlComms import listHistograms, createHistogram, deleteHistogram, updateHistogram
 import numpy as np
 
@@ -51,8 +51,7 @@ Run with the --force flag to force an overwrite!"""
             deleteHistogram(id, isLive=True)
         print(f"Delete completed")
 
-    now = datetime.datetime.now()
-    runHeader = now.strftime("%Y%m%d_run")
+    runHeader = 'run'
 
     # PRNG
     rng = np.random.default_rng()
@@ -65,7 +64,7 @@ Run with the --force flag to force an overwrite!"""
         for id in histsToMake:
             params = {
                 'id': id,
-                'name': f'{runHeader}1',
+                'name': f'{runHeader}{cycle}',
                 'type': f'detector{id}',
                 'xrange': {'min': 0, 'max': 10},
                 'yrange': {'min': args.low, 'max': args.high},
