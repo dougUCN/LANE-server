@@ -1,5 +1,5 @@
 """
-Unit tests for the BE
+Unit tests for the BE related to static histograms
 
 Assuming the BE server is running, queries the graphql endpoint
 
@@ -40,13 +40,6 @@ class TestStaticHistogram:
                 print(f'Mismatch for key "{key}"')
                 return False
         return True
-
-    def test_list_histograms(self):
-        """
-        Check whether we successfully query the db for histogram IDs
-        """
-        histogramList = gqlc.listHistograms(isLive=False)
-        assert isinstance(histogramList, list)
 
     def test_create_histograms(self):
         """
