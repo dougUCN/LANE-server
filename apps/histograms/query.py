@@ -2,7 +2,7 @@ from ariadne import QueryType
 from .models import Histogram, HistTable
 from channels.db import database_sync_to_async
 from cursor_pagination import CursorPaginator
-from .common import chooseDatabase
+from .common import chooseDatabase, STATIC_DATABASE
 
 """ Asynchronous generator for database access 
 Note that we cannot pass querysets out from the generator, 
@@ -36,12 +36,18 @@ def _filter_histograms(ids, names, types, minDate, maxDate, isLive):
 @database_sync_to_async
 def _paginate_hist_table(first, after):
     """Paginates HistTable entries"""
-    queryset = HistTable.objects.all()
+    queryset = HistTable.objects.using(STATIC_DATABASE).all()
     # Order entries by descending order of creation date
     # (hence the `-` character)
-    paginator = CursorPaginator(queryset, order='-created')
+    paginator = CursorPaginator(queryset, ordering=('-created',))
     page = paginator.page(first=first, after=after)
-    pageInfo = {'hasNextPage': page.has_next, 'endCursor': paginator.cursor(page[-1])}
+    if page:
+        endCursor = paginator.cursor(page[-1])
+    else:
+        endCursor = None
+
+    print(list(queryset))
+    pageInfo = {'hasNextPage': page.has_next, 'endCursor': endCursor}
     edges = [{'node': p, 'cursor': paginator.cursor(p)} for p in page]
     return {'edges': edges, 'pageInfo': pageInfo}
 
@@ -64,5 +70,5 @@ async def resolve_histograms(*_, ids=None, names=None, types=None, minDate=None,
 
 
 @query.field("getHistTableEntries")
-async def resolve_hist_table_entries(*_, first, after=None):
+async def resolve_hist_table_entries(*_, first=100, after=None):
     return await _paginate_hist_table(first, after)
