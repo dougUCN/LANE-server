@@ -56,6 +56,8 @@ def _delete_histogram(id, database_name):
     table_entry.histIDs.remove(id)
     if not table_entry.histIDs:
         table_entry.delete()
+    else:
+        table_entry.save(using=STATIC_DATABASE)
 
     to_delete.delete()
     return True
