@@ -280,5 +280,30 @@ def deleteHistogram(id, isLive=False):
                     }
                 }"""
     query = make_replacements(query, replacements)
-    response = make_query(query)
-    return response
+    return make_query(query)
+
+
+def getHistTable(first, after=None):
+    '''
+    Gets paginated list of runs
+    '''
+    replacements = {'$FIRST': first, '$AFTER': after}
+    query = """query getTable {
+                    getHistTableEntries(first:$FIRST, after:$AFTER)
+                    {
+                        edges{
+                            cursor
+                            node{
+                                name
+                                created
+                                histIDs
+                            }
+                        }
+                        pageInfo{
+                            endCursor
+                            hasNextPage
+                        }
+                    }
+                }"""
+    query = make_replacements(query, replacements)
+    return make_query(query)
