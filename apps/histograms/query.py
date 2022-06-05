@@ -1,8 +1,8 @@
 from ariadne import QueryType
-from .models import Histogram
+from .models import Histogram, HistTable
 from channels.db import database_sync_to_async
-
-from .common import chooseDatabase
+from cursor_pagination import CursorPaginator
+from .common import chooseDatabase, STATIC_DATABASE
 
 """ Asynchronous generator for database access 
 Note that we cannot pass querysets out from the generator, 
@@ -17,6 +17,7 @@ def _get_histogram(id, database_name):
 
 @database_sync_to_async
 def _filter_histograms(ids, names, types, minDate, maxDate, isLive):
+    """Applies filters onto queryset"""
     queryset = Histogram.objects.using(chooseDatabase(isLive)).all()
     if ids:
         queryset = queryset.filter(id__in=ids)
@@ -32,6 +33,24 @@ def _filter_histograms(ids, names, types, minDate, maxDate, isLive):
     return list(queryset)
 
 
+@database_sync_to_async
+def _paginate_hist_table(first, after):
+    """Paginates HistTable entries"""
+    queryset = HistTable.objects.using(STATIC_DATABASE).all()
+    # Order entries by descending order of creation date
+    # (hence the `-` character)
+    paginator = CursorPaginator(queryset, ordering=('-created',))
+    page = paginator.page(first=first, after=after)
+    if page:
+        endCursor = paginator.cursor(page[-1])
+    else:
+        endCursor = None
+
+    pageInfo = {'hasNextPage': page.has_next, 'endCursor': endCursor}
+    edges = [{'node': p, 'cursor': paginator.cursor(p)} for p in page]
+    return {'edges': edges, 'pageInfo': pageInfo}
+
+
 """
 Queries
 """
@@ -40,10 +59,15 @@ query = QueryType()
 
 
 @query.field("getHistogram")
-async def resolve_histogram(*_, id):
-    return await _get_histogram(id=id, database_name=chooseDatabase())
+async def resolve_histogram(*_, id, isLive=False):
+    return await _get_histogram(id=id, database_name=chooseDatabase(isLive))
 
 
 @query.field("getHistograms")
 async def resolve_histograms(*_, ids=None, names=None, types=None, minDate=None, maxDate=None, isLive=False):
     return await _filter_histograms(ids, names, types, minDate, maxDate, isLive)
+
+
+@query.field("getHistTableEntries")
+async def resolve_hist_table_entries(*_, first=100, after=None):
+    return await _paginate_hist_table(first, after)

@@ -16,6 +16,9 @@ input DeviceInput {
 }
 
 type DevicePayload {
+  """
+  Return value of a mutation affecting devices.
+  """
   message: String!
   success: Boolean!
 }
@@ -50,7 +53,7 @@ type Run {
   - `startTime` and `submitted` are in UTC
   - `runTime` is the total amount of time required for the run to complete
   """
-  id: Int
+  id: Int!
   name: String
   qOrder: Int
   startTime: Datetime
@@ -79,7 +82,6 @@ input RunInput {
 
 input RunUpdateInput {
   """
-  - `name` can be duplicated as each run is auto assigned an `id` on instantiation
   - `qOrder` designates the priority in which the runfile is run (larger = higher priority). Default=0
   - `status` defaults to `QUEUED`
   - `startTime` is in UTC
@@ -94,6 +96,9 @@ input RunUpdateInput {
 }
 
 type RunPayload {
+  """
+  Return value of a mutation affecting runs.
+  """
   message: String!
   success: Boolean!
 }

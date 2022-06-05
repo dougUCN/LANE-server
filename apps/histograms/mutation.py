@@ -1,9 +1,15 @@
 from ariadne import MutationType
-from .models import Histogram
-
+from .models import Histogram, HistTable
 from channels.db import database_sync_to_async
 
-from .common import histogram_payload, clean_hist_input, chooseDatabase, hist_string_field
+from .common import (
+    histogram_payload,
+    clean_hist_input,
+    chooseDatabase,
+    hist_string_field,
+    STATIC_DATABASE,
+    LIVE_DATABASE,
+)
 
 """
 Asynchronous database access 
@@ -12,12 +18,6 @@ Asynchronous database access
 
 @database_sync_to_async
 def _create_histogram(clean_hist, database_name):
-    # Django does not like saving null values in the string fields
-    # and prefers blank strs
-    for field in hist_string_field:
-        if clean_hist[field] is None:
-            clean_hist[field] = ''
-
     # Remove the isLive argument from the dict so django model
     # does not throw any error at unexpected kwarg
     try:
@@ -25,6 +25,7 @@ def _create_histogram(clean_hist, database_name):
     except KeyError:
         pass
 
+    # Create new histogram
     new_hist = Histogram(**clean_hist)
     new_hist.save(using=database_name)
     return True
@@ -48,7 +49,36 @@ def _update_histogram(clean_hist, database_name):
 
 @database_sync_to_async
 def _delete_histogram(id, database_name):
-    Histogram.objects.using(database_name).get(id=id).delete()
+    to_delete = Histogram.objects.using(database_name).get(id=id)
+
+    # Update HistTable entry
+    table_entry = HistTable.objects.using(STATIC_DATABASE).get(name=to_delete.name)
+    table_entry.histIDs.remove(id)
+    if not table_entry.histIDs:
+        table_entry.delete()
+    else:
+        table_entry.save(using=STATIC_DATABASE)
+
+    to_delete.delete()
+    return True
+
+
+@database_sync_to_async
+def _update_hist_table_entry(clean_hist, database_name):
+    """Update HistTable entry"""
+    try:
+        table_entry = HistTable.objects.using(STATIC_DATABASE).get(name=clean_hist['name'])
+        table_entry.histIDs.append(clean_hist['id'])
+        table_entry.save(using=STATIC_DATABASE)
+    except HistTable.DoesNotExist:
+        # If this is the first histogram with a certain name,
+        # create a new entry in the HistTable
+        new_table_entry = HistTable(
+            name=clean_hist['name'],
+            histIDs=[clean_hist['id']],
+            isLive=(database_name is LIVE_DATABASE),
+        )
+        new_table_entry.save(using=STATIC_DATABASE)
     return True
 
 
@@ -62,8 +92,14 @@ mutation = MutationType()
 @mutation.field("createHistogram")
 async def create_histogram(*_, hist):
     clean_hist = clean_hist_input(hist)
-    status = await _create_histogram(clean_hist, database_name=chooseDatabase(clean_hist['isLive']))
-    return histogram_payload(f'created hist {clean_hist["id"]}', success=status)
+    # Django does not like saving null values in the string fields
+    # and prefers blank strs
+    for field in hist_string_field:
+        if clean_hist[field] is None:
+            clean_hist[field] = ''
+    table_status = await _update_hist_table_entry(clean_hist, database_name=chooseDatabase(clean_hist['isLive']))
+    create_status = await _create_histogram(clean_hist, database_name=chooseDatabase(clean_hist['isLive']))
+    return histogram_payload(f'created hist {clean_hist["id"]}', success=all([create_status, table_status]))
 
 
 @mutation.field("updateHistogram")

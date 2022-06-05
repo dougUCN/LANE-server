@@ -1,10 +1,11 @@
 type Query {
-  "Retrieves a histogram corresponding to `id` from the static database"
-  getHistogram(id: ID!): Histogram
+  "Retrieves a histogram corresponding to `id` from the static or live database"
+  getHistogram(id: ID!, isLive: Boolean): Histogram
 
   """
-  Applies optional filters to retrieve a list of histograms from either
-  the live or static database
+  Applies an optional set of filters (`ids`, `names`, `minDate`, `maxDate`, `types`)
+  to retrieve histograms from either the live or static database
+  (specified by `isLive`, which defaults to `false`)
   """
   getHistograms(
     ids: [ID]
@@ -14,6 +15,21 @@ type Query {
     types: [String]
     isLive: Boolean
   ): [Histogram]
+
+  """
+  Returns a page of table entries for the EMS main page, where
+  each entry contains a run name and additional metadata for
+  a group of histograms
+
+  Entries are sorted by creation date in descending order
+
+  Cursor pagination arguments:
+  - `first`: Number of entries to retrieve (default 100)
+  - `after`: An opaque string cursor
+
+  If `after` is not specified, returns the first page
+  """
+  getHistTableEntries(first: Int!, after: String): HistTablePage
 
   """
   Gets the information of a run in the database

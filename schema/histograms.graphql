@@ -1,12 +1,12 @@
 type Histogram {
   """
   - `id`: unique integer identifier of a histogram
-  - `name`: String, can be duplicate
+  - `name`: Run name
   - `data`: List of x y coordinates
   - `xrange`: Range of the x axis to plot
   - `yrange`: Range of the y axis to plot
   - `len`: Number of data points
-  - `type`: Additional meta data
+  - `type`: Detector type
   - `created`: Datetime when histogram was made in the database
   """
   id: ID!
@@ -22,13 +22,13 @@ type Histogram {
 type LiveHistogram {
   """
   - `id`: unique integer identifier of a histogram
-  - `name`: String, can be duplicate
+  - `name`: Run name
   - `data`: List of x y coordinates
   - `xrange`: Range of the x axis to plot
   - `yrange`: Range of the y axis to plot
   - `len`: Number of data points
   - `current`: The last added `Point`
-  - `type`: Additional meta data
+  - `type`: Detector type
   - `created`: Datetime when histogram was made in the database
   """
   id: ID!
@@ -45,34 +45,32 @@ type LiveHistogram {
 input HistogramInput {
   """
   - `id`: unique integer identifier of a histogram
-  - `name`: String, can be duplicate
+  - `name`: Run name. Can be duplicate
   - `data`: List of x y coordinates
   - `xrange`: Range of the x axis to plot
   - `yrange`: Range of the y axis to plot
-  - `type`: Additional meta data
+  - `type`: Detector type
   - `isLive`: Whether histogram gets put in the live database or the static one (default: static)
   """
   id: ID!
-  name: String
+  name: String!
   data: [PointInput!]
   xrange: RangeInput!
   yrange: RangeInput!
-  type: String
+  type: String!
   isLive: Boolean
 }
 
 input HistogramUpdateInput {
   """
-  - `id`: unique integer identifier of a histogram
-  - `name`: String, can be duplicate
+  - `id`: unique integer identifier of the histogram to edit
+  - `isLive`: Whether histogram to edit is in live database or the static one (default: static)
   - `data`: List of x y coordinates
   - `xrange`: Range of the x axis to plot
   - `yrange`: Range of the y axis to plot
-  - `type`: Additional meta data
-  - `isLive`: Whether histogram gets put in the live database or the static one (default: static)
+  - `type`: Detector type
   """
   id: ID!
-  name: String
   data: [PointInput!]
   xrange: RangeInput
   yrange: RangeInput
@@ -93,18 +91,21 @@ input PointInput {
 }
 
 type Range {
-  "Gives the minimum and maximum range of an axis"
+  "Gives a minimum and maximum for a range of values"
   min: Float!
   max: Float!
 }
 
 input RangeInput {
-  "Gives the minimum and maximum range of an axis"
+  "A minimum and maximum for a range of values"
   min: Float!
   max: Float!
 }
 
 type HistogramPayload {
+  """
+  Return value of a mutation affecting histograms.
+  """
   message: String!
   success: Boolean!
 }

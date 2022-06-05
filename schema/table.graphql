@@ -1,0 +1,38 @@
+type HistTablePage {
+  """
+  Paginated response to a query with a table of runs
+  """
+  edges: [Edge]
+  pageInfo: PageInfo
+}
+
+type PageInfo {
+  """
+  `hasNextPage` describes whether it is possible to fetch
+  more data than what was returned on a page
+
+  `endCursor` is a cursor to the last entry on the page
+  """
+  endCursor: String
+  hasNextPage: Boolean
+}
+
+type Edge {
+  """
+  `cursor` is an opaque string, and is passed to an `after`
+  argument to paginate starting after this edge
+  """
+  cursor: String
+  node: HistTableEntry
+}
+
+type HistTableEntry {
+  """
+  - `name`: Run name of a group of histograms
+  - `created`: Time when the first histogram with `name` was created in the db
+  - `histIDs`: List of histogram IDs with `name`
+  """
+  name: String
+  created: Datetime
+  histIDs: [ID]
+}

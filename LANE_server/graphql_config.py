@@ -14,6 +14,7 @@ schema_files = [
     "schema/schema.graphql",
     "schema/histograms.graphql",
     "schema/slow_control.graphql",
+    "schema/table.graphql",
 ]
 
 type_defs = []
