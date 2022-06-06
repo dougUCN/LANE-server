@@ -13,7 +13,13 @@ For testing options run `python spoofLiveHist.py --help`
 """
 
 import time, argparse
-from gqlComms import listHistograms, createHistogram, deleteHistogram, updateHistogram
+from gqlComms import (
+    listHistograms,
+    createHistogram,
+    deleteHistogram,
+    updateHistogram,
+    getHistTable,
+)
 import numpy as np
 
 NUMALIVE = 4
@@ -32,29 +38,28 @@ def main():
     parser.add_argument('-lt', '--liveTime', type=int, default=LIVETIME, help=f'Seconds histograms stay live before they are removed (default={LIVETIME})')
     parser.add_argument('-p', '--pause', type=int, default=PAUSE, help=f'Seconds to pause between cycles (default={PAUSE})')
     parser.add_argument('-n', '--nCycles', type=int, default=NCYCLES, help=f'Number of cycles for which this test is repeated (default={NCYCLES})')
-    parser.add_argument('--force', action='store_true')
     args = parser.parse_args()
 
-    currentHists = listHistograms(isLive=True)
-    histsToMake = np.arange(args.numAlive)
-    overlap = list(set(histsToMake) & set(currentHists))
-
-    if overlap and not args.force:
-        raise Exception(
-            """WARNING: There currently exist histograms in the live database!
-Run with the --force flag to force an overwrite!"""
-        )
-
-    elif overlap and args.force:
-        print(f"Deleting histograms {overlap}")
-        for id in overlap:
-            deleteHistogram(id, isLive=True)
-        print(f"Delete completed")
+    # Check existing histograms in db and create new histID + runID
 
     runHeader = 'run'
 
-    # PRNG
+    print('Checking database for existing histograms')
+    data = getHistTable(first=1)['data']['getHistTableEntries']
+    if not data['edges']:
+        hist_offset = 0
+        run_offset = 0
+    else:
+        hist_offset = np.amax([int(id) for id in data['edges'][0]['node']['histIDs']]) + 1
+
+        if runHeader in data['edges'][0]['node']['name']:
+            run_offset = int(data['edges'][0]['node']['name'].split(runHeader)[1]) + 1
+        else:
+            run_offset = 0
+
     rng = np.random.default_rng()
+    histsToMake = np.arange(hist_offset, hist_offset + args.numAlive)
+    run_id = run_offset
     initial_data = {id: '[' for id in histsToMake}
 
     for cycle in range(args.nCycles):
@@ -64,7 +69,7 @@ Run with the --force flag to force an overwrite!"""
         for id in histsToMake:
             params = {
                 'id': id,
-                'name': f'{runHeader}{cycle}',
+                'name': f'{runHeader}{run_id}',
                 'type': f'detector{id}',
                 'xrange': {'min': 0, 'max': 10},
                 'yrange': {'min': args.low, 'max': args.high},
