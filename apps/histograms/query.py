@@ -51,6 +51,12 @@ def _paginate_hist_table(first, after):
     return {'edges': edges, 'pageInfo': pageInfo}
 
 
+@database_sync_to_async
+def _get_latest_hist_table_entry():
+    """Returns the latest HistTable entry"""
+    return HistTable.objects.using(STATIC_DATABASE).latest('created')
+
+
 """
 Queries
 """

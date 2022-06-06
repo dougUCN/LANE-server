@@ -110,5 +110,14 @@ type HistogramPayload {
   success: Boolean!
 }
 
+type HistogramSubscriptionPayload {
+  """
+  Returns a list of live histograms (if any) and
+  the name of the last completed run
+  """
+  histograms: [LiveHistogram]
+  lastRun: String
+}
+
 "Datetime is in UTC"
 scalar Datetime
