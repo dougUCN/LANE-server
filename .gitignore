@@ -19,5 +19,3 @@ venv.bak/
 # Logs
 *.log
 
-# Live data
-liveData.sqlite3
