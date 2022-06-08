@@ -25,3 +25,5 @@ jobs:
           heroku_app_name: "lane-server"
           heroku_email: "douglas.kt.wong@gmail.com"
           branch: heroku # Remove this line for main
+        env:
+          DISABLE_COLLECTSTATIC: 1 # Disable collection of static pages for django
