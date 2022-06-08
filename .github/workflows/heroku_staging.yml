@@ -24,6 +24,7 @@ jobs:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: "lane-server"
           heroku_email: "douglas.kt.wong@gmail.com"
+          healthcheck: "https://lane-server.herokuapp.com/graphql/"
           branch: heroku # Remove this line for main
         env: # Variables in this section must start with HD_
           HD_DISABLE_COLLECTSTATIC: True # Disable collection of static pages for django
