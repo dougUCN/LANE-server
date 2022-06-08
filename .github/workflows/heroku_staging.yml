@@ -1,4 +1,4 @@
-name: Heroku_Staging_Deployment
+name: Heroku_Deployment
 
 # This workflow simply deploys the repo to Heroku
 # Configuration on the Heroku end is done
@@ -10,7 +10,7 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  builds_successfully:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout repo
