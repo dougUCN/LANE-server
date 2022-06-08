@@ -51,20 +51,13 @@ fi
 ```
 
 Then, to propagate these changes and reactivate the venv, in the root directory run
+
 ```
 source ~/.bashrc
 source venv/bin/activate
 ```
 
-### 4. Generate the live database
-
-In the root directory, with venv enabled, run
-
-```bash
-python manage.py migrate --database=live
-```
-
-### 5. Running the server
+### 4. Running the server
 
 In the root directory, with venv enabled, run the following command to start the server:
 
