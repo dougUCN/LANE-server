@@ -1,0 +1,26 @@
+name: Heroku_Staging_Deployment
+
+# This workflow simply deploys the repo to Heroku
+# Configuration on the Heroku end is done
+# in requirements.txt, runtime.txt, and Profile
+# in the root directory
+
+on:
+  push:
+    branches: [heroku]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Deploy to Heroku
+        uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "lane-server"
+          heroku_email: "douglas.kt.wong@gmail.com"
