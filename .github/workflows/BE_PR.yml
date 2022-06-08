@@ -48,7 +48,7 @@ jobs:
       - name: Install python dependencies
         run: |
           pip install --upgrade pip
-          pip install -r dependencies.txt
+          pip install -r requirements.txt
 
       - name: Generate secret key and security file
         run: python test/genSecurityFile.py --debug True

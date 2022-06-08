@@ -26,7 +26,7 @@ python3 -m pip install --upgrade pip
 Install dependencies
 
 ```
-python3 -m pip install -r dependencies.txt
+python3 -m pip install -r requirements.txt
 ```
 
 ### 3. Generating a secret key
