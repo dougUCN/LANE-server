@@ -4,4 +4,4 @@
 #
 # Note that heroku dynamically assigns a port, cannot default to 8000
 
-web: daphne -p $PORT LANE_server.asgi:application
+web: daphne LANE_server.asgi:application --port $PORT --bind 0.0.0.0

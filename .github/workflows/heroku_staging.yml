@@ -29,4 +29,4 @@ jobs:
         env: # Variables in this section must start with HD_
           HD_DISABLE_COLLECTSTATIC: True # Disable collection of static pages for django
           HD_LANE_SECRET_KEY: ${{secrets.LANE_SECRET_KEY}}
-          HD_LANE_DEBUG: True
+          HD_LANE_DEBUG: False
