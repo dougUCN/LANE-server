@@ -52,9 +52,6 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Generate live database
-        run: python manage.py migrate --database=live
-
       - name: Run BE in background
         run: |
           daphne LANE_server.asgi:application &
