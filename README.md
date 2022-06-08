@@ -34,12 +34,27 @@ python3 -m pip install -r requirements.txt
 In the root directory, with venv enabled, run
 
 ```
-python test/genSecurityFile.py # --debug True <-- Only use this flag if in development!
+python scripts/genSecurityFile.py # --debug True <-- Only use this flag if in development!
 ```
 
 **SECURITY WARNING: keep the secret key used in production secret!**
 
 **SECURITY WARNING: don't run with debug turned on in production!**
+
+And add these lines to your `~/.bashrc` file
+
+```
+### LANE Server debug flag and secret key
+if [ -f /path/to/LANE_server/.security ]; then
+    . /path/to/LANE_server/.security
+fi
+```
+
+Then, to propagate these changes and reactivate the venv, in the root directory run
+```
+source ~/.bashrc
+source venv/bin/activate
+```
 
 ### 4. Generate the live database
 
