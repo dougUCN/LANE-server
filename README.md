@@ -29,6 +29,8 @@ Install dependencies
 python3 -m pip install -r requirements.txt
 ```
 
+**Note**: On the production server, upgrading pip and starting the venv breaks the environment variable established by `export http_proxy=http://proxyout.lanl.gov:8080`, leading to some `SSL: CERTIFICATE` errors on the `pip install` step. Simply rerun the `export` command and then proceed with dependency installation as described.
+
 ### 3. Generating a secret key
 
 In the root directory, with venv enabled, run

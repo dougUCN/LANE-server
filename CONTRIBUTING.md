@@ -45,9 +45,19 @@ Ariadne implements [subscriptions-transport-ws](https://github.com/apollographql
 
 ### 5. Production server
 
-The production server runs on Python 3.6.9
+The production server has Python 3.6.9 and Node js 16.15.1
 
-### 6. Databases
+### 6. Staging
+
+Heroku is utilized as a staging area test. When a PR is merged into `main`, github actions pushes the repo to Heroku for a build and then attempts to ping the graphql endpoint for a health check.
+
+The staging endpoint is located at https://lane-server.herokuapp.com/graphql/
+
+Heroku's file system is "ephemeral", which essentially means any file untracked by github does not persist on the Heroku side. This means that migrations applied to sqlite databases are not saved, data added/removed from sqlite databases via API interactions are not saved, a static security.py file does not persist, etc.
+
+Files related to configuration of Heroku deployment are `Procfile`, `requirements.txt`, `runtime.txt`. The github actions file related to staging deployment primarily just pushes the repo to Heroku (with some environment variables) and runs a health check.
+
+### 7. Databases
 
 LANE utilizes [sqlite](https://www.sqlite.org/index.html) for databases. These are locally hosted files on the production computer, which admittedly is inferior to cloud/external hosting. Unfortunately, attempting to access an externally hosted SQL database conflicts with Lab policy.
 
