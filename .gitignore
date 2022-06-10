@@ -14,10 +14,8 @@ env.bak/
 venv.bak/ 
 
 # Security settings on the server
-**/security.py
+.security
 
 # Logs
 *.log
 
-# Live data
-liveData.sqlite3
