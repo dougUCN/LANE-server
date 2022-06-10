@@ -2,7 +2,7 @@ type HistTablePage {
   """
   Paginated response to a query with a table of runs
   """
-  edges: [Edge]
+  edges: [Edge]!
   pageInfo: PageInfo
 }
 
