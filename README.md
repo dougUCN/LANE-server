@@ -26,30 +26,40 @@ python3 -m pip install --upgrade pip
 Install dependencies
 
 ```
-python3 -m pip install -r dependencies.txt
+python3 -m pip install -r requirements.txt
 ```
+
+**Note**: On the production server, upgrading pip and starting the venv breaks the environment variable established by `export http_proxy=http://proxyout.lanl.gov:8080`, leading to some `SSL: CERTIFICATE` errors on the `pip install` step. Simply rerun the `export` command and then proceed with dependency installation as described.
 
 ### 3. Generating a secret key
 
 In the root directory, with venv enabled, run
 
 ```
-python test/genSecurityFile.py # --debug True <-- Only use this flag if in development!
+python scripts/genSecurityFile.py # --debug True <-- Only use this flag if in development!
 ```
 
 **SECURITY WARNING: keep the secret key used in production secret!**
 
 **SECURITY WARNING: don't run with debug turned on in production!**
 
-### 4. Generate the live database
+And add these lines to your `~/.bashrc` file
 
-In the root directory, with venv enabled, run
-
-```bash
-python manage.py migrate --database=live
+```
+### LANE Server debug flag and secret key
+if [ -f /path/to/LANE_server/.security ]; then
+    . /path/to/LANE_server/.security
+fi
 ```
 
-### 5. Running the server
+Then, to propagate these changes and reactivate the venv, in the root directory run
+
+```
+source ~/.bashrc
+source venv/bin/activate
+```
+
+### 4. Running the server
 
 In the root directory, with venv enabled, run the following command to start the server:
 

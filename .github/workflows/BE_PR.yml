@@ -9,6 +9,8 @@ on:
 env: # Note that env variables are only accessible from within a `steps` context
   PYTHON_VERSION: 3.6.9
   NODE_VERSION: 16
+  LANE_SECRET_KEY: ${{secrets.LANE_SECRET_KEY}}
+  LANE_DEBUG: True
 
 jobs:
   python_black_check:
@@ -48,13 +50,7 @@ jobs:
       - name: Install python dependencies
         run: |
           pip install --upgrade pip
-          pip install -r dependencies.txt
-
-      - name: Generate secret key and security file
-        run: python test/genSecurityFile.py --debug True
-
-      - name: Generate live database
-        run: python manage.py migrate --database=live
+          pip install -r requirements.txt
 
       - name: Run BE in background
         run: |
