@@ -41,7 +41,7 @@ def _paginate_hist_table(first, after):
     # (hence the `-` character)
     paginator = CursorPaginator(queryset, ordering=('-created',))
 
-    # For some dumb reason, CursorPaginator counts the entry of the last cursor as an entry
+    # For some reason, CursorPaginator counts the entry of the last cursor as an entry
     if after:
         page = paginator.page(first=first + 1, after=after)
         pageIndex = 1
