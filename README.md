@@ -47,8 +47,8 @@ And add these lines to your `~/.bashrc` file
 
 ```
 ### LANE Server debug flag and secret key
-if [ -f /path/to/LANE_server/.security ]; then
-    . /path/to/LANE_server/.security
+if [ -f${path_to_LANE_server}/LANE_server/.security ]; then
+    . ${path_to_LANE_server}/LANE_server/.security
 fi
 ```
 
