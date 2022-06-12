@@ -40,14 +40,24 @@ def _paginate_hist_table(first, after):
     # Order entries by descending order of creation date
     # (hence the `-` character)
     paginator = CursorPaginator(queryset, ordering=('-created',))
-    page = paginator.page(first=first, after=after)
+
+    # For some dumb reason, CursorPaginator counts the entry of the last cursor as an entry
+    if after:
+        page = paginator.page(first=first + 1, after=after)
+        pageIndex = 1
+    else:
+        page = paginator.page(first=first)
+        pageIndex = 0
+
     if page:
         endCursor = paginator.cursor(page[-1])
+        hasNextPage = page.has_next
     else:
         endCursor = None
+        hasNextPage = False
 
-    pageInfo = {'hasNextPage': page.has_next, 'endCursor': endCursor}
-    edges = [{'node': p, 'cursor': paginator.cursor(p)} for p in page]
+    pageInfo = {'hasNextPage': hasNextPage, 'endCursor': endCursor}
+    edges = [{'node': p, 'cursor': paginator.cursor(p)} for p in page[pageIndex:]]
     return {'edges': edges, 'pageInfo': pageInfo}
 
 

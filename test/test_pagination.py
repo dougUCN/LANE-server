@@ -96,7 +96,6 @@ class TestHistTable:
                     hasNextPage = False
                     break
             currentPage += 1
-            index -= 1  # Top of the page includes entry with the `after` cursor
 
         assert all(tableEntryMatchesExpected)
 
