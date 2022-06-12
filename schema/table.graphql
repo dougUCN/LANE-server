@@ -2,7 +2,7 @@ type HistTablePage {
   """
   Paginated response to a query with a table of runs
   """
-  edges: [Edge]
+  edges: [Edge]!
   pageInfo: PageInfo
 }
 
@@ -31,8 +31,10 @@ type HistTableEntry {
   - `name`: Run name of a group of histograms
   - `created`: Time when the first histogram with `name` was created in the db
   - `histIDs`: List of histogram IDs with `name`
+  - `isLive`: Whether histogram is live running or not
   """
   name: String
   created: Datetime
   histIDs: [ID]
+  isLive: Boolean
 }

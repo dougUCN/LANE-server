@@ -11,9 +11,7 @@ If database is not empty, appends new histograms
 """
 
 from gqlComms import (
-    listHistograms,
     createHistogram,
-    deleteHistogram,
     toSvgStr,
     getHistTable,
 )

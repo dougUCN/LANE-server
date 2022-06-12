@@ -69,6 +69,7 @@ def _update_hist_table_entry(clean_hist, database_name):
     try:
         table_entry = HistTable.objects.using(STATIC_DATABASE).get(name=clean_hist['name'])
         table_entry.histIDs.append(clean_hist['id'])
+        table_entry.isLive = database_name is LIVE_DATABASE
         table_entry.save(using=STATIC_DATABASE)
     except HistTable.DoesNotExist:
         # If this is the first histogram with a certain name,
