@@ -12,6 +12,10 @@ on:
 jobs:
   builds_successfully:
     runs-on: ubuntu-20.04
+    environment:
+      name: "Staging"
+      url: "https://lane-server.herokuapp.com/graphql/"
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
