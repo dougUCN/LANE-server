@@ -6,24 +6,9 @@ import json
 import numpy as np
 import datetime
 
+### Constants ###
+
 ENDPOINT = 'http://127.0.0.1:8000/graphql/'
-
-
-class NpEncoder(json.JSONEncoder):
-    '''Allow json to dump numpy types
-    https://stackoverflow.com/questions/50916422/python-typeerror-object-of-type-int64-is-not-json-serializable
-    '''
-
-    def default(self, obj):
-        if isinstance(obj, np.integer):
-            return int(obj)
-        if isinstance(obj, np.floating):
-            return float(obj)
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        if isinstance(obj, np.bool):
-            return bool(obj)
-        return super(NpEncoder, self).default(obj)
 
 
 def dump_response(response):
@@ -31,61 +16,17 @@ def dump_response(response):
     return json.dumps(response, indent=2)
 
 
-def make_replacements(string, replacements):
-    for key, value in replacements.items():
-        if isinstance(value, str) and (value[0] != '[') and (value[0] != '{'):
-            string = string.replace(key, f'"{str(value)}"')
-        elif isinstance(value, bool):
-            string = string.replace(key, str(value).lower())
-        elif value is None:
-            string = string.replace(key, 'null')
-        elif isinstance(value, list):
-            string = string.replace(key, json.dumps(value, cls=NpEncoder))
-        elif isinstance(value, dict):
-            string = string.replace(key, dict_to_query(value))
-        elif isinstance(value, datetime.datetime):
-            string = string.replace(key, f'"{value.isoformat()}"')
-        else:
-            string = string.replace(key, str(value))
-    return string
-
-
-def check_response_errors(response):
+def check_response(response):
     '''
     Check for the existence of errors in the graphql response json
     '''
     error = response.get("errors")
     if error is not None:
         raise RuntimeError(dump_response(error))
+    status_code = response.get("status_code")
+    if status_code != 200:
+        raise RuntimeError(f'Query failed to run by returning code of {status_code}')
     return response
-
-
-def make_query(query, url=ENDPOINT, headers=None):
-    '''
-    Sends a query to the URL. Returns a response json if successful
-    '''
-    request = requests.post(url, json={'query': query}, headers=headers)
-    if request.status_code == 200:
-        return check_response_errors(request.json())
-    else:
-        raise Exception('Query failed to run by returning code of {}. {}'.format(request.status_code, query))
-
-
-def toSvgStr(xList, yList):
-    '''
-    Takes two lists x and y and creates a string
-    "[{x: x0, y: y0},
-    {x: x1, y: y1},
-    ...]"
-
-    That is compatible for a graphql query string
-    '''
-    output = ['[']
-    for x, y in zip(xList, yList):
-        output.append(f'{{x:{x},y:{y}}},')
-    output.append(']')
-
-    return ''.join(output)
 
 
 def toSvgCoords(xList, yList):
@@ -98,197 +39,122 @@ def toSvgCoords(xList, yList):
     return [{'x': x, 'y': y} for (x, y) in zip(xList, yList)]
 
 
-def dict_to_query(input):
-    '''
-    Basically removes quotes from any string keys in a dictionary
-
-    TODO: Make recursive to apply to dicts of any depth
-    '''
-    if type(input) == dict:
-        output = ['{']
-        for key, value in input.items():
-            output.append(f'{key}:{ dict_to_query(value) },')
-        output.append('}')
-        return ''.join(output)
-    else:
-        return input
-
-
-def listHistograms(ids=None, names=None, minDate=None, maxDate=None, types=None, isLive=False):
+def listHistograms(ids, names, minDate, maxDate, types, isLive=False):
     '''
     Returns a list of all histograms in the database
+
+    returns: list of histogram IDs in the database
     '''
-    replacements = {'$IDS': ids, '$NAMES': names, "$MINDATE": minDate, "$MAXDATE": maxDate, "$TYPES": types, "$ISLIVE": isLive}
-    query = """query getHistograms{
-                        getHistograms( 
-                                ids: $IDS
-                                names: $NAMES
-                                minDate: $MINDATE,
-                                maxDate: $MAXDATE,
-                                types: $TYPES,
-                                isLive: $ISLIVE
-                                )
-                            {
-                                id
-                            }
-                        }"""
-    query = make_replacements(query, replacements)
-    response = make_query(query)
-
-    histograms = []
-    for res in response["data"]["getHistograms"]:
-        histograms.append(int(res["id"]))
-    return histograms
+    response = requests.post(
+        ENDPOINT,
+        json={"query": GET_HIST_IDS, "variables": locals()},
+    )
+    check_response(response)
+    data = response.json()["data"]["getHistograms"]
+    histogramList = []
+    for datum in data:
+        histogramList.append(int(datum['id']))
+    return histogramList
 
 
-def createHistogram(id, xrange, yrange, data=None, name=None, type=None, isLive=False):
+def createHistogram(id, xrange, yrange, data, name, type, isLive=False):
     '''
     Create a histogram in the database
 
-    returns: response
+    returns: response json
     '''
-    replacements = {'$ID': id, '$DATA': data, '$XRANGE': xrange, '$YRANGE': yrange, '$NAME': name, '$TYPE': type, '$ISLIVE': isLive}
-    query = """mutation create{
-                createHistogram( 
-                        hist:{
-                            id:$ID, 
-                            data:$DATA,
-                            xrange:$XRANGE,
-                            yrange:$YRANGE, 
-                            isLive:$ISLIVE, 
-                            type: $TYPE,
-                            name: $NAME
-                        } ) 
-                {
-                    message
-                    success
-                }
-                }"""
-    query = make_replacements(query, replacements)
-    return make_query(query)
+    response = requests.post(
+        ENDPOINT,
+        json={
+            "query": CREATE_HIST,
+            "variables": {"hist": locals()},
+        },
+    )
+    check_response(response)
+    return response.json()
 
 
-def getHistogram(id):
+def getHistogram(id, isLive=False):
     '''
     Get the information from a histogram in the database
 
-    returns: response
+    returns: response json
     '''
-    replacements = {'$ID': id}
-    query = """query getHistogram{
-                getHistogram(id: $ID){
-                        id
-                        data{
-                            x
-                            y
-                        }
-                        xrange{
-                            min
-                            max
-                        }
-                        yrange{
-                            min
-                            max
-                        }    
-                        name               
-                        type
-                        len
-                        created
-                    }
-                }"""
-    query = make_replacements(query, replacements)
-    return make_query(query)
+    response = requests.post(
+        ENDPOINT,
+        json={"query": GET_HISTOGRAM, "variables": locals()},
+    )
+    check_response(response)
+    return response.json
 
 
-def getHistograms(ids=None, names=None, minDate=None, maxDate=None, types=None, isLive=False):
+def getHistograms(id, names, minDate, maxDate, types, isLive=False):
     '''
     Retrieve multiple histograms according to filters
+
+    returns: response json
     '''
-    replacements = {'$IDS': ids, '$NAMES': names, "$MINDATE": minDate, "$MAXDATE": maxDate, "$TYPES": types, "$ISLIVE": isLive}
-    query = """query getHistograms{
-                        getHistograms( 
-                            ids: $IDS
-                            names: $NAMES
-                            minDate: $MINDATE,
-                            maxDate: $MAXDATE,
-                            types: $TYPES,
-                            isLive: $ISLIVE,
-                            )
-                            {
-                                id
-                                name
-                                len
-                                data {
-                                    x
-                                    y
-                                }
-                                xrange {
-                                    min
-                                    max
-                                }
-                                yrange {
-                                    min
-                                    max
-                                }
-                                type
-                                created
-                            }
-                        }"""
-    query = make_replacements(query, replacements)
-    return make_query(query)
+    response = requests.post(
+        ENDPOINT,
+        json={
+            "query": GET_HISTOGRAMS,
+            "variables": locals(),
+        },
+    )
+    check_response(response)
+    return response.json
 
 
-def updateHistogram(id, data=None, type=None, xrange=None, yrange=None, isLive=False):
+def updateHistogram(id, data, type, xrange, yrange, isLive=False):
     '''
     Updates a histogram in the database
 
-    returns: response
+    returns: response json
     '''
-    replacements = {'$ID': id, '$DATA': data, '$XRANGE': xrange, '$YRANGE': yrange, '$TYPE': type, '$ISLIVE': isLive}
-    query = """mutation update{
-                updateHistogram( 
-                        hist:{
-                            id:$ID, 
-                            data:$DATA,
-                            xrange:$XRANGE,
-                            yrange:$YRANGE, 
-                            isLive:$ISLIVE, 
-                            type: $TYPE,
-                        } ) 
-                {
-                    message
-                    success
-                }
-            }"""
-    query = make_replacements(query, replacements)
-    return make_query(query)
+    response = requests.post(
+        ENDPOINT,
+        json={
+            "query": UPDATE_HIST,
+            "variables": {"hist": locals()},
+        },
+    )
+    check_response(response)
+    return response.json
 
 
 def deleteHistogram(id, isLive=False):
     '''
     deletes a histogram from the database
 
-    returns: response
+    returns: response json
     '''
-    replacements = {'$ID': id, '$ISLIVE': isLive}
-    query = """mutation delete{
-                    deleteHistogram(id: $ID, isLive: $ISLIVE)
-                    {
-                        message
-                        success
-                    }
-                }"""
-    query = make_replacements(query, replacements)
-    return make_query(query)
+    response = requests.post(
+        ENDPOINT,
+        json={
+            "query": DELETE_HIST,
+            "variables": locals(),
+        },
+    )
+    check_response(response)
+    return response.json
 
 
-def getHistTable(first, after=None):
+def getHistTable(first, after):
     '''
     Gets paginated list of runs
     '''
-    replacements = {'$FIRST': first, '$AFTER': after}
-    query = """query getTable {
-                    getHistTableEntries(first:$FIRST, after:$AFTER)
+    response = requests.post(
+        ENDPOINT,
+        json={"query": GET_HIST_TABLE, "variables": locals()},
+    )
+    check_response(response)
+    return response.json
+
+
+### Queries ###
+
+GET_HIST_TABLE = """query getHistTable($first: Int!, $after: String) {
+                    getHistTableEntries(first: $first, after: $after)
                     {
                         edges{
                             cursor
@@ -304,5 +170,112 @@ def getHistTable(first, after=None):
                         }
                     }
                 }"""
-    query = make_replacements(query, replacements)
-    return make_query(query)
+
+GET_HIST_IDS = """query getIDs( $ids: [ID], 
+                            $names: [String],
+                            $minDate: Datetime,
+                            $maxDate: Datetime,
+                            $types: [String],
+                            $isLive: Boolean,
+                        )
+                    {
+                    getHistograms( 
+                            ids: $ids,
+                            names: $names,
+                            minDate: $minDate,
+                            maxDate: $maxDate,
+                            types: $types,
+                            isLive: $isLive
+                            )
+                        {
+                            id
+                        }
+                    }"""
+
+GET_HISTOGRAM = """query getHistogram( $id: ID!, $isLive: Boolean)
+                    {
+                    getHistogram( id: $id, isLive: $isLive)
+                        {
+                            id
+                            data{
+                                x
+                                y
+                            }
+                            xrange{
+                                min
+                                max
+                            }
+                            yrange{
+                                min
+                                max
+                            }    
+                            name               
+                            type
+                            len
+                            created
+                        }
+                    }"""
+
+GET_HISTOGRAMS = """query getIDs( $ids: [ID], 
+                            $names: [String],
+                            $minDate: Datetime,
+                            $maxDate: Datetime,
+                            $types: [String],
+                            $isLive: Boolean,
+                        )
+                    {
+                    getHistograms( 
+                            ids: $ids,
+                            names: $names,
+                            minDate: $minDate,
+                            maxDate: $maxDate,
+                            types: $types,
+                            isLive: $isLive
+                            )
+                        {
+                            id
+                            data{
+                                x
+                                y
+                            }
+                            xrange{
+                                min
+                                max
+                            }
+                            yrange{
+                                min
+                                max
+                            }    
+                            name               
+                            type
+                            len
+                            created
+                        }
+                    }"""
+
+
+### Mutations ###
+
+CREATE_HIST = """mutation create($hist: HistogramInput!){
+                    createHistogram( hist: $hist ) 
+                    {
+                        message
+                        success
+                    }
+                }"""
+
+DELETE_HIST = """mutation delete($id: ID!, $isLive: Boolean){
+                    deleteHistogram(id: $id, isLive: $isLive)
+                    {
+                        message
+                        success
+                    }
+                }"""
+
+UPDATE_HIST = """mutation update($hist: HistogramUpdateInput!){
+                    updateHistogram( hist: $hist ) 
+                    {
+                        message
+                        success
+                    }
+                }"""
