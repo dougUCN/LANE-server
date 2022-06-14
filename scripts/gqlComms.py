@@ -28,6 +28,15 @@ def check_response(response):
     return response
 
 
+def send_request(query, variables):
+    response = requests.post(
+        ENDPOINT,
+        json={"query": query, "variables": variables},
+    )
+    check_response(response)
+    return response.json()
+
+
 def toSvgCoords(xList, yList):
     '''
     Takes two lists x and y and creates a dictionary
@@ -44,15 +53,10 @@ def listHistograms(ids=None, names=None, minDate=None, maxDate=None, types=None,
 
     returns: list of histogram IDs in the database
     '''
-    response = requests.post(
-        ENDPOINT,
-        json={"query": GET_HIST_IDS, "variables": locals()},
-    )
-    check_response(response)
-    data = response.json()["data"]["getHistograms"]
+    data = send_request(query=GET_HIST_IDS, variables=locals())["data"]["getHistograms"]
     histogramList = []
-    for datum in data:
-        histogramList.append(int(datum['id']))
+    for d in data:
+        histogramList.append(int(d['id']))
     return histogramList
 
 
@@ -62,15 +66,7 @@ def createHistogram(id, xrange=None, yrange=None, data=None, name=None, type=Non
 
     returns: response json
     '''
-    response = requests.post(
-        ENDPOINT,
-        json={
-            "query": CREATE_HIST,
-            "variables": {"hist": locals()},
-        },
-    )
-    check_response(response)
-    return response.json()
+    return send_request(query=CREATE_HIST, variables={"hist": locals()})
 
 
 def getHistogram(id, isLive=False):
@@ -79,12 +75,7 @@ def getHistogram(id, isLive=False):
 
     returns: response json
     '''
-    response = requests.post(
-        ENDPOINT,
-        json={"query": GET_HISTOGRAM, "variables": locals()},
-    )
-    check_response(response)
-    return response.json()
+    return send_request(query=GET_HISTOGRAM, variables=locals())
 
 
 def getHistograms(ids=None, names=None, minDate=None, maxDate=None, types=None, isLive=False):
@@ -93,15 +84,7 @@ def getHistograms(ids=None, names=None, minDate=None, maxDate=None, types=None, 
 
     returns: response json
     '''
-    response = requests.post(
-        ENDPOINT,
-        json={
-            "query": GET_HISTOGRAMS,
-            "variables": locals(),
-        },
-    )
-    check_response(response)
-    return response.json()
+    return send_request(query=GET_HISTOGRAMS, variables=locals())
 
 
 def updateHistogram(id, data=None, type=None, xrange=None, yrange=None, isLive=False):
@@ -110,15 +93,7 @@ def updateHistogram(id, data=None, type=None, xrange=None, yrange=None, isLive=F
 
     returns: response json
     '''
-    response = requests.post(
-        ENDPOINT,
-        json={
-            "query": UPDATE_HIST,
-            "variables": {"hist": locals()},
-        },
-    )
-    check_response(response)
-    return response.json()
+    return send_request(query=UPDATE_HIST, variables={"hist": locals()})
 
 
 def deleteHistogram(id, isLive=False):
@@ -127,27 +102,14 @@ def deleteHistogram(id, isLive=False):
 
     returns: response json
     '''
-    response = requests.post(
-        ENDPOINT,
-        json={
-            "query": DELETE_HIST,
-            "variables": locals(),
-        },
-    )
-    check_response(response)
-    return response.json()
+    return send_request(query=DELETE_HIST, variables=locals())
 
 
 def getHistTable(first, after=None):
     '''
     Gets paginated list of runs
     '''
-    response = requests.post(
-        ENDPOINT,
-        json={"query": GET_HIST_TABLE, "variables": locals()},
-    )
-    check_response(response)
-    return response.json()
+    return send_request(query=GET_HIST_TABLE, variables=locals())
 
 
 ### Queries ###
