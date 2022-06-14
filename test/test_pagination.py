@@ -2,8 +2,15 @@
 Test pagination of getHistTableEntries
 """
 
-import gqlComms as gqlc
+from LANE_server.asgi import application
+from starlette.testclient import TestClient
 import numpy as np
+from test.common import (
+    GET_HIST_TABLE,
+    CREATE_HIST,
+    DELETE_HIST,
+    toSvgCoords,
+)
 
 
 class TestHistTable:
@@ -16,14 +23,28 @@ class TestHistTable:
     rng = np.random.default_rng()
     expected = {}
 
+    def check_response(self, status_code):
+        """Raise an error upon a bad response code"""
+        if status_code != 200:
+            raise Exception(f'Query failed to run by returning code of {status_code}')
+
     def test_createHistTableEntries(self):
         """
         Tests creation of histogram table entries
         """
+        client = TestClient(application)
+
+        # Query for the latest entry in HistTable, if any
+        response = client.post(
+            "/graphql/",
+            json={"query": GET_HIST_TABLE, "variables": {"first": 1}},
+        )
+        self.check_response(response.status_code)
+        data = response.json()['data']['getHistTableEntries']
+
         runHeader = "run"
 
         # Get first unoccupied run index and hist id
-        data = gqlc.getHistTable(first=1)['data']['getHistTableEntries']
         if not data['edges']:
             hist_offset = 0
             run_offset = 0
@@ -42,25 +63,36 @@ class TestHistTable:
             runname = f'{runHeader}{run_id}'
             temp_id = []
             for type_id in np.arange(self.PER_RUN):
-
                 y = self.rng.integers(low=self.LOW, high=self.HIGH, size=self.LENGTH)
                 params = {
-                    'id': hist_id,
-                    'data': gqlc.toSvgStr(x, y),
-                    'xrange': {'min': x[0], 'max': x[-1]},
+                    'id': int(hist_id),
+                    'data': toSvgCoords(x.tolist(), y.tolist()),
+                    'xrange': {'min': float(x[0]), 'max': float(x[-1])},
                     'yrange': {'min': self.LOW, 'max': self.HIGH},
                     'name': runname,
                     'type': f'detector_type_{type_id}',
                     'isLive': False,
                 }
-                gqlc.createHistogram(**params)
+                response = client.post(
+                    "/graphql/",
+                    json={
+                        "query": CREATE_HIST,
+                        "variables": {"hist": params},
+                    },
+                )
+                self.check_response(response.status_code)
                 temp_id.append(hist_id)
                 hist_id += 1
 
             self.expected[runname] = sorted(temp_id)  # Save for checking in later tests
 
         # Get all created histograms
-        data = gqlc.getHistTable(first=self.NUM)['data']['getHistTableEntries']
+        response = client.post(
+            "/graphql/",
+            json={"query": GET_HIST_TABLE, "variables": {"first": self.NUM}},
+        )
+        self.check_response(response.status_code)
+        data = response.json()['data']['getHistTableEntries']
 
         # Check that the response is expected
         tableEntryMatchesExpected = []
@@ -75,17 +107,24 @@ class TestHistTable:
         Since table is sorted in descending order of creation date,
         this should match the `self.expect` values inverted
         """
+        client = TestClient(application)
 
         tableEntryMatchesExpected = []
         expected_hist_ids = list(self.expected.values())[::-1]
         hasNextPage = True
-        cursor = None
         index = 0
         currentPage = 0
+        variables = {"first": self.PER_PAGE}
 
         while hasNextPage:
-            data = gqlc.getHistTable(first=self.PER_PAGE, after=cursor)['data']['getHistTableEntries']
-            cursor = data['pageInfo']['endCursor']
+            response = client.post(
+                "/graphql/",
+                json={"query": GET_HIST_TABLE, "variables": variables},
+            )
+            self.check_response(response.status_code)
+            data = response.json()['data']['getHistTableEntries']
+
+            variables['after'] = data['pageInfo']['endCursor']
             hasNextPage = data['pageInfo']['hasNextPage']
 
             for edge in data['edges']:
@@ -100,7 +139,11 @@ class TestHistTable:
         assert all(tableEntryMatchesExpected)
 
     def test_deleteHistTableEntries(self):
-        """Verify that deleting histograms also removes them from the hist table"""
+        """
+        Verify that deleting histograms also removes them from the hist table
+        """
+        client = TestClient(application)
+
         successfullyRemovedFromTable = []
         successfulHistDeletion = []
         correctRunOrder = []
@@ -108,14 +151,26 @@ class TestHistTable:
         for key, value in zip(list(self.expected.keys())[::-1], list(self.expected.values())[::-1]):
             for id in value:
                 # Delete runs one by one
-                successfulHistDeletion.append(gqlc.deleteHistogram(id=id)['data']['deleteHistogram']['success'])
+                response = client.post(
+                    "/graphql/",
+                    json={"query": DELETE_HIST, "variables": {"id": int(id)}},
+                )
+                self.check_response(response.status_code)
+
+                successfulHistDeletion.append(response.json()['data']['deleteHistogram']['success'])
 
                 # When the histIDs list is empty on the table entry, the table entry should be deleted
                 if id is value[-1]:
                     continue
 
                 # Get last created entry
-                data = gqlc.getHistTable(first=1)['data']['getHistTableEntries']
+                response = client.post(
+                    "/graphql/",
+                    json={"query": GET_HIST_TABLE, "variables": {"first": 1}},
+                )
+                self.check_response(response.status_code)
+                data = response.json()['data']['getHistTableEntries']
+
                 correctRunOrder.append(data['edges'][0]['node']['name'] == key)
                 successfullyRemovedFromTable.append(data['edges'][0]['node']['name'] == value.copy().remove(id))
 
