@@ -1,11 +1,12 @@
 """
 Unit tests for the BE related to static histograms
 
+Assuming the BE server is running, queries the graphql endpoint
+
 Note that Pytest requires the filename and test functions to start with `test_*`
 """
 
-from LANE_server.asgi import application
-from starlette.testclient import TestClient
+import gqlComms as gqlc
 import numpy as np
 import datetime
 
@@ -31,7 +32,6 @@ class TestStaticHistogram:
     def compare_histograms(self, expected, received):
         """
         Not a test
-
         Checks if the values of keys in `expected` match those of `received`
         returns: true if histograms match
         """
@@ -45,7 +45,6 @@ class TestStaticHistogram:
         """
         Create histograms in the database
         """
-        client = TestClient(application)
 
         histogramList = gqlc.listHistograms(isLive=False)
         if histogramList:
@@ -84,8 +83,6 @@ class TestStaticHistogram:
         Get histograms by ID via getHistogram()
         Check if data of histogram created in the db matches the expected output
         """
-        client = TestClient(application)
-
         histsMatch = []
         for id in self.histogram.keys():
             histogram = gqlc.getHistogram(id=id)['data']['getHistogram']
@@ -96,8 +93,6 @@ class TestStaticHistogram:
         """
         Gets histograms by ID via getHistograms()
         """
-        client = TestClient(application)
-
         histograms = gqlc.getHistograms(ids=list(self.histogram.keys()))['data']['getHistograms']
 
         histsMatch = []
@@ -113,8 +108,6 @@ class TestStaticHistogram:
         Check if Names filters work
         Check if Types filters work
         """
-        client = TestClient(application)
-
         # get date when first histogram created for this test
         firstID = next(iter(self.histogram))
         firstCreated = gqlc.getHistogram(id=firstID)['data']['getHistogram']['created']
@@ -131,8 +124,6 @@ class TestStaticHistogram:
         """
         Update histograms and check if content is as expected
         """
-        client = TestClient(application)
-
         successFlag = []
         updateParams = {}
         for id in self.histogram.keys():
@@ -163,8 +154,6 @@ class TestStaticHistogram:
         """
         Delete histograms and confirm removal from the db
         """
-        client = TestClient(application)
-
         successFlag = []
         confirmedRemoval = []
         for id in self.histogram.keys():
