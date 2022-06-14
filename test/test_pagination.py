@@ -14,6 +14,16 @@ from test.common import (
 
 
 class TestHistTable:
+    """
+    # Tests in this suite
+
+    Create histograms and verify that the histogram table gets updated correctly
+
+    Paginate through the created histogram table and validate that the query returns expected values
+
+    Delete histograms and verify that the histogram table updates correctly
+    """
+
     NUM = 10  # number of runs to create
     LENGTH = 50  # Size of each histogram
     LOW = 0  # Min y range of histogram
@@ -28,7 +38,7 @@ class TestHistTable:
         if status_code != 200:
             raise Exception(f'Query failed to run by returning code of {status_code}')
 
-    def test_createHistTableEntries(self):
+    def test_create_hist_table_entries(self):
         """
         Tests creation of histogram table entries
         """
@@ -101,7 +111,7 @@ class TestHistTable:
             tableEntryMatchesExpected.append(self.expected[edge['node']['name']] == table_ids)
         assert all(tableEntryMatchesExpected)
 
-    def test_paginateHistTableEntries(self):
+    def test_paginate_hist_table_entries(self):
         """
         Get pages of hist table, verifying entries until complete
         Since table is sorted in descending order of creation date,
@@ -138,7 +148,7 @@ class TestHistTable:
 
         assert all(tableEntryMatchesExpected)
 
-    def test_deleteHistTableEntries(self):
+    def test_delete_hist_table_entries(self):
         """
         Verify that deleting histograms also removes them from the hist table
         """

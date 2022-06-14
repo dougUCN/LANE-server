@@ -1,7 +1,5 @@
 """
-Unit tests for the BE related to static histograms
-
-Note that Pytest requires the filename and test functions to start with `test_*`
+Test queries and mutations related to histograms in the static db
 """
 
 from LANE_server.asgi import application
@@ -22,9 +20,14 @@ from test.common import (
 
 class TestStaticHistogram:
     """
+    # Tests in this suite
+
     Create histograms in static db, check that the data is correct
+
     Update histograms in the static db, check that the data is correct
+
     Check getHistogram and getHistograms queries on created histograms
+
     Remove created histograms from static db, check for removal
     """
 
