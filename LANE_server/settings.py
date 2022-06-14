@@ -32,6 +32,12 @@ ALLOWED_HOSTS = [
     '.herokuapp.com',
 ]
 
+# For FE and BE hosted locally on different ports
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://ec2-44-202-29-2.compute-1.amazonaws.com",
+]
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -99,12 +105,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db/liveData.sqlite3',
     },
 }
-
-
-# For FE and BE hosted locally on different ports
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-]
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
