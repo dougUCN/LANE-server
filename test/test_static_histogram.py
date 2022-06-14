@@ -200,6 +200,8 @@ class TestStaticHistogram:
         data = response.json()["data"]["getHistograms"]
         createdDuringTest = self.make_histogram_list(data)
 
+        assert len(createdDuringTest) == self.NUM
+
         # Get histograms created after this test (should be none)
         response = client.post(
             "/graphql/",
@@ -214,6 +216,8 @@ class TestStaticHistogram:
         self.check_response(response.status_code)
         data = response.json()["data"]["getHistograms"]
         createdAfterNow = self.make_histogram_list(data)
+
+        assert createdAfterNow == []
 
         # Filter histograms by giving a list of names
         response = client.post(
@@ -230,6 +234,8 @@ class TestStaticHistogram:
         data = response.json()["data"]["getHistograms"]
         nameFilter = self.make_histogram_list(data)
 
+        assert len(nameFilter) == self.NUM
+
         # Filter histograms by giving a list of types
         response = client.post(
             "/graphql/",
@@ -245,7 +251,7 @@ class TestStaticHistogram:
         data = response.json()["data"]["getHistograms"]
         typeFilter = self.make_histogram_list(data)
 
-        assert len(createdDuringTest) == self.NUM and createdAfterNow == [] and len(nameFilter) == self.NUM and len(typeFilter) >= 4
+        assert len(typeFilter) >= 4
 
     def test_update_histogram(self):
         """
@@ -272,6 +278,7 @@ class TestStaticHistogram:
             )
             self.check_response(response.status_code)
             successFlag.append(response.json()['data']['updateHistogram']['success'])
+        assert all(successFlag)
 
         # Get histograms by ids to validate the update
         response = client.post(
@@ -284,6 +291,8 @@ class TestStaticHistogram:
         self.check_response(response.status_code)
         histograms = response.json()['data']['getHistograms']
 
+        assert len(histograms) == self.NUM
+
         histsMatch = []
         for histogram in histograms:
             id = int(histogram['id'])
@@ -295,7 +304,7 @@ class TestStaticHistogram:
             self.expected[id]['data'] = toSvgCoords(self.X[id], self.Y[id])
             histsMatch.append(self.compare_histograms(self.expected[id], histogram))
 
-        assert len(histograms) == self.NUM and all(histsMatch) and all(successFlag)
+        assert all(histsMatch)
 
     def test_delete_histogram(self):
         """

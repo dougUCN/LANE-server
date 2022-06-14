@@ -96,3 +96,13 @@ python manage.py migrate --database=live
 ```
 
 Note that the live db is currently in the gitignore. This is so that developers with different live tests will not push undesired data onto one another.
+
+### 8. Unit Tests
+
+This project uses [pytest](https://docs.pytest.org/en/7.1.x/) for unit tests. Upon opening a PR, github actions will run the test suite to check for issues.
+
+To run the test suite in development, simply start the venv and in the root directory run
+
+```bash
+pytest test
+```

@@ -143,3 +143,32 @@ UPDATE_HIST = """mutation update($hist: HistogramUpdateInput!){
                         success
                     }
                 }"""
+
+### Subscriptions ###
+LIVE_HIST_SUBSCRIPTION = """subscription histSub {
+                                getLiveHistograms {
+                                    histograms{
+                                    id
+                                    name
+                                    created
+                                    type
+                                    data {
+                                        x
+                                        y
+                                    }
+                                    xrange {
+                                        min
+                                        max
+                                    }
+                                    yrange {
+                                        min
+                                        max
+                                    }
+                                    current {
+                                        x
+                                        y
+                                    }
+                                    }
+                                    lastRun  
+                                }
+                                }"""
