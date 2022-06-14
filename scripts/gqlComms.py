@@ -24,7 +24,7 @@ def check_response(response):
     if error is not None:
         raise RuntimeError(dump_response(error))
     if response.status_code != 200:
-        raise RuntimeError(f'Query failed to run by returning code of {status_code}')
+        raise RuntimeError(f'Query failed to run by returning code of {response.status_code}')
     return response
 
 
