@@ -1,7 +1,6 @@
 """
 Functions for communication with graphql endpoint via python
 """
-from typing import Type
 import requests
 import json
 import numpy as np
