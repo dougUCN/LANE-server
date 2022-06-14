@@ -20,11 +20,10 @@ def check_response(response):
     '''
     Check for the existence of errors in the graphql response json
     '''
-    error = response.get("errors")
+    error = response.json().get("errors")
     if error is not None:
         raise RuntimeError(dump_response(error))
-    status_code = response.get("status_code")
-    if status_code != 200:
+    if response.status_code != 200:
         raise RuntimeError(f'Query failed to run by returning code of {status_code}')
     return response
 
@@ -39,7 +38,7 @@ def toSvgCoords(xList, yList):
     return [{'x': x, 'y': y} for (x, y) in zip(xList, yList)]
 
 
-def listHistograms(ids, names, minDate, maxDate, types, isLive=False):
+def listHistograms(ids=None, names=None, minDate=None, maxDate=None, types=None, isLive=False):
     '''
     Returns a list of all histograms in the database
 
@@ -57,7 +56,7 @@ def listHistograms(ids, names, minDate, maxDate, types, isLive=False):
     return histogramList
 
 
-def createHistogram(id, xrange, yrange, data, name, type, isLive=False):
+def createHistogram(id, xrange=None, yrange=None, data=None, name=None, type=None, isLive=False):
     '''
     Create a histogram in the database
 
@@ -85,10 +84,10 @@ def getHistogram(id, isLive=False):
         json={"query": GET_HISTOGRAM, "variables": locals()},
     )
     check_response(response)
-    return response.json
+    return response.json()
 
 
-def getHistograms(id, names, minDate, maxDate, types, isLive=False):
+def getHistograms(ids=None, names=None, minDate=None, maxDate=None, types=None, isLive=False):
     '''
     Retrieve multiple histograms according to filters
 
@@ -102,10 +101,10 @@ def getHistograms(id, names, minDate, maxDate, types, isLive=False):
         },
     )
     check_response(response)
-    return response.json
+    return response.json()
 
 
-def updateHistogram(id, data, type, xrange, yrange, isLive=False):
+def updateHistogram(id, data=None, type=None, xrange=None, yrange=None, isLive=False):
     '''
     Updates a histogram in the database
 
@@ -119,7 +118,7 @@ def updateHistogram(id, data, type, xrange, yrange, isLive=False):
         },
     )
     check_response(response)
-    return response.json
+    return response.json()
 
 
 def deleteHistogram(id, isLive=False):
@@ -136,10 +135,10 @@ def deleteHistogram(id, isLive=False):
         },
     )
     check_response(response)
-    return response.json
+    return response.json()
 
 
-def getHistTable(first, after):
+def getHistTable(first, after=None):
     '''
     Gets paginated list of runs
     '''
@@ -148,7 +147,7 @@ def getHistTable(first, after):
         json={"query": GET_HIST_TABLE, "variables": locals()},
     )
     check_response(response)
-    return response.json
+    return response.json()
 
 
 ### Queries ###

@@ -10,15 +10,9 @@ For testing options run `python spoofStaticHist.py --help`
 If database is not empty, appends new histograms
 """
 
-from gqlComms import (
-    createHistogram,
-    toSvgStr,
-    getHistTable,
-)
+from gqlComms import createHistogram, getHistTable, toSvgCoords
 import numpy as np
 import argparse
-import sys
-
 
 NUM = 50
 LENGTH = 50
@@ -40,7 +34,7 @@ def main():
 
     # PRNG
     rng = np.random.default_rng()
-    x = np.arange(args.length)
+    x = np.arange(args.length).tolist()
 
     # Check existing histograms in db
     print('Checking database for existing histograms')
@@ -58,13 +52,13 @@ def main():
 
     # Create histograms
     print('Creating histograms')
-    hist_id = hist_offset
+    hist_id = int(hist_offset)
     for run_id in np.arange(run_offset, run_offset + args.num):
         for type_id in np.arange(args.per):
-            y = rng.integers(low=args.low, high=args.high, size=args.length)
+            y = rng.integers(low=args.low, high=args.high, size=args.length).tolist()
             params = {
                 'id': hist_id,
-                'data': toSvgStr(x, y),
+                'data': toSvgCoords(x, y),
                 'xrange': {'min': x[0], 'max': x[-1]},
                 'yrange': {'min': args.low, 'max': args.high},
                 'name': f'{runHeader}{run_id}',
