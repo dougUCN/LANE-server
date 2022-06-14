@@ -34,7 +34,28 @@ jobs:
       - name: Python black code check
         run: black . --check
 
-  server_runs_and_passes_tests:
+  server_passes_unit_tests:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Unit tests
+        run: pytest test -v --no-header
+
+  server_runs_successfully:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout repo
@@ -57,5 +78,7 @@ jobs:
           daphne LANE_server.asgi:application &
           sleep 1
 
-      - name: Unit tests
-        run: pytest test -v --no-header
+      - name: Server health check
+        uses: jtalk/url-health-check-action@v2
+        with:
+          url: http://127.0.0.1:8000/graphql/
