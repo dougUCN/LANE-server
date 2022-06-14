@@ -19,13 +19,17 @@ async def source_live_histograms(obj, info):
         await asyncio.sleep(SUB_SLEEP_TIME)
         histograms = await _filter_histograms(ids=None, names=None, types=None, minDate=None, maxDate=None, isLive=True)
         lastRun = await _get_latest_hist_table_entry()
+        if lastRun:
+            runName = lastRun.name
+        else:
+            runName = None
         if histograms:
             for i, hist in enumerate(histograms):
                 if hist.data:
                     hist.current = hist.data[-1]
-            yield {"histograms": histograms, "lastRun": lastRun.name}
+            yield {"histograms": histograms, "lastRun": runName}
         else:
-            yield {"histograms": None, "lastRun": lastRun.name}
+            yield {"histograms": None, "lastRun": runName}
 
 
 """
