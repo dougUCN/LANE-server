@@ -41,10 +41,19 @@ class TestStaticHistogram:
     Y = {}  # Dictionary of np array data fed into histograms
     rng = np.random.default_rng()  # PRNG
 
-    def check_response(self, status_code):
-        """Raise an error upon a bad response code"""
-        if status_code != 200:
-            raise Exception(f'Query failed to run by returning code of {status_code}')
+    client = TestClient(application)  # starlette Test Client instance
+
+    def post_to_test_client(self, query, variables):
+        """
+        Send a request to the test client
+        """
+        response = self.client.post(
+            "/graphql/",
+            json={"query": query, "variables": variables},
+        )
+        if response.status_code != 200:
+            raise Exception(f'Query failed to run by returning code of {response.status_code}')
+        return response.json()
 
     def compare_histograms(self, expected, received):
         """
@@ -69,14 +78,12 @@ class TestStaticHistogram:
         """
         Create histograms in the database
         """
-        client = TestClient(application)
-
-        response = client.post(
-            "/graphql/",
-            json={"query": GET_HIST_IDS, "variables": {"isLive": False}},
+        # Get existing histograms in db
+        response = self.post_to_test_client(
+            query=GET_HIST_IDS,
+            variables={"isLive": False},
         )
-        self.check_response(response.status_code)
-        data = response.json()["data"]["getHistograms"]
+        data = response["data"]["getHistograms"]
         histogramList = self.make_histogram_list(data)
 
         if histogramList:
@@ -85,7 +92,7 @@ class TestStaticHistogram:
             startID = 0
         ids = np.arange(startID, startID + self.NUM).tolist()
 
-        successFlag = []
+        successfulHistCreation = []
         for new_id in ids:
             self.X[new_id] = np.arange(self.LENGTH)
             self.Y[new_id] = self.rng.integers(low=self.LOW, high=self.HIGH, size=self.LENGTH)
@@ -109,35 +116,26 @@ class TestStaticHistogram:
             self.expected[new_id].pop('isLive')
 
             # Create histograms
-            response = client.post(
-                "/graphql/",
-                json={
-                    "query": CREATE_HIST,
-                    "variables": {"hist": self.histogram[new_id]},
-                },
+            response = self.post_to_test_client(
+                query=CREATE_HIST,
+                variables={"hist": self.histogram[new_id]},
             )
-            self.check_response(response.status_code)
-            successFlag.append(response.json()['data']['createHistogram']['success'])
-        assert all(successFlag)
+            successfulHistCreation.append(response['data']['createHistogram']['success'])
+        assert all(successfulHistCreation)
 
     def test_get_histogram(self):
         """
         Get histograms by ID via getHistogram()
         Check if data of histogram created in the db matches the expected output
         """
-        client = TestClient(application)
 
         histsMatch = []
         for id in self.histogram.keys():
-            response = client.post(
-                "/graphql/",
-                json={
-                    "query": GET_HISTOGRAM,
-                    "variables": {"id": int(id)},
-                },
+            response = self.post_to_test_client(
+                query=GET_HISTOGRAM,
+                variables={"id": int(id)},
             )
-            self.check_response(response.status_code)
-            histogram = response.json()['data']['getHistogram']
+            histogram = response['data']['getHistogram']
             histsMatch.append(self.compare_histograms(self.expected[id], histogram))
         assert all(histsMatch)
 
@@ -145,17 +143,11 @@ class TestStaticHistogram:
         """
         Gets histograms by ID via getHistograms()
         """
-        client = TestClient(application)
-
-        response = client.post(
-            "/graphql/",
-            json={
-                "query": GET_HISTOGRAMS,
-                "variables": {"ids": list(self.histogram.keys())},
-            },
+        response = self.post_to_test_client(
+            query=GET_HISTOGRAMS,
+            variables={"ids": list(self.histogram.keys())},
         )
-        self.check_response(response.status_code)
-        histograms = response.json()['data']['getHistograms']
+        histograms = response['data']['getHistograms']
 
         histsMatch = []
         for histogram in histograms:
@@ -170,85 +162,64 @@ class TestStaticHistogram:
         Check if Names filters work
         Check if Types filters work
         """
-        client = TestClient(application)
 
         # get date when first histogram was created for this test
         firstID = next(iter(self.histogram))
-        response = client.post(
-            "/graphql/",
-            json={
-                "query": GET_HISTOGRAM,
-                "variables": {"id": firstID},
-            },
+        response = self.post_to_test_client(
+            query=GET_HISTOGRAM,
+            variables={"id": firstID},
         )
-        self.check_response(response.status_code)
-        firstCreated = response.json()['data']['getHistogram']['created']
+        firstCreated = response['data']['getHistogram']['created']
 
         # Get histograms created during this test
-        response = client.post(
-            "/graphql/",
-            json={
-                "query": GET_HIST_IDS,
-                "variables": {
-                    "minDate": firstCreated,
-                    "maxDate": datetime.datetime.utcnow().isoformat(),
-                    "isLive": False,
-                },
+        response = self.post_to_test_client(
+            query=GET_HIST_IDS,
+            variables={
+                "minDate": firstCreated,
+                "maxDate": datetime.datetime.utcnow().isoformat(),
+                "isLive": False,
             },
         )
-        self.check_response(response.status_code)
-        data = response.json()["data"]["getHistograms"]
+
+        data = response["data"]["getHistograms"]
         createdDuringTest = self.make_histogram_list(data)
 
         assert len(createdDuringTest) == self.NUM
 
         # Get histograms created after this test (should be none)
-        response = client.post(
-            "/graphql/",
-            json={
-                "query": GET_HIST_IDS,
-                "variables": {
-                    "minDate": datetime.datetime.utcnow().isoformat(),
-                    "isLive": False,
-                },
+        response = self.post_to_test_client(
+            query=GET_HIST_IDS,
+            variables={
+                "minDate": datetime.datetime.utcnow().isoformat(),
+                "isLive": False,
             },
         )
-        self.check_response(response.status_code)
-        data = response.json()["data"]["getHistograms"]
+        data = response["data"]["getHistograms"]
         createdAfterNow = self.make_histogram_list(data)
-
         assert createdAfterNow == []
 
         # Filter histograms by giving a list of names
-        response = client.post(
-            "/graphql/",
-            json={
-                "query": GET_HIST_IDS,
-                "variables": {
-                    "names": [x['name'] for _, x in self.expected.items()],
-                    "isLive": False,
-                },
+        response = self.post_to_test_client(
+            query=GET_HIST_IDS,
+            variables={
+                "names": [x['name'] for _, x in self.expected.items()],
+                "isLive": False,
             },
         )
-        self.check_response(response.status_code)
-        data = response.json()["data"]["getHistograms"]
+        data = response["data"]["getHistograms"]
         nameFilter = self.make_histogram_list(data)
 
         assert len(nameFilter) == self.NUM
 
         # Filter histograms by giving a list of types
-        response = client.post(
-            "/graphql/",
-            json={
-                "query": GET_HIST_IDS,
-                "variables": {
-                    "types": [x['type'] for _, x in self.expected.items()],
-                    "isLive": False,
-                },
+        response = self.post_to_test_client(
+            query=GET_HIST_IDS,
+            variables={
+                "types": [x['type'] for _, x in self.expected.items()],
+                "isLive": False,
             },
         )
-        self.check_response(response.status_code)
-        data = response.json()["data"]["getHistograms"]
+        data = response["data"]["getHistograms"]
         typeFilter = self.make_histogram_list(data)
 
         assert len(typeFilter) >= 4
@@ -269,73 +240,56 @@ class TestStaticHistogram:
                 'id': id,
                 'data': toSvgCoords(self.X[id].tolist(), self.Y[id].tolist()),
             }
-            response = client.post(
-                "/graphql/",
-                json={
-                    "query": UPDATE_HIST,
-                    "variables": {"hist": updateParams[id]},
-                },
+            response = self.post_to_test_client(
+                query=UPDATE_HIST,
+                variables={"hist": updateParams[id]},
             )
-            self.check_response(response.status_code)
-            successFlag.append(response.json()['data']['updateHistogram']['success'])
+            successFlag.append(response['data']['updateHistogram']['success'])
         assert all(successFlag)
 
         # Get histograms by ids to validate the update
-        response = client.post(
-            "/graphql/",
-            json={
-                "query": GET_HISTOGRAMS,
-                "variables": {"ids": list(self.histogram.keys())},
-            },
+        response = self.post_to_test_client(
+            query=GET_HISTOGRAMS,
+            variables={"ids": list(self.histogram.keys())},
         )
-        self.check_response(response.status_code)
-        histograms = response.json()['data']['getHistograms']
+        histograms = response['data']['getHistograms']
 
         assert len(histograms) == self.NUM
 
-        histsMatch = []
+        histsMatchExpected = []
         for histogram in histograms:
             id = int(histogram['id'])
 
             # Without updating expected value, histograms should not match
-            histsMatch.append(not self.compare_histograms(self.expected[id], histogram))
+            histsMatchExpected.append(not self.compare_histograms(self.expected[id], histogram))
 
             # Now the histograms should match
             self.expected[id]['data'] = toSvgCoords(self.X[id], self.Y[id])
-            histsMatch.append(self.compare_histograms(self.expected[id], histogram))
+            histsMatchExpected.append(self.compare_histograms(self.expected[id], histogram))
 
-        assert all(histsMatch)
+        assert all(histsMatchExpected)
 
     def test_delete_histogram(self):
         """
         Delete histograms and confirm removal from the db
         """
-        client = TestClient(application)
 
         successFlag = []
         confirmedRemoval = []
         for id in self.histogram.keys():
             # Delete histogram
-            response = client.post(
-                "/graphql/",
-                json={
-                    "query": DELETE_HIST,
-                    "variables": {"id": id, "isLive": False},
-                },
+            response = self.post_to_test_client(
+                query=DELETE_HIST,
+                variables={"id": id, "isLive": False},
             )
-            self.check_response(response.status_code)
-            successFlag.append(response.json()['data']['deleteHistogram']['success'])
+            successFlag.append(response['data']['deleteHistogram']['success'])
 
             # Validate removal from the db
-            response = client.post(
-                "/graphql/",
-                json={
-                    "query": GET_HIST_IDS,
-                    "variables": {"isLive": False},
-                },
+            response = self.post_to_test_client(
+                query=GET_HIST_IDS,
+                variables={"isLive": False},
             )
-            self.check_response(response.status_code)
-            data = response.json()["data"]["getHistograms"]
+            data = response["data"]["getHistograms"]
             histogramList = self.make_histogram_list(data)
 
             confirmedRemoval.append(id not in histogramList)

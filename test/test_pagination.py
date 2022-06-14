@@ -33,24 +33,27 @@ class TestHistTable:
     rng = np.random.default_rng()
     expected = {}
 
-    def check_response(self, status_code):
-        """Raise an error upon a bad response code"""
-        if status_code != 200:
-            raise Exception(f'Query failed to run by returning code of {status_code}')
+    client = TestClient(application)  # starlette Test Client instance
+
+    def post_to_test_client(self, query, variables):
+        """
+        Send a request to the test client
+        """
+        response = self.client.post(
+            "/graphql/",
+            json={"query": query, "variables": variables},
+        )
+        if response.status_code != 200:
+            raise Exception(f'Query failed to run by returning code of {response.status_code}')
+        return response.json()
 
     def test_create_hist_table_entries(self):
         """
         Tests creation of histogram table entries
         """
-        client = TestClient(application)
 
         # Query for the latest entry in HistTable, if any
-        response = client.post(
-            "/graphql/",
-            json={"query": GET_HIST_TABLE, "variables": {"first": 1}},
-        )
-        self.check_response(response.status_code)
-        data = response.json()['data']['getHistTableEntries']
+        data = self.post_to_test_client(query=GET_HIST_TABLE, variables={"first": 1})['data']['getHistTableEntries']
 
         runHeader = "run"
 
@@ -69,6 +72,7 @@ class TestHistTable:
         # Create a few histograms
         hist_id = hist_offset
         x = np.arange(self.LENGTH)
+        histogramCreationSuccessful = []
         for run_id in np.arange(run_offset, run_offset + self.NUM):
             runname = f'{runHeader}{run_id}'
             temp_id = []
@@ -83,26 +87,18 @@ class TestHistTable:
                     'type': f'detector_type_{type_id}',
                     'isLive': False,
                 }
-                response = client.post(
-                    "/graphql/",
-                    json={
-                        "query": CREATE_HIST,
-                        "variables": {"hist": params},
-                    },
-                )
-                self.check_response(response.status_code)
+
+                response = self.post_to_test_client(query=CREATE_HIST, variables={"hist": params})
+                histogramCreationSuccessful.append(response['data']['createHistogram']['success'])
+
                 temp_id.append(hist_id)
                 hist_id += 1
 
             self.expected[runname] = sorted(temp_id)  # Save for checking in later tests
+        assert all(histogramCreationSuccessful)
 
         # Get all created histograms
-        response = client.post(
-            "/graphql/",
-            json={"query": GET_HIST_TABLE, "variables": {"first": self.NUM}},
-        )
-        self.check_response(response.status_code)
-        data = response.json()['data']['getHistTableEntries']
+        data = self.post_to_test_client(query=GET_HIST_TABLE, variables={"first": self.NUM})['data']['getHistTableEntries']
 
         # Check that the response is expected
         tableEntryMatchesExpected = []
@@ -117,8 +113,6 @@ class TestHistTable:
         Since table is sorted in descending order of creation date,
         this should match the `self.expect` values inverted
         """
-        client = TestClient(application)
-
         tableEntryMatchesExpected = []
         expected_hist_ids = list(self.expected.values())[::-1]
         hasNextPage = True
@@ -127,12 +121,7 @@ class TestHistTable:
         variables = {"first": self.PER_PAGE}
 
         while hasNextPage:
-            response = client.post(
-                "/graphql/",
-                json={"query": GET_HIST_TABLE, "variables": variables},
-            )
-            self.check_response(response.status_code)
-            data = response.json()['data']['getHistTableEntries']
+            data = self.post_to_test_client(query=GET_HIST_TABLE, variables=variables)['data']['getHistTableEntries']
 
             variables['after'] = data['pageInfo']['endCursor']
             hasNextPage = data['pageInfo']['hasNextPage']
@@ -152,8 +141,6 @@ class TestHistTable:
         """
         Verify that deleting histograms also removes them from the hist table
         """
-        client = TestClient(application)
-
         successfullyRemovedFromTable = []
         successfulHistDeletion = []
         correctRunOrder = []
@@ -161,25 +148,16 @@ class TestHistTable:
         for key, value in zip(list(self.expected.keys())[::-1], list(self.expected.values())[::-1]):
             for id in value:
                 # Delete runs one by one
-                response = client.post(
-                    "/graphql/",
-                    json={"query": DELETE_HIST, "variables": {"id": int(id)}},
-                )
-                self.check_response(response.status_code)
-
-                successfulHistDeletion.append(response.json()['data']['deleteHistogram']['success'])
+                response = self.post_to_test_client(query=DELETE_HIST, variables={"id": int(id)})
+                successfulHistDeletion.append(response['data']['deleteHistogram']['success'])
 
                 # When the histIDs list is empty on the table entry, the table entry should be deleted
                 if id is value[-1]:
                     continue
 
                 # Get last created entry
-                response = client.post(
-                    "/graphql/",
-                    json={"query": GET_HIST_TABLE, "variables": {"first": 1}},
-                )
-                self.check_response(response.status_code)
-                data = response.json()['data']['getHistTableEntries']
+                response = self.post_to_test_client(query=GET_HIST_TABLE, variables={"first": 1})
+                data = response['data']['getHistTableEntries']
 
                 correctRunOrder.append(data['edges'][0]['node']['name'] == key)
                 successfullyRemovedFromTable.append(data['edges'][0]['node']['name'] == value.copy().remove(id))
