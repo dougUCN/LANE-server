@@ -37,7 +37,9 @@ class TestHistTable:
 
     def post_to_test_client(self, query, variables):
         """
-        Send a request to the test client
+        Not a test
+
+        Send an http request to the test client
         """
         response = self.client.post(
             "/graphql/",

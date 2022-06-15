@@ -152,6 +152,7 @@ LIVE_HIST_SUBSCRIPTION = """subscription histSub {
                                     name
                                     created
                                     type
+                                    len
                                     data {
                                         x
                                         y
