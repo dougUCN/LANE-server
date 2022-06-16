@@ -58,9 +58,10 @@ def main():
             run_offset = 0
 
     rng = np.random.default_rng()
-    histsToMake = np.arange(hist_offset, hist_offset + args.numAlive)
+    histsToMake = np.arange(hist_offset, hist_offset + args.numAlive).tolist()
     run_id = run_offset
-    initial_data = {id: '[' for id in histsToMake}
+    initial_data = {id: [] for id in histsToMake}
+    xlimit = {id: 10 for id in histsToMake}
 
     for cycle in range(args.nCycles):
         print(f'Cycle {cycle + 1}/{args.nCycles}')
@@ -81,15 +82,18 @@ def main():
         data = initial_data
         for t in range(args.liveTime):
             for id in histsToMake:
-                y = rng.integers(low=args.low, high=args.high)
-                data[id] = data[id] + f'{{x:{t},y:{y}}},'
-
+                data[id].append({'x': t, 'y': int(rng.integers(low=args.low, high=args.high))})
                 params = {
                     'id': id,
-                    'data': data[id] + ']',
+                    'data': data[id],
                     'isLive': True,
-                    'xrange': {'min': 0, 'max': t + 10},
                 }
+
+                # Expand x axis range by 10 every time x axis limit is exceeded
+                if t > xlimit[id]:
+                    xlimit[id] += 10
+                    params['xrange'] = {'min': 0, 'max': xlimit[id]}
+
                 updateHistogram(**params)
             time.sleep(1)
 

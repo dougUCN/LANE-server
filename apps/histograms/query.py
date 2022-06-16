@@ -41,7 +41,7 @@ def _paginate_hist_table(first, after):
     # (hence the `-` character)
     paginator = CursorPaginator(queryset, ordering=('-created',))
 
-    # For some dumb reason, CursorPaginator counts the entry of the last cursor as an entry
+    # For some reason, CursorPaginator counts the entry of the last cursor as an entry
     if after:
         page = paginator.page(first=first + 1, after=after)
         pageIndex = 1
@@ -64,7 +64,10 @@ def _paginate_hist_table(first, after):
 @database_sync_to_async
 def _get_latest_hist_table_entry():
     """Returns the latest HistTable entry"""
-    return HistTable.objects.using(STATIC_DATABASE).latest('created')
+    try:
+        return HistTable.objects.using(STATIC_DATABASE).latest('created')
+    except HistTable.DoesNotExist:
+        return None
 
 
 """

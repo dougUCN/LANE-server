@@ -71,6 +71,10 @@ Basic queries can now be tested at the graphql endpoint, located at
 
 http://127.0.0.1:8000/graphql/
 
+# Live Demo
+
+See the live demo [here](https://lane-server.herokuapp.com/graphql/)!
+
 # Contributing
 
 See the [contribution guidelines](CONTRIBUTING.md)
