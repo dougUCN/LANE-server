@@ -32,31 +32,24 @@ type Query {
   getHistTableEntries(first: Int!, after: String): HistTablePage
 
   """
-  Gets the information of a run in the database
+  Gets the information of a run config in the database
   """
-  getRun(id: ID!): Run
+  getRunConfig(id: ID!): RunConfig
 
   """
-  Applies optional filters to retrieve a list of runs
-
-  Not specifying any filters returns all runs queued
+  Retrieves all run configs in the database
   """
-  getRuns(
-    names: [String]
-    minStartDate: Datetime
-    maxStartDate: Datetime
-    minSubDate: Datetime
-    maxSubDate: Datetime
-    status: RunStatus
-  ): [Run]
+  getRunConfigs: getRunConfigsPayload
 
-  "Gets information on a device"
+  """
+  Gets information on a device
+  """
   getDevice(name: String!): Device
 
   """
-  Applies optional filters to retrieve a list of devices
+  Retrieves the configuration information of all devices in the db
 
-  Not specifying any filters returns all devices
+  `isOnline` acts as a filter if specified.
   """
   getDevices(names: [String], isOnline: Boolean): [Device]
 }
@@ -88,50 +81,51 @@ type Mutation {
   deleteHistogram(id: ID!, isLive: Boolean): HistogramPayload!
 
   """
-  Adds a run into the queue
+  Adds a run config into the db
   """
-  createRun(run: RunInput!): RunPayload!
+  createRunConfig(runConfig: RunConfigInput!): RunConfigPayload!
 
   """
-  Updates the properties of a run
+  Updates the properties of a run in the db
   """
-  updateRun(id: ID!, run: RunUpdateInput!): RunPayload!
+  updateRunConfig(runConfig: RunConfigUpdateInput!): RunConfigPayload!
 
   """
-  Deletes a run
+  Deletes a run in the db
   """
-  deleteRun(id: ID!): RunPayload!
+  deleteRunConfig(id: ID!): RunConfigPayload!
 
   """
-  Removes all non-live runs from the queue
+  Instructs the slow control worker to
+  remove all non-live runs from the slow-control queue
   """
-  clearRuns: RunPayload!
+  clearRuns: SlowControlPayload!
 
   """
-  Instructs the slow control to start processing runs in the queue
+  Instructs the slow control worker to start processing runs in the queue
   """
-  startRuns: RunPayload!
+  startRuns: SlowControlPayload!
 
   """
-  Instructs the slow control to halt the run immediately.
+  Instructs the slow control worker to halt the run immediately.
 
   If `stopAfterThisRun` = true then the slow control will
   avoid a hard stop and wait til any current runs finish
   """
-  stopRuns(stopAfterThisRun: Boolean): RunPayload!
+  stopRuns(stopAfterThisRun: Boolean): SlowControlPayload!
 
   """
-  Instructs the slow control to recheck which devices are connected and online
+  Instructs the slow control worker to recheck which devices are connected and online
   """
-  refreshDevices: DevicePayload!
+  refreshDevices: SlowControlPayload!
 
   """
-  Creates a slow control device in the database
+  Creates a device in the database
   """
   createDevice(device: DeviceInput!): DevicePayload!
 
   """
-  Updates the properties of a slow control device in the database
+  Updates the properties of a device in the database
   """
   updateDevice(device: DeviceInput!): DevicePayload!
 
@@ -143,16 +137,8 @@ type Mutation {
 
 type Subscription {
   """
-  Retrieves a list of live histograms + the last completed 
+  Retrieves a list of live histograms + the last completed
   run name
   """
   getLiveHistograms: HistogramSubscriptionPayload
-
-  """
-  Retrieves the current run. The only live updating field is
-  `currentTime`
-
-  Returns null every second when no data to publish
-  """
-  getLiveRun: Run
 }

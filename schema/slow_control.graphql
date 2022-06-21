@@ -1,17 +1,22 @@
 type Device {
+  """
+  Describes whether a device is online and
+  what configuration settings are available on said device
+  """
   name: String
-  states: [String]
-  currentState: String
+  deviceOptions: [deviceOption!]
   isOnline: Boolean
 }
 
 input DeviceInput {
   """
+  Describes whether a device is online and
+  what configuration settings are available on said device
+
   `isOnline` defaults to false if unspecified
   """
   name: String!
-  states: [String]
-  currentState: String
+  deviceOptions: [deviceOption!]
   isOnline: Boolean
 }
 
@@ -23,88 +28,155 @@ type DevicePayload {
   success: Boolean!
 }
 
-type DeviceStates {
+type getRunConfigsPayload {
   """
-  `device`, `state`, `time` are equal length lists
+  Returns a list of RunConfigs.
 
-  Indicates the time [seconds] at which a device is set to a state
+  Includes flag describing whether it is possible to
+  create a new run or if the storage cap has been reached
   """
-  device: [String]!
-  state: [String]!
-  time: [Float]!
+  runConfigs: [RunConfig]
+  canCreateNewRun: Boolean!
 }
 
-input DeviceStatesInput {
+type RunConfig {
   """
-  `device`, `state`, `time` are equal length lists
-
-  Indicates the time [seconds] at which a device is set to a state
+  - `ID`: Unique identifier of the run
+  - `name`: Name for a run
+  - `created`: Creation datetime [UTC]
+  - `lastLoaded`: Last datetime [UTC] the runfile was modified or queued
+  - `steps`: Describes what occurs during the run
+  - `priority`: larger value = greater priority for slow control worker to run the job.
+              (Default 0).
+  - `status`: Describes whether slow control worker has run the job
   """
-  device: [String]!
-  state: [String]!
-  time: [Float]!
+  id: ID!
+  name: String!
+  created: Datetime
+  lastLoaded: Datetime
+  steps: [RunConfigStep!]
+  priority: Int
+  status: RunConfigStatusEnum
 }
 
-type Run {
+input RunConfigInput {
   """
-  - `name` can be duplicated as each run is auto assigned an `id` on instantiation
-  - `qOrder` designates the priority in which the runfile is run (larger = higher priority)
-  - `timeElapsed` [seconds] is only updated with the subscription
-  - `startTime` and `submitted` are in UTC
-  - `runTime` is the total amount of time required for the run to complete
-  """
-  id: Int!
-  name: String
-  qOrder: Int
-  startTime: Datetime
-  submitted: Datetime
-  status: RunStatus
-  deviceStates: DeviceStates
-  runTime: Float
-  timeElapsed: Float
-}
-
-input RunInput {
-  """
-  - `name` can be duplicated as each run is auto assigned an `id` on instantiation
-  - `qOrder` designates the priority in which the runfile is run (larger = higher priority). Default=0
-  - `status` defaults to `QUEUED`
-  - `startTime` is in UTC
-  - `runTime` is the total amount of time required for the run to complete
+  - `name`: Name for a run
+  - `priority`: larger value = greater priority for slow control worker to run the job.
+            (Default 0).
+  - `steps`: Describes what occurs during the run
+  - `status`: Describes whether slow control worker has run the job
   """
   name: String!
-  qOrder: Int!
-  startTime: Datetime
-  deviceStates: DeviceStatesInput
-  status: RunStatus
-  runTime: Float!
+  steps: [RunConfigStepInput!]
+  priority: Int
+  status: RunConfigStatusEnum
 }
 
-input RunUpdateInput {
+input RunConfigUpdateInput {
   """
-  - `qOrder` designates the priority in which the runfile is run (larger = higher priority). Default=0
-  - `status` defaults to `QUEUED`
-  - `startTime` is in UTC
-  - `runTime` is the total amount of time required for the run to complete
+  Updates the properties of a run with unique identifier `id`
+  - `name`: Name for a run
+  - `priority`: larger value = greater priority for slow control worker to run the job.
+              (Default 0).
+  - `status`: Describes whether slow control worker has run the job
   """
+  id: ID!
   name: String
-  qOrder: Int
-  startTime: Datetime
-  deviceStates: DeviceStatesInput
-  status: RunStatus
-  runTime: Float
+  steps: [RunConfigStepInput!]
+  priority: Int
+  status: RunConfigStatusEnum
 }
 
-type RunPayload {
+type RunConfigStep {
   """
-  Return value of a mutation affecting runs.
+  Describes when a step occurs, with what device, and what occurs to
+  said device
+  """
+  timeFrameOptionType: timeFrameOptionEnum
+  deviceName: String!
+  deviceOption: DeviceOption!
+  time: Float!
+  description: String
+}
+
+input RunConfigStepInput {
+  """
+  Describes when a step occurs, with what device, and what occurs to
+  said device
+  """
+  timeFrameOptionType: timeFrameOptionEnum
+  deviceName: String!
+  deviceOption: DeviceOptionInput!
+  time: Float!
+  description: String
+}
+
+type DeviceOption {
+  """
+  Describes the properties of an option for a device
+  """
+  deviceOptionType: DeviceOptionEnum!
+  options: [String]
+  userInput: Float
+}
+
+input DeviceOptionInput {
+  """
+  Describes the properties of an option for a device
+  """
+  deviceOptionType: DeviceOptionEnum!
+  options: [String]
+  userInput: Float
+}
+
+type RunConfigPayload {
+  """
+  Return value of a mutation affecting RunConfigs
   """
   message: String!
   success: Boolean!
 }
 
-enum RunStatus {
+type SlowControlPayload {
+  """
+  Return value of a mutation involving communications
+  with the slow control worker
+  """
+  message: String!
+  success: Boolean!
+}
+
+enum DeviceOptionEnum {
+  """
+  - `SELECT_MANY`: Of options presented, user may select mulitple
+  - `SELECT_ONE`: Of options presented, expects only one
+  - `USER_INPUT`: Expects a float input from user
+  """
+  SELECT_ONE
+  SELECT_MANY
+  USER_INPUT
+}
+
+enum timeFrameOptionEnum {
+  """
+  Different phases of the runs
+  - `BEFORE`: The step is to prep the run
+  - `DURING`: The step occurs during the run
+  - `AFTER`: A cleanup step after a run
+  """
+  BEFORE
+  DURING
+  AFTER
+}
+
+enum RunConfigStatusEnum {
+  """
+  Describes the status of a run config file
+  """
+  NONE
   QUEUED
   RUNNING
   COMPLETED
+  ERROR
 }
