@@ -99,7 +99,7 @@ type RunConfigStep {
   Describes when a step occurs, with what device, and what occurs to
   said device
   """
-  timeFrameOptionType: timeFrameOptionEnum
+  timeFrameOptionType: TimeFrameOptionEnum
   deviceName: String!
   deviceOption: DeviceOption!
   time: Float!
@@ -111,7 +111,7 @@ input RunConfigStepInput {
   Describes when a step occurs, with what device, and what occurs to
   said device
   """
-  timeFrameOptionType: timeFrameOptionEnum
+  timeFrameOptionType: TimeFrameOptionEnum
   deviceName: String!
   deviceOption: DeviceOptionInput!
   time: Float!
@@ -164,7 +164,7 @@ enum DeviceOptionEnum {
   USER_INPUT
 }
 
-enum timeFrameOptionEnum {
+enum TimeFrameOptionEnum {
   """
   Different phases of the runs
   - `BEFORE`: The step is to prep the run

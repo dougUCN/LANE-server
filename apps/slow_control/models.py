@@ -1,8 +1,8 @@
 from django.db import models
 
 
-class Runfile(models.Model):
-    id = models.PositiveBigIntegerField(primary_key=True)
+class RunConfig(models.Model):
+    id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=500)
     created = models.DateTimeField(auto_now_add=True)
     lastLoaded = models.DateTimeField(null=True)

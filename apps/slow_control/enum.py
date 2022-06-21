@@ -5,8 +5,8 @@ from .common import (
     DeviceOption,
 )
 
-run_config_status_enum = EnumType("RunStatus", RunState)
+run_config_status_enum = EnumType("RunConfigStatusEnum", RunState)
 
-time_frame_option_enum = EnumType("TimeFrameOption", TimeFrame)
+time_frame_option_enum = EnumType("TimeFrameOptionEnum", TimeFrame)
 
-device_option_enum = EnumType("DeviceOption", DeviceOption)
+device_option_enum = EnumType("DeviceOptionEnum", DeviceOption)
