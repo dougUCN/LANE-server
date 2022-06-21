@@ -4,7 +4,7 @@ type Device {
   what configuration settings are available on said device
   """
   name: String
-  deviceOptions: [deviceOption!]
+  deviceOptions: [DeviceOption!]
   isOnline: Boolean
 }
 
@@ -16,7 +16,7 @@ input DeviceInput {
   `isOnline` defaults to false if unspecified
   """
   name: String!
-  deviceOptions: [deviceOption!]
+  deviceOptions: [DeviceOptionInput!]
   isOnline: Boolean
 }
 
@@ -44,11 +44,12 @@ type RunConfig {
   - `ID`: Unique identifier of the run
   - `name`: Name for a run
   - `created`: Creation datetime [UTC]
-  - `lastLoaded`: Last datetime [UTC] the runfile was modified or queued
+  - `lastLoaded`: Last datetime [UTC] the runfile was modified or run
   - `steps`: Describes what occurs during the run
   - `priority`: larger value = greater priority for slow control worker to run the job.
               (Default 0).
   - `status`: Describes whether slow control worker has run the job
+  - `totalTime`: How long the run takes in total to complete [seconds]
   """
   id: ID!
   name: String!
@@ -57,6 +58,7 @@ type RunConfig {
   steps: [RunConfigStep!]
   priority: Int
   status: RunConfigStatusEnum
+  totalTime: Int!
 }
 
 input RunConfigInput {
@@ -66,11 +68,13 @@ input RunConfigInput {
             (Default 0).
   - `steps`: Describes what occurs during the run
   - `status`: Describes whether slow control worker has run the job
+  - `totalTime`: How long the run takes in total to complete [seconds]
   """
   name: String!
   steps: [RunConfigStepInput!]
   priority: Int
   status: RunConfigStatusEnum
+  totalTime: Int!
 }
 
 input RunConfigUpdateInput {
@@ -80,12 +84,14 @@ input RunConfigUpdateInput {
   - `priority`: larger value = greater priority for slow control worker to run the job.
               (Default 0).
   - `status`: Describes whether slow control worker has run the job
+  - `totalTime`: How long the run takes in total to complete [seconds]
   """
   id: ID!
   name: String
   steps: [RunConfigStepInput!]
   priority: Int
   status: RunConfigStatusEnum
+  totalTime: Int
 }
 
 type RunConfigStep {
