@@ -7,8 +7,11 @@ from apps.histograms.scalar import datetime_scalar
 
 from apps.slow_control.query import query as s_query
 from apps.slow_control.mutation import mutation as s_mutation
-from apps.slow_control.subscription import subscription as s_subscription
-from apps.slow_control.enum import run_status_enum
+from apps.slow_control.enum import (
+    run_config_status_enum,
+    time_frame_option_enum,
+    device_option_enum,
+)
 
 schema_files = [
     "schema/schema.graphql",
@@ -30,6 +33,7 @@ schema = make_executable_schema(
     datetime_scalar,
     s_query,
     s_mutation,
-    s_subscription,
-    run_status_enum,
+    run_config_status_enum,
+    time_frame_option_enum,
+    device_option_enum,
 )

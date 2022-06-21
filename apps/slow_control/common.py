@@ -17,10 +17,24 @@ deviceInputField = ['name', 'states', 'currentState', 'isOnline']
 device_string_field = ['states', 'currentState']
 run_string_field = ['status']
 
-EnumState = {
+RunState = {
     "QUEUED": "Queued",
     "RUNNING": "Running",
     "COMPLETED": "Completed",
+    "NONE": "None",
+    "ERROR": "Error",
+}
+
+TimeFrame = {
+    "BEFORE": "Before",
+    "DURING": "During",
+    "AFTER": "After",
+}
+
+DeviceOption = {
+    "SELECT_ONE": "SelectOne",
+    "SELECT_MANY": "SelectMany",
+    "USER_INPUT": "UserInput",
 }
 
 
@@ -53,8 +67,8 @@ def clean_run_input(run, update=False):
     if (runInput['qOrder'] is None) and not update:
         runInput['qOrder'] = 0
     if (runInput['status'] is None) and not update:
-        runInput['status'] = EnumState['QUEUED']
-    elif (runInput['status'] is EnumState['RUNNING']) and (runInput['startTime'] is None):
+        runInput['status'] = RunState['QUEUED']
+    elif (runInput['status'] is RunState['RUNNING']) and (runInput['startTime'] is None):
         raise ValueError('When setting run status to `RUNNING` you must specify the start time')
 
     return runInput
@@ -83,11 +97,6 @@ def clean_device_input(device, update=False):
         deviceInput['states'] = list_to_str(deviceInput['states'])
 
     return deviceInput
-
-
-def calc_time_elapsed(run):
-    '''Calculates time elapsed for a live run and returns value in seconds'''
-    return (make_aware(datetime.datetime.now()) - run.startTime).total_seconds()
 
 
 def list_to_str(list_of_strs):

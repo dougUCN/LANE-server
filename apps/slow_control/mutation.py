@@ -11,7 +11,7 @@ from .common import (
     clean_device_input,
     runInputField,
     deviceInputField,
-    EnumState,
+    RunState,
     run_string_field,
     device_string_field,
 )
@@ -120,7 +120,7 @@ async def delete_run(*_, id):
 async def clear_runs(*_):
     """Message slow control the CLEAR comm and delete Queued/Completed runs from the DB"""
     comm_status = slowControlCmd(COMMAND['CLEAR'])
-    for state in [EnumState['QUEUED'], EnumState['COMPLETED']]:
+    for state in [RunState['QUEUED'], RunState['COMPLETED']]:
         filtered_runs = await _filter_runs(names=None, minStartDate=None, maxStartDate=None, minSubDate=None, maxSubDate=None, status=state)
         for run in filtered_runs:
             await _delete_run(run.id)
@@ -151,8 +151,8 @@ Device-related Mutations
 
 @mutation.field('refreshDevices')
 async def refresh_devices(*_):
-    status = slowControlCmd(COMMAND['REFRESH'])
-    return device_payload(f'Refresh command sent', success=status)
+    status = slowControlCmd(COMMAND['REFRESH_DEVICES'])
+    return device_payload(f'Refresh device command sent', success=status)
 
 
 @mutation.field('createDevice')
