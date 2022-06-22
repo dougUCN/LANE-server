@@ -35,7 +35,7 @@ type getRunConfigsPayload {
   Includes flag describing whether it is possible to
   create a new run or if the storage cap has been reached
   """
-  runConfigs: [RunConfig]
+  runConfigs: [RunConfig!]
   canCreateNewRun: Boolean!
 }
 
@@ -53,7 +53,6 @@ type RunConfig {
   """
   id: ID!
   name: String!
-  created: Datetime
   lastLoaded: Datetime
   steps: [RunConfigStep!]
   priority: Int
@@ -92,6 +91,7 @@ input RunConfigUpdateInput {
   priority: Int
   status: RunConfigStatusEnum
   totalTime: Int
+  lastLoaded: Datetime
 }
 
 type RunConfigStep {
@@ -99,7 +99,7 @@ type RunConfigStep {
   Describes when a step occurs, with what device, and what occurs to
   said device
   """
-  timeFrameOptionType: TimeFrameOptionEnum
+  timeFrameOptionType: TimeFrameOptionEnum!
   deviceName: String!
   deviceOption: DeviceOption!
   time: Float!
@@ -111,7 +111,7 @@ input RunConfigStepInput {
   Describes when a step occurs, with what device, and what occurs to
   said device
   """
-  timeFrameOptionType: TimeFrameOptionEnum
+  timeFrameOptionType: TimeFrameOptionEnum!
   deviceName: String!
   deviceOption: DeviceOptionInput!
   time: Float!
@@ -121,25 +121,38 @@ input RunConfigStepInput {
 type DeviceOption {
   """
   Describes the properties of an option for a device
+
+  `deviceOptionType` specifies whether the `userInput`,
+  `selectOne`, or `selectMany` field should be filled
   """
+  optionName: String!
   deviceOptionType: DeviceOptionEnum!
-  options: [String]
+  options: [String!]
   userInput: Float
+  selectOne: String
+  selectMany: [String!]
 }
 
 input DeviceOptionInput {
   """
   Describes the properties of an option for a device
+
+  `deviceOptionType` specifies whether the `userInput`,
+  `selectOne`, or `selectMany` field should be filled
   """
+  optionName: String!
   deviceOptionType: DeviceOptionEnum!
-  options: [String]
+  options: [String!]
   userInput: Float
+  selectOne: String
+  selectMany: [String!]
 }
 
 type RunConfigPayload {
   """
   Return value of a mutation affecting RunConfigs
   """
+  id: ID!
   message: String!
   success: Boolean!
 }

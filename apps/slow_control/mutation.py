@@ -23,14 +23,15 @@ Asynchronous database access
 
 @database_sync_to_async
 def _create_run_config(clean_run):
+    '''Returns (run_id, success)'''
     new_run = RunConfig(**clean_run)
     new_run.save(using=DATABASE)
-    return True
+    return new_run.id, True
 
 
 @database_sync_to_async
 def _update_run_config(id, clean_run):
-    '''Returns (updated fields, success)'''
+    '''Returns (run_id, updated fields, success)'''
     in_database = RunConfig.objects.using(DATABASE).get(pk=id)
     updatedFields = []
     for attr in runConfigInputField:
@@ -38,11 +39,12 @@ def _update_run_config(id, clean_run):
             setattr(in_database, attr, clean_run[attr])
             updatedFields.append(attr)
     in_database.save(using=DATABASE)
-    return (updatedFields, True)
+    return (in_database.id, updatedFields, True)
 
 
 @database_sync_to_async
 def _delete_run_config(id):
+    '''Returns (run_id, success)'''
     RunConfig.objects.using(DATABASE).get(pk=id).delete()
     return True
 
@@ -83,23 +85,23 @@ mutation = MutationType()
 
 
 @mutation.field('createRunConfig')
-async def create_run_config(*_, run):
-    clean_run_config = clean_run_config_input(run)
-    status = await _create_run_config(clean_run_config)
-    return run_config_payload(f'created run {clean_run_config["name"]}', success=status)
+async def create_run_config(*_, runConfig):
+    clean_run_config = clean_run_config_input(runConfig)
+    id, status = await _create_run_config(clean_run_config)
+    return run_config_payload(id=id, message=f'created run {clean_run_config["name"]}', success=status)
 
 
 @mutation.field('updateRunConfig')
-async def update_run_config(*_, id, run):
-    clean_run = clean_run_config_input(run, update=True)
-    updatedFields, status = await _update_run_config(id, clean_run)
-    return run_config_payload(f'Updated fields {updatedFields}', success=status)
+async def update_run_config(*_, runConfig):
+    clean_run = clean_run_config_input(runConfig, update=True)
+    id, updatedFields, status = await _update_run_config(runConfig['id'], clean_run)
+    return run_config_payload(id=id, message=f'Updated fields {updatedFields}', success=status)
 
 
 @mutation.field('deleteRunConfig')
 async def delete_run_config(*_, id):
     status = await _delete_run_config(id)
-    return run_config_payload(f'deleted runfile with id: {id}', success=status)
+    return run_config_payload(id=id, message=f'deleted runfile with id: {id}', success=status)
 
 
 """

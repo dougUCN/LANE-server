@@ -7,7 +7,7 @@ MAX_RUN_CONFIGS = 20  # Max number of run configs allowed in the DB
 
 # Fields as defined in the graphql schema as inputs for mutations
 
-runConfigInputField = ['name', 'steps', 'priority', 'status', 'totalTime']
+runConfigInputField = ['name', 'steps', 'priority', 'status', 'totalTime', 'lastLoaded']
 
 deviceInputField = ['name', 'deviceOptions', 'isOnline']
 
@@ -32,8 +32,9 @@ DeviceOption = {
 }
 
 
-def run_config_payload(message, success):
+def run_config_payload(id, message, success):
     return {
+        'id': id,
         'message': message,
         'success': success,
     }

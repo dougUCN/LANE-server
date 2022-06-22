@@ -16,23 +16,12 @@ def _get_run_config(id):
 
 
 @database_sync_to_async
-def _filter_runs(
-    names=None,
-    minCreateDate=None,
-    maxCreateDate=None,
-    minLoadDate=None,
-    maxLoadDate=None,
-    status=None,
-):
+def _filter_runs(names=None, minLoadDate=None, maxLoadDate=None, status=None):
     queryset = RunConfig.objects.using(DATABASE).all()
     if names:
         queryset = queryset.filter(name__in=names)
     if status:
         queryset = queryset.filter(status__exact=status)
-    if minCreateDate:
-        queryset = queryset.filter(created__gte=minCreateDate)
-    if maxCreateDate:
-        queryset = queryset.filter(created__lte=maxCreateDate)
     if minLoadDate:
         queryset = queryset.filter(lastLoaded__gte=minLoadDate)
     if maxLoadDate:
@@ -71,7 +60,9 @@ async def resolve_run_config(*_, id):
 @query.field("getRunConfigs")
 async def resolve_run_configs(*_):
     runConfigs = await _filter_runs()
-    canCreateNewRun = len(runConfigs) >= MAX_RUN_CONFIGS
+    canCreateNewRun = len(runConfigs) < MAX_RUN_CONFIGS
+    if not runConfigs:
+        runConfigs = None
     return {"runConfigs": runConfigs, "canCreateNewRun": canCreateNewRun}
 
 
