@@ -12,6 +12,7 @@ from .common import (
     clean_device_input,
     runConfigInputField,
     deviceInputField,
+    RunState,
 )
 
 from .messaging import slowControlCmd, COMMAND
@@ -104,6 +105,17 @@ async def delete_run_config(*_, id):
     return run_config_payload(id=id, message=f'deleted runfile with id: {id}', success=status)
 
 
+@mutation.field('loadRunConfig')
+async def load_run_config(*_, ids):
+    successFlag = []
+    queuedRunConfig = {key: None for key in runConfigInputField}
+    queuedRunConfig['status'] = RunState["QUEUED"]
+    for id in ids:
+        _, _, status = await _update_run_config(id, queuedRunConfig)
+        successFlag.append(status)
+    return slow_control_payload(message=f'Set RunConfigs {ids} to {RunState["QUEUED"]}', success=all(successFlag))
+
+
 """
 Slow Control Communication Mutations
 """
@@ -114,12 +126,6 @@ async def clear_runs(*_):
     """Message slow control the CLEAR_RUNS comm"""
     comm_status = slowControlCmd(COMMAND['CLEAR_RUNS'])
     return slow_control_payload(f'Sent {COMMAND["CLEAR_RUNS"]} to slow control', success=comm_status)
-
-
-@mutation.field('startRuns')
-async def start_runs(*_):
-    comm_status = slowControlCmd(COMMAND['START'])
-    return slow_control_payload(f'Sent {COMMAND["START"]} to slow control', success=comm_status)
 
 
 @mutation.field('stopRuns')

@@ -17,6 +17,7 @@ RunState = {
     "COMPLETED": "Completed",
     "NONE": "None",
     "ERROR": "Error",
+    "STOPPED": "Stopped",
 }
 
 TimeFrame = {

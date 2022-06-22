@@ -96,15 +96,15 @@ type Mutation {
   deleteRunConfig(id: ID!): RunConfigPayload!
 
   """
+  Sets the status RunConfigs to `Queued`
+  """
+  loadRunConfig(ids: [ID]!): SlowControlPayload!
+
+  """
   Instructs the slow control worker to
   remove all non-live runs from the slow-control queue
   """
   clearRuns: SlowControlPayload!
-
-  """
-  Instructs the slow control worker to start processing runs in the queue
-  """
-  startRuns: SlowControlPayload!
 
   """
   Instructs the slow control worker to halt the run immediately.

@@ -198,4 +198,5 @@ enum RunConfigStatusEnum {
   RUNNING
   COMPLETED
   ERROR
+  STOPPED
 }
