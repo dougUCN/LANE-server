@@ -43,16 +43,17 @@ type RunConfig {
   """
   - `ID`: Unique identifier of the run
   - `name`: Name for a run
-  - `created`: Creation datetime [UTC]
-  - `lastLoaded`: Last datetime [UTC] the runfile was modified or run
+  - `lastSaved`: Last datetime [UTC] the runfile was modified and saved
+  - `lastLoaded`: Last datetime [UTC] the runfile was Queued for slow control
   - `steps`: Describes what occurs during the run
-  - `priority`: lower value = higher priority
+  - `priority`: lower value = higher priority (Default 0).
   - `status`: Describes whether slow control worker has run the job
   - `totalTime`: How long the run takes in total to complete [seconds]
   """
   id: ID!
   name: String!
   lastLoaded: Datetime
+  lastSaved: Datetime
   steps: [RunConfigStep!]
   priority: Int
   status: RunConfigStatusEnum
@@ -78,8 +79,7 @@ input RunConfigUpdateInput {
   """
   Updates the properties of a run with unique identifier `id`
   - `name`: Name for a run
-  - `priority`: larger value = greater priority for slow control worker to run the job.
-              (Default 0).
+  - `priority`: larger value = higher priority (Default 0).
   - `status`: Describes whether slow control worker has run the job
   - `totalTime`: How long the run takes in total to complete [seconds]
   """
@@ -89,7 +89,6 @@ input RunConfigUpdateInput {
   priority: Int
   status: RunConfigStatusEnum
   totalTime: Int
-  lastLoaded: Datetime
 }
 
 type RunConfigStep {

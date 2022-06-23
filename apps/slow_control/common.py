@@ -1,5 +1,4 @@
-import datetime
-from django.utils.timezone import make_aware
+from django.utils import timezone
 
 DATABASE = "live"  # Devices and RunConfigs should be stored to the live database
 
@@ -7,7 +6,7 @@ MAX_RUN_CONFIGS = 20  # Max number of run configs allowed in the DB
 
 # Fields as defined in the graphql schema as inputs for mutations
 
-runConfigInputField = ['name', 'steps', 'priority', 'status', 'totalTime', 'lastLoaded']
+runConfigInputField = ['name', 'steps', 'priority', 'status', 'totalTime', 'lastLoaded', 'lastSaved']
 
 deviceInputField = ['name', 'deviceOptions', 'isOnline']
 
@@ -68,6 +67,8 @@ def clean_run_config_input(run, update=False):
         runInput['priority'] = 0
     if (runInput['status'] is None) and not update:
         runInput['status'] = RunState['NONE']
+
+    runInput['lastSaved'] = timezone.now()
 
     return runInput
 

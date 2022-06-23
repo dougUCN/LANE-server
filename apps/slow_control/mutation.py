@@ -1,6 +1,7 @@
 from ariadne import MutationType
 from .models import RunConfig, Device
 
+from django.utils import timezone
 from channels.db import database_sync_to_async
 
 from .common import (
@@ -111,6 +112,7 @@ async def delete_run_config(*_, id):
 async def load_run_config(*_, id):
     queuedRunConfig = {key: None for key in runConfigInputField}
     queuedRunConfig['status'] = RunState["QUEUED"]
+    queuedRunConfig['lastLoaded'] = timezone.now()  # Timezone aware version of datetime.now
 
     # If runs are already queued, update the run to a lower priority
     alreadyQueued = await _filter_runs(status=RunState["QUEUED"])
