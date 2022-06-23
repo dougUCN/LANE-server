@@ -46,8 +46,7 @@ type RunConfig {
   - `created`: Creation datetime [UTC]
   - `lastLoaded`: Last datetime [UTC] the runfile was modified or run
   - `steps`: Describes what occurs during the run
-  - `priority`: larger value = greater priority for slow control worker to run the job.
-              (Default 0).
+  - `priority`: lower value = higher priority
   - `status`: Describes whether slow control worker has run the job
   - `totalTime`: How long the run takes in total to complete [seconds]
   """
@@ -63,8 +62,7 @@ type RunConfig {
 input RunConfigInput {
   """
   - `name`: Name for a run
-  - `priority`: larger value = greater priority for slow control worker to run the job.
-            (Default 0).
+  - `priority`: lower value = higher priority
   - `steps`: Describes what occurs during the run
   - `status`: Describes whether slow control worker has run the job
   - `totalTime`: How long the run takes in total to complete [seconds]

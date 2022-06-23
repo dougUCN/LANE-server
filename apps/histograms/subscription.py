@@ -1,7 +1,6 @@
 from ariadne import SubscriptionType
 
 import asyncio
-import numpy as np
 
 subscription = SubscriptionType()
 

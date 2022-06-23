@@ -17,6 +17,8 @@ from .common import (
 
 from .messaging import slowControlCmd, COMMAND
 
+from .query import _filter_runs
+
 """
 Asynchronous database access 
 """
@@ -106,14 +108,24 @@ async def delete_run_config(*_, id):
 
 
 @mutation.field('loadRunConfig')
-async def load_run_config(*_, ids):
-    successFlag = []
+async def load_run_config(*_, id):
     queuedRunConfig = {key: None for key in runConfigInputField}
     queuedRunConfig['status'] = RunState["QUEUED"]
-    for id in ids:
-        _, _, status = await _update_run_config(id, queuedRunConfig)
-        successFlag.append(status)
-    return slow_control_payload(message=f'Set RunConfigs {ids} to {RunState["QUEUED"]}', success=all(successFlag))
+
+    # If runs are already queued, update the run to a lower priority
+    alreadyQueued = await _filter_runs(status=RunState["QUEUED"])
+    if alreadyQueued:
+        existingIDs = [int(config.id) for config in alreadyQueued]
+        if int(id) in existingIDs:
+            raise ValueError(f'RunConfig ID {id} is already {RunState["QUEUED"]}')
+        existingPriority = [config.priority for config in alreadyQueued]
+        queuedRunConfig['priority'] = max(existingPriority) + 1
+    else:
+        queuedRunConfig['priority'] = 0
+
+    _, _, status = await _update_run_config(id, queuedRunConfig)
+
+    return slow_control_payload(message=f'Set RunConfig {id} to {RunState["QUEUED"]} at priority {queuedRunConfig["priority"]}', success=status)
 
 
 """
