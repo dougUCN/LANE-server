@@ -18,7 +18,7 @@ def histogram_payload(modified, message, success):
     return {
         'message': message,
         'success': success,
-        'modified': modified,
+        'modifiedHistogram': modified,
     }
 
 

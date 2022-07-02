@@ -37,7 +37,7 @@ def run_config_payload(id, message, success, modified):
         'id': id,
         'message': message,
         'success': success,
-        'modified': modified,
+        'modifiedRunConfig': modified,
     }
 
 
@@ -45,7 +45,7 @@ def device_payload(message, success, modified):
     return {
         'message': message,
         'success': success,
-        'modified': modified,
+        'modifiedDevice': modified,
     }
 
 
