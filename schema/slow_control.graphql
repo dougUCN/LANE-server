@@ -26,6 +26,7 @@ type DevicePayload {
   """
   message: String!
   success: Boolean!
+  modified: Device!
 }
 
 type getRunConfigsPayload {
@@ -149,9 +150,9 @@ type RunConfigPayload {
   """
   Return value of a mutation affecting RunConfigs
   """
-  id: ID!
   message: String!
   success: Boolean!
+  modified: RunConfig!
 }
 
 type SlowControlPayload {

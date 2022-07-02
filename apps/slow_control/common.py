@@ -32,18 +32,20 @@ DeviceOption = {
 }
 
 
-def run_config_payload(id, message, success):
+def run_config_payload(id, message, success, modified):
     return {
         'id': id,
         'message': message,
         'success': success,
+        'modified': modified,
     }
 
 
-def device_payload(message, success):
+def device_payload(message, success, modified):
     return {
         'message': message,
         'success': success,
+        'modified': modified,
     }
 
 
