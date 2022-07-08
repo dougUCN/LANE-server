@@ -14,10 +14,11 @@ LIVE_DATABASE = "live"
 STATIC_DATABASE = "data"
 
 
-def histogram_payload(message, success):
+def histogram_payload(modified, message, success):
     return {
         'message': message,
         'success': success,
+        'modifiedHistogram': modified,
     }
 
 

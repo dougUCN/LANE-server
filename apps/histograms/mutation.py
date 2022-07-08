@@ -11,6 +11,8 @@ from .common import (
     LIVE_DATABASE,
 )
 
+from .query import _get_histogram
+
 """
 Asynchronous database access 
 """
@@ -18,6 +20,7 @@ Asynchronous database access
 
 @database_sync_to_async
 def _create_histogram(clean_hist, database_name):
+    """Returns (created_histogram, True)"""
     # Remove the isLive argument from the dict so django model
     # does not throw any error at unexpected kwarg
     try:
@@ -28,12 +31,12 @@ def _create_histogram(clean_hist, database_name):
     # Create new histogram
     new_hist = Histogram(**clean_hist)
     new_hist.save(using=database_name)
-    return True
+    return new_hist, True
 
 
 @database_sync_to_async
 def _update_histogram(clean_hist, database_name):
-    '''Returns (updated fields, success)'''
+    '''Returns (updated_histogram, updated_fields, success)'''
     in_database = Histogram.objects.using(database_name).get(id=clean_hist['id'])
 
     updatedFields = []
@@ -44,7 +47,7 @@ def _update_histogram(clean_hist, database_name):
             setattr(in_database, attr, clean_hist[attr])
             updatedFields.append(attr)
     in_database.save(using=database_name)
-    return (updatedFields, True)
+    return (in_database, updatedFields, True)
 
 
 @database_sync_to_async
@@ -99,19 +102,20 @@ async def create_histogram(*_, hist):
         if clean_hist[field] is None:
             clean_hist[field] = ''
     table_status = await _update_hist_table_entry(clean_hist, database_name=chooseDatabase(clean_hist['isLive']))
-    create_status = await _create_histogram(clean_hist, database_name=chooseDatabase(clean_hist['isLive']))
-    return histogram_payload(f'created hist {clean_hist["id"]}', success=all([create_status, table_status]))
+    modified, create_status = await _create_histogram(clean_hist, database_name=chooseDatabase(clean_hist['isLive']))
+    return histogram_payload(modified=modified, message=f'created hist {clean_hist["id"]}', success=all([create_status, table_status]))
 
 
 @mutation.field("updateHistogram")
 async def update_histogram(*_, hist):
     '''Updates non-empty fields from hist object'''
     clean_hist = clean_hist_input(hist)
-    updatedFields, status = await _update_histogram(clean_hist, database_name=chooseDatabase(clean_hist['isLive']))
-    return histogram_payload(f'Updated fields {updatedFields}', success=status)
+    modified, updatedFields, status = await _update_histogram(clean_hist, database_name=chooseDatabase(clean_hist['isLive']))
+    return histogram_payload(modified=modified, message=f'Updated fields {updatedFields}', success=status)
 
 
 @mutation.field("deleteHistogram")
 async def delete_histogram(*_, id, isLive=False):
+    modified = await _get_histogram(id, database_name=chooseDatabase(isLive))
     status = await _delete_histogram(id, database_name=chooseDatabase(isLive))
-    return histogram_payload(message=f'deleted hist {id}', success=status)
+    return histogram_payload(modified=modified, message=f'deleted hist {id}', success=status)

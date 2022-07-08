@@ -5,11 +5,11 @@ FAKE = True  # for development
 
 # Valid slow control commands
 COMMAND = {
-    'REFRESH': 'REFRESH',
+    'REFRESH_DEVICES': 'REFRESH_DEVICES',
     'START': 'START',
     'SOFT_STOP': 'SOFT_STOP',
     'HARD_STOP': 'HARD_STOP',
-    'CLEAR': 'CLEAR',
+    'CLEAR_RUNS': 'CLEAR_RUNS',
     'RUN': 'RUN',
 }
 

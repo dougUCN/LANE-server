@@ -108,6 +108,7 @@ type HistogramPayload {
   """
   message: String!
   success: Boolean!
+  modifiedHistogram: Histogram!
 }
 
 type HistogramSubscriptionPayload {
