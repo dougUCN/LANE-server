@@ -300,6 +300,7 @@ mutation createRunConfig($runConfig: RunConfigInput!){
         success
         modifiedRunConfig{
             id
+            lastSaved
         }
     }
 }"""

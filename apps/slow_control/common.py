@@ -65,7 +65,7 @@ def clean_run_config_input(run, update=False):
     for field in runConfigInputField:
         runInput[field] = run.get(field)
 
-    if runInput['totalTime'] < 0:
+    if not update and runInput['totalTime'] < 0:
         raise ValueError('totalTime cannot be negative')
 
     if (runInput['priority'] is None) and not update:
