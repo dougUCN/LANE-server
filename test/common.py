@@ -306,7 +306,7 @@ mutation createRunConfig($runConfig: RunConfigInput!){
 }"""
 
 DELETE_RUN_CONFIG = """
-mutation deleteRunConfig ($id: ID!){
+mutation deleteRunConfig($id: ID!){
 	deleteRunConfig(id: $id){
 		message
 		success

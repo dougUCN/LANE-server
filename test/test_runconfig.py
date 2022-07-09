@@ -346,3 +346,28 @@ class TestRunConfig:
         )
         data = response["data"]["getRunConfig"]
         assert data == self.runConfigFakeExpected[name]
+
+    def test_delete_configs(self):
+        """
+        Deletes the configs created during this test suite and validates their deletion
+        """
+        successfulDelete = []
+        configIDs = []
+        for _, runConfig in self.runConfigFakeExpected.items():
+            configIDs.append(runConfig["id"])
+            response = self.post_to_test_client(
+                query=DELETE_RUN_CONFIG,
+                variables={"id": int(runConfig["id"])},
+            )
+            successfulDelete.append(response["data"]["deleteRunConfig"]["success"])
+        assert all(successfulDelete)
+
+        response = self.post_to_test_client(query=GET_RUN_CONFIGS)
+        data = response["data"]["getRunConfigs"]
+        assert isinstance(data['canCreateNewRun'], bool)
+
+        configStillExists = []
+        for configQueried in data['runConfigs']:
+            if configQueried['id'] in configIDs:
+                configStillExists.append(configQueried['id'])
+        assert not configStillExists
