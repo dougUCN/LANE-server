@@ -191,7 +191,11 @@ class TestRunConfig:
 
     client = TestClient(application)  # starlette Test Client instance
 
-    def post_to_test_client(self, query, variables):
+    runConfigNames = ["test_config0", "test_config1"]
+    runConfigFake = {name: None for name in runConfigNames}
+    runConfigFakeExpected = {name: None for name in runConfigNames}
+
+    def post_to_test_client(self, query, variables=None):
         """
         Not a test
 
