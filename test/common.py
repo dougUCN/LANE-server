@@ -61,26 +61,26 @@ getHistograms(
 GET_HISTOGRAM = """
 query getHistogram($id: ID!, $isLive: Boolean)
 {
-getHistogram(id: $id, isLive: $isLive)
-    {
-        id
-        data{
-            x
-            y
+    getHistogram(id: $id, isLive: $isLive)
+        {
+            id
+            data{
+                x
+                y
+            }
+            xrange{
+                min
+                max
+            }
+            yrange{
+                min
+                max
+            }    
+            name               
+            type
+            len
+            created
         }
-        xrange{
-            min
-            max
-        }
-        yrange{
-            min
-            max
-        }    
-        name               
-        type
-        len
-        created
-    }
 }"""
 
 GET_HISTOGRAMS = """
@@ -133,6 +133,7 @@ query getDevice ($name: String!) {
             selectOne
             selectMany
             options
+        }
     }
 }"""
 
@@ -239,15 +240,22 @@ mutation update($hist: HistogramUpdateInput!){
 }"""
 
 CREATE_DEVICE = """mutation createDevice($device: DeviceInput!){
-	createDevice (device: $device)
+	createDevice(device: $device)
 	{
 		message
 		success
 		modifiedDevice{
-			name
-            isOnline
-            }
-		}
+                name
+                isOnline
+                deviceOptions{
+                    optionName
+                    deviceOptionType
+                    userInput
+                    selectOne
+                    selectMany
+                    options
+                }
+        }
 	}
 }"""
 
