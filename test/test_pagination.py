@@ -15,7 +15,7 @@ from test.common import (
 
 class TestHistTable:
     """
-    # Tests in this suite
+    Tests in this suite:
 
     Create histograms and verify that the histogram table gets updated correctly
 

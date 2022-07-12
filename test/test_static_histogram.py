@@ -20,7 +20,7 @@ from test.common import (
 
 class TestStaticHistogram:
     """
-    # Tests in this suite
+    Tests in this suite:
 
     Create histograms in static db, check that the data is correct
 

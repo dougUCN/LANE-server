@@ -26,7 +26,7 @@ from test.common import (
 
 class TestSubscription:
     """
-    # Tests in this suite
+    Tests in this suite:
 
     Connect via websocket via getHistograms()
 
