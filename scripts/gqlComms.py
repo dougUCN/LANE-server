@@ -112,184 +112,131 @@ def getHistTable(first, after=None):
     return send_request(query=GET_HIST_TABLE, variables=locals())
 
 
-def createRunConfig(runConfig):
-    '''
-    Create a runConfig in the live db
-    '''
-    return send_request(query=CREATE_RUN_CONFIG, variables={"runConfig": runConfig})
-
-
-def createDevice(device):
-    '''
-    Create a device in the live db
-    '''
-    return send_request(query=CREATE_DEVICE, variables={"device": device})
-
-
 ### Queries ###
 
-GET_HIST_TABLE = """
-query getHistTable($first: Int!, $after: String) {
-    getHistTableEntries(first: $first, after: $after)
-    {
-        edges{
-            cursor
-            node{
-                name
-                created
-                histIDs
-            }
-        }
-        pageInfo{
-            endCursor
-            hasNextPage
-        }
-    }
-}"""
+GET_HIST_TABLE = """query getHistTable($first: Int!, $after: String) {
+                    getHistTableEntries(first: $first, after: $after)
+                    {
+                        edges{
+                            cursor
+                            node{
+                                name
+                                created
+                                histIDs
+                            }
+                        }
+                        pageInfo{
+                            endCursor
+                            hasNextPage
+                        }
+                    }
+                }"""
 
-GET_HIST_IDS = """
-query getIDs($ids: [ID], 
-        $names: [String],
-        $minDate: Datetime,
-        $maxDate: Datetime,
-        $types: [String],
-        $isLive: Boolean,
-    )
-{
-getHistograms( 
-        ids: $ids,
-        names: $names,
-        minDate: $minDate,
-        maxDate: $maxDate,
-        types: $types,
-        isLive: $isLive
-        )
-    {
-        id
-    }
-}"""
+GET_HIST_IDS = """query getIDs( $ids: [ID], 
+                            $names: [String],
+                            $minDate: Datetime,
+                            $maxDate: Datetime,
+                            $types: [String],
+                            $isLive: Boolean,
+                        )
+                    {
+                    getHistograms( 
+                            ids: $ids,
+                            names: $names,
+                            minDate: $minDate,
+                            maxDate: $maxDate,
+                            types: $types,
+                            isLive: $isLive
+                            )
+                        {
+                            id
+                        }
+                    }"""
 
-GET_HISTOGRAM = """
-query getHistogram($id: ID!, $isLive: Boolean)
-{
-    getHistogram(id: $id, isLive: $isLive)
-        {
-            id
-            data{
-                x
-                y
-            }
-            xrange{
-                min
-                max
-            }
-            yrange{
-                min
-                max
-            }    
-            name               
-            type
-            len
-            created
-        }
-}"""
+GET_HISTOGRAM = """query getHistogram( $id: ID!, $isLive: Boolean)
+                    {
+                    getHistogram( id: $id, isLive: $isLive)
+                        {
+                            id
+                            data{
+                                x
+                                y
+                            }
+                            xrange{
+                                min
+                                max
+                            }
+                            yrange{
+                                min
+                                max
+                            }    
+                            name               
+                            type
+                            len
+                            created
+                        }
+                    }"""
 
-GET_HISTOGRAMS = """
-query getIDs($ids: [ID], 
-        $names: [String],
-        $minDate: Datetime,
-        $maxDate: Datetime,
-        $types: [String],
-        $isLive: Boolean,
-    )
-{
-getHistograms( 
-        ids: $ids,
-        names: $names,
-        minDate: $minDate,
-        maxDate: $maxDate,
-        types: $types,
-        isLive: $isLive
-        )
-    {
-        id
-        data{
-            x
-            y
-        }
-        xrange{
-            min
-            max
-        }
-        yrange{
-            min
-            max
-        }    
-        name               
-        type
-        len
-        created
-    }
-}"""
+GET_HISTOGRAMS = """query getIDs( $ids: [ID], 
+                            $names: [String],
+                            $minDate: Datetime,
+                            $maxDate: Datetime,
+                            $types: [String],
+                            $isLive: Boolean,
+                        )
+                    {
+                    getHistograms( 
+                            ids: $ids,
+                            names: $names,
+                            minDate: $minDate,
+                            maxDate: $maxDate,
+                            types: $types,
+                            isLive: $isLive
+                            )
+                        {
+                            id
+                            data{
+                                x
+                                y
+                            }
+                            xrange{
+                                min
+                                max
+                            }
+                            yrange{
+                                min
+                                max
+                            }    
+                            name               
+                            type
+                            len
+                            created
+                        }
+                    }"""
+
 
 ### Mutations ###
 
-CREATE_HIST = """
-mutation create($hist: HistogramInput!){
-    createHistogram(hist: $hist) 
-    {
-        message
-        success
-    }
-}"""
+CREATE_HIST = """mutation create($hist: HistogramInput!){
+                    createHistogram( hist: $hist ) 
+                    {
+                        message
+                        success
+                    }
+                }"""
 
-DELETE_HIST = """
-mutation delete($id: ID!, $isLive: Boolean){
-    deleteHistogram(id: $id, isLive: $isLive)
-    {
-        message
-        success
-    }
-}"""
+DELETE_HIST = """mutation delete($id: ID!, $isLive: Boolean){
+                    deleteHistogram(id: $id, isLive: $isLive)
+                    {
+                        message
+                        success
+                    }
+                }"""
 
-UPDATE_HIST = """
-mutation update($hist: HistogramUpdateInput!){
-    updateHistogram( hist: $hist ) 
-    {
-        message
-        success
-    }
-}"""
-
-CREATE_DEVICE = """mutation createDevice($device: DeviceInput!){
-	createDevice(device: $device)
-	{
-		message
-		success
-		modifiedDevice{
-                name
-                isOnline
-                deviceOptions{
-                    optionName
-                    deviceOptionType
-                    userInput
-                    selectOne
-                    selectMany
-                    options
-                }
-        }
-	}
-}"""
-
-CREATE_RUN_CONFIG = """
-mutation createRunConfig($runConfig: RunConfigInput!){
-    createRunConfig(runConfig: $runConfig)
-    {
-        message
-        success
-        modifiedRunConfig{
-            id
-            lastSaved
-        }
-    }
-}"""
+UPDATE_HIST = """mutation update($hist: HistogramUpdateInput!){
+                    updateHistogram( hist: $hist ) 
+                    {
+                        message
+                        success
+                    }
+                }"""

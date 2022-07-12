@@ -161,10 +161,7 @@ query getRunConfig($id: ID!){
             lastLoaded
             lastSaved
             priority
-            runConfigStatus{
-                status
-                messages
-            }
+            status
             totalTime
             steps{
                 time
@@ -179,7 +176,7 @@ query getRunConfig($id: ID!){
                     selectMany
                     options
                     }
-            }
+                }
     }
 }"""
 
@@ -192,10 +189,7 @@ query getRunConfigs {
             lastLoaded
             lastSaved
             priority
-            runConfigStatus{
-                status
-                messages
-            }
+            status
             totalTime
             steps{
                 time
@@ -335,10 +329,7 @@ mutation updateRunConfig($runConfig: RunConfigUpdateInput!){
             lastLoaded
             lastSaved
             priority
-            runConfigStatus{
-                status
-                messages
-            }            
+            status
             totalTime
             steps{
                 time

@@ -16,10 +16,12 @@ def _get_run_config(id):
 
 
 @database_sync_to_async
-def _filter_runs(names=None, minLoadDate=None, maxLoadDate=None):
+def _filter_runs(names=None, minLoadDate=None, maxLoadDate=None, status=None):
     queryset = RunConfig.objects.using(DATABASE).all()
     if names:
         queryset = queryset.filter(name__in=names)
+    if status:
+        queryset = queryset.filter(status__exact=status)
     if minLoadDate:
         queryset = queryset.filter(lastLoaded__gte=minLoadDate)
     if maxLoadDate:

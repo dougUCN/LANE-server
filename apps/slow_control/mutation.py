@@ -114,24 +114,16 @@ async def delete_run_config(*_, id):
 @mutation.field('loadRunConfig')
 async def load_run_config(*_, id):
     queuedRunConfig = {key: None for key in runConfigInputField}
-    queuedRunConfig['runConfigStatus'] = {'status': RunState['QUEUED'], 'messages': []}
+    queuedRunConfig['status'] = RunState["QUEUED"]
     queuedRunConfig['lastLoaded'] = timezone.now()  # Timezone aware version of datetime.now
 
     # If runs are already queued, update the run to a lower priority
-    inDatabase = await _filter_runs()
-    existingIDs = []
-    existingPriority = []
-    for conf in inDatabase:
-        try:
-            if conf['runConfigStatus']['status'] == RunState['QUEUED']:
-                existingIDs.append(conf.id)
-                existingPriority.append(conf.priority)
-        except KeyError:
-            pass
-
-    if existingIDs:
+    alreadyQueued = await _filter_runs(status=RunState["QUEUED"])
+    if alreadyQueued:
+        existingIDs = [int(config.id) for config in alreadyQueued]
         if int(id) in existingIDs:
             raise ValueError(f'RunConfig ID {id} is already {RunState["QUEUED"]}')
+        existingPriority = [config.priority for config in alreadyQueued]
         queuedRunConfig['priority'] = max(existingPriority) + 1
     else:
         queuedRunConfig['priority'] = 0
