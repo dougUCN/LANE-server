@@ -9,7 +9,7 @@ class RunConfig(models.Model):
     priority = models.IntegerField(default=0)
     totalTime = models.FloatField(default=0)
     steps = models.JSONField(null=True)
-    status = models.CharField(blank=True, max_length=100)
+    runConfigStatus = models.JSONField(null=True)
 
 
 class Device(models.Model):

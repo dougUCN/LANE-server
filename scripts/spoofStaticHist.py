@@ -14,7 +14,7 @@ from gqlComms import createHistogram, getHistTable, toSvgCoords
 import numpy as np
 import argparse
 
-NUM = 50
+NUM = 100
 LENGTH = 50
 LOW = 0
 HIGH = 1000

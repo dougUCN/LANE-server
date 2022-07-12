@@ -57,7 +57,7 @@ type RunConfig {
   lastSaved: Datetime
   steps: [RunConfigStep!]
   priority: Int
-  status: RunConfigStatusEnum
+  runConfigStatus: RunConfigStatus
   totalTime: Int!
 }
 
@@ -72,7 +72,7 @@ input RunConfigInput {
   name: String!
   steps: [RunConfigStepInput!]
   priority: Int
-  status: RunConfigStatusEnum
+  runConfigStatus: RunConfigStatusInput
   totalTime: Int!
 }
 
@@ -88,8 +88,18 @@ input RunConfigUpdateInput {
   name: String
   steps: [RunConfigStepInput!]
   priority: Int
-  status: RunConfigStatusEnum
+  runConfigStatus: RunConfigStatusInput
   totalTime: Int
+}
+
+type RunConfigStatus {
+  status: RunConfigStatusEnum!
+  messages: [String]
+}
+
+input RunConfigStatusInput {
+  status: RunConfigStatusEnum!
+  messages: [String]!
 }
 
 type RunConfigStep {
@@ -192,9 +202,10 @@ enum RunConfigStatusEnum {
   Describes the status of a run config file
   """
   NONE
+  INVALID
   QUEUED
   RUNNING
   COMPLETED
-  ERROR
+  RUNTIME_ERROR
   STOPPED
 }
