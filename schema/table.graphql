@@ -1,19 +1,18 @@
+"""
+Paginated response to a query with a table of runs
+"""
 type HistTablePage {
-  """
-  Paginated response to a query with a table of runs
-  """
   edges: [Edge]!
   pageInfo: PageInfo
 }
 
 type PageInfo {
-  """
-  `hasNextPage` describes whether it is possible to fetch
-  more data than what was returned on a page
-
-  `endCursor` is a cursor to the last entry on the page
-  """
+  "A cursor to the last entry on the page"
   endCursor: String
+  """
+  Describes whether it is possible to fetch
+  more data than what was returned on a page
+  """
   hasNextPage: Boolean
 }
 
@@ -27,14 +26,12 @@ type Edge {
 }
 
 type HistTableEntry {
-  """
-  - `name`: Run name of a group of histograms
-  - `created`: Time when the first histogram with `name` was created in the db
-  - `histIDs`: List of histogram IDs with `name`
-  - `isLive`: Whether histogram is live running or not
-  """
+  "Run name of a group of histograms"
   name: String
+  "Time when the first histogram with `name` was created in the db"
   created: Datetime
+  "List of histogram IDs with the same `name`"
   histIDs: [ID]
+  "Whether a run is live updating or not"
   isLive: Boolean
 }
