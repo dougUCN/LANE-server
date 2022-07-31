@@ -77,10 +77,7 @@ def clean_run_config_input(run, update=False):
         else:
             runInput['runConfigStatus'] = {
                 'status': RunState['INVALID'],
-                'messages': [
-                    'Invalid RunConfig: missing "steps"',
-                    'To add "steps," edit the RunConfig',
-                ],
+                'messages': ['Invalid RunConfig: missing "steps". To add "steps," edit the RunConfig'],
             }
 
     runInput['lastSaved'] = timezone.now()
