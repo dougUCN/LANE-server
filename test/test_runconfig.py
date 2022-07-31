@@ -282,7 +282,7 @@ class TestRunConfig:
                 "lastLoaded": None,
                 "lastSaved": None,
                 "priority": 0,
-                "runConfigStatus": {"status": "NONE", "messages": []},
+                "runConfigStatus": {"status": "READY", "messages": []},
             }
 
             response = self.post_to_test_client(

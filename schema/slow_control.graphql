@@ -201,7 +201,7 @@ enum RunConfigStatusEnum {
   """
   Describes the status of a run config file
   """
-  NONE
+  READY
   INVALID
   QUEUED
   RUNNING

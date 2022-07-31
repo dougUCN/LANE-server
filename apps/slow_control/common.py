@@ -14,7 +14,7 @@ RunState = {
     "QUEUED": "Queued",
     "RUNNING": "Running",
     "COMPLETED": "Completed",
-    "NONE": "None",
+    "READY": "Ready",
     "RUNTIME_ERROR": "RuntimeError",
     "STOPPED": "Stopped",
     "INVALID": "Invalid",
@@ -73,7 +73,7 @@ def clean_run_config_input(run, update=False):
         runInput['priority'] = 0
     if (runInput['runConfigStatus'] is None) and not update:
         if runInput['steps']:
-            runInput['runConfigStatus'] = {'status': RunState['NONE'], 'messages': []}
+            runInput['runConfigStatus'] = {'status': RunState['READY'], 'messages': []}
         else:
             runInput['runConfigStatus'] = {
                 'status': RunState['INVALID'],
