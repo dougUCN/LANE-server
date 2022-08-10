@@ -1,124 +1,135 @@
+"""
+A Histogram is a list of x,y data points to plot
+along with additional metadata
+
+Stored in the static db
+"""
 type Histogram {
-  """
-  - `id`: unique integer identifier of a histogram
-  - `name`: Run name
-  - `data`: List of x y coordinates
-  - `xrange`: Range of the x axis to plot
-  - `yrange`: Range of the y axis to plot
-  - `len`: Number of data points
-  - `type`: Detector type
-  - `created`: Datetime when histogram was made in the database
-  """
+  "Unique integer identifier"
   id: ID!
+  "Run Name"
   name: String
+  "List of x y coordinates"
   data: [Point!]
+  "Range of the x axis to plot"
   xrange: Range!
+  "Range of the y axis to plot"
   yrange: Range!
+  "Number of data points"
   len: Int
+  "Detector type"
   type: String
+  "Datetime when the histogram was made in the database"
   created: Datetime
 }
 
+"""
+A LiveHistogram is a list of updating x,y data points to plot
+with additional metadata that is sent over a subscription
+
+Stored in the live db
+"""
 type LiveHistogram {
-  """
-  - `id`: unique integer identifier of a histogram
-  - `name`: Run name
-  - `data`: List of x y coordinates
-  - `xrange`: Range of the x axis to plot
-  - `yrange`: Range of the y axis to plot
-  - `len`: Number of data points
-  - `current`: The last added `Point`
-  - `type`: Detector type
-  - `created`: Datetime when histogram was made in the database
-  """
+  "Unique integer identifier"
   id: ID!
+  "Run name"
   name: String
+  "List of x y coordinates"
   data: [Point!]
+  "Range of the x axis to plot"
   xrange: Range!
+  "Range of the y axis to plot"
   yrange: Range!
+  "Number of data points"
   len: Int
+  "The last added `Point`"
   current: Point
+  "Detector type"
   type: String
+  "Datetime when histogram was made in the database"
   created: Datetime
 }
 
+"Input type for creation of a Histogram"
 input HistogramInput {
-  """
-  - `id`: unique integer identifier of a histogram
-  - `name`: Run name. Can be duplicate
-  - `data`: List of x y coordinates
-  - `xrange`: Range of the x axis to plot
-  - `yrange`: Range of the y axis to plot
-  - `type`: Detector type
-  - `isLive`: Whether histogram gets put in the live database or the static one (default: static)
-  """
+  "Unique integer identifier of a histogram"
   id: ID!
+  "Run name. Can be duplicate"
   name: String!
+  "List of x y coordinates"
   data: [PointInput!]
+  "Range of the x axis to plot"
   xrange: RangeInput!
+  "Range of the y axis to plot"
   yrange: RangeInput!
+  "Detector type"
   type: String!
+  "Whether histogram gets put in the live or static database (default: static)"
   isLive: Boolean
 }
 
+"Input type for updating an existing Histogram"
 input HistogramUpdateInput {
-  """
-  - `id`: unique integer identifier of the histogram to edit
-  - `isLive`: Whether histogram to edit is in live database or the static one (default: static)
-  - `data`: List of x y coordinates
-  - `xrange`: Range of the x axis to plot
-  - `yrange`: Range of the y axis to plot
-  - `type`: Detector type
-  """
+  "Unique integer identifier of the Histogram to edit"
   id: ID!
+  "List of x y coordinates"
   data: [PointInput!]
+  "Range of the x axis to plot"
   xrange: RangeInput
+  "Range of the y axis to plot"
   yrange: RangeInput
+  "Detector type"
   type: String
+  "Whether histogram to edit exists in live database or the static one (default: static)"
   isLive: Boolean
 }
 
+"Coordinate in a format compatible with an SVG plotter"
 type Point {
-  "coordinate in a format compatible with an SVG plotter"
   x: Float!
   y: Float!
 }
 
+"Coordinate in a format compatible with an SVG plotter"
 input PointInput {
-  "coordinate in a format compatible with an SVG plotter"
   x: Float!
   y: Float!
 }
 
+"A minimum and maximum for a range of values"
 type Range {
-  "Gives a minimum and maximum for a range of values"
   min: Float!
   max: Float!
 }
 
+"A minimum and maximum for a range of values"
 input RangeInput {
-  "A minimum and maximum for a range of values"
   min: Float!
   max: Float!
 }
 
+"""
+Return value of a mutation affecting histograms.
+"""
 type HistogramPayload {
-  """
-  Return value of a mutation affecting histograms.
-  """
   message: String!
   success: Boolean!
+  """
+  Returns the histogram that was the mutation target
+  (for cache updating purposes)
+  """
   modifiedHistogram: Histogram!
 }
 
+"""
+Returns a list of live histograms (if any) and
+the name of the last completed run
+"""
 type HistogramSubscriptionPayload {
-  """
-  Returns a list of live histograms (if any) and
-  the name of the last completed run
-  """
   histograms: [LiveHistogram]
+  "Name of the last completed run"
   lastRun: String
 }
 
-"Datetime is in UTC"
+"Datetime in UTC"
 scalar Datetime
