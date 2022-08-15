@@ -367,7 +367,6 @@ class TestRunConfig:
         assert isinstance(data['canCreateNewRun'], bool)
 
         configStillExists = []
-        print(data)
         if data['runConfigs'] is not None:
             for configQueried in data['runConfigs']:
                 if configQueried['id'] in configIDs:
