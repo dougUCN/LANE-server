@@ -27,7 +27,7 @@ importlib-metadata==4.8.3
 incremental==21.3.0
 iniconfig==1.1.1
 mypy-extensions==0.4.3
-numpy==1.19.5
+numpy
 packaging==21.3
 pathspec==0.9.0
 platformdirs==2.4.0
