@@ -101,7 +101,7 @@ type Mutation {
   If existing runs are queued, updates the priority to be lower than
   what is already in the queue
   """
-  loadRunConfig(id: ID!): SlowControlPayload!
+  loadRunConfig(id: ID!): LoadConfigPayload!
 
   """
   Instructs the slow control worker to

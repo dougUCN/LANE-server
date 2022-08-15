@@ -221,6 +221,19 @@ type SlowControlPayload {
   success: Boolean!
 }
 
+"""
+Return value of a loadRunConfig mutation
+"""
+type LoadConfigPayload {
+  message: String!
+  success: Boolean!
+  """
+  Returns the RunConfig that was the mutation target
+  (for cache updating purposes)
+  """
+  loadedRunConfig: RunConfig!
+}
+
 enum DeviceOptionEnum {
   "Of options presented, user may select mulitple"
   SELECT_ONE
