@@ -7,7 +7,7 @@ name: Heroku_Deployment
 
 on:
   push:
-    branches: [update-load-config-mutation]
+    branches: [main]
 
 jobs:
   builds_successfully:
@@ -29,7 +29,7 @@ jobs:
           heroku_app_name: "lane-server"
           heroku_email: "douglas.kt.wong@gmail.com"
           healthcheck: "https://lane-server.herokuapp.com/graphql/"
-          branch: update-load-config-mutation
+          branch: main
         env: # Variables in this section must start with HD_
           HD_DISABLE_COLLECTSTATIC: True # Disable collection of static pages for django
           HD_LANE_SECRET_KEY: ${{secrets.LANE_SECRET_KEY}}
