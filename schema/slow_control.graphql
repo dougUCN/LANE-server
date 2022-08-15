@@ -1,200 +1,257 @@
+"""
+Describes whether a device is online and
+what configuration settings are available on said device
+"""
 type Device {
-  """
-  Describes whether a device is online and
-  what configuration settings are available on said device
-  """
+  "Unique string identifier of a `Device`"
   name: String
+  "List of valid options applicable to the `Device`"
   deviceOptions: [DeviceOption!]
+  "Whether device is operational or not"
   isOnline: Boolean
 }
 
+"""
+Describes whether a device is online and
+what configuration settings are available on said device
+"""
 input DeviceInput {
-  """
-  Describes whether a device is online and
-  what configuration settings are available on said device
-
-  `isOnline` defaults to false if unspecified
-  """
+  "Unique string identifier of a `Device`"
   name: String!
+  "List of valid options applicable to the `Device`"
   deviceOptions: [DeviceOptionInput!]
+  "`isOnline` defaults to false if unspecified"
   isOnline: Boolean
 }
 
+"""
+Return value of a mutation affecting devices.
+"""
 type DevicePayload {
-  """
-  Return value of a mutation affecting devices.
-  """
   message: String!
   success: Boolean!
+  """
+  Returns the `Device` that was the mutation target
+  (for cache updating purposes)
+  """
   modifiedDevice: Device!
 }
 
+"""
+Returns a list of RunConfigs.
+"""
 type getRunConfigsPayload {
-  """
-  Returns a list of RunConfigs.
-
-  Includes flag describing whether it is possible to
-  create a new run or if the storage cap has been reached
-  """
   runConfigs: [RunConfig!]
+  """
+  Flag describing whether it is possible to
+  create a new run or if the storage limit been reached
+  """
   canCreateNewRun: Boolean!
 }
 
+"""
+Instructions for an experiment that must be queued after creation
+for the slow control worker to process
+"""
 type RunConfig {
-  """
-  - `ID`: Unique identifier of the run
-  - `name`: Name for a run
-  - `lastSaved`: Last datetime [UTC] the runfile was modified and saved
-  - `lastLoaded`: Last datetime [UTC] the runfile was Queued for slow control
-  - `steps`: Describes what occurs during the run
-  - `priority`: lower value = higher priority (Default 0).
-  - `status`: Describes whether slow control worker has run the job
-  - `totalTime`: How long the run takes in total to complete [seconds]
-  """
+  "Unique identifier of the run"
   id: ID!
+  "Name for a run"
   name: String!
+  "Last datetime [UTC] the runfile was Queued for slow control worker to run"
   lastLoaded: Datetime
+  "Last datetime [UTC] the runfile was modified and saved"
   lastSaved: Datetime
+  "List of steps describing what occurs during the run"
   steps: [RunConfigStep!]
+  """
+  Priority for the slow control worker to process a RunConfig
+
+  lower value = higher priority (Default 0)
+  """
   priority: Int
-  status: RunConfigStatusEnum
+  "Status of the RunConfig + error messages"
+  runConfigStatus: RunConfigStatus
+  "How long the run takes in total to complete [seconds]"
   totalTime: Int!
 }
 
+"""
+Instructions for an experiment that must be queued after creation
+for the slow control worker to process
+"""
 input RunConfigInput {
-  """
-  - `name`: Name for a run
-  - `priority`: lower value = higher priority
-  - `steps`: Describes what occurs during the run
-  - `status`: Describes whether slow control worker has run the job
-  - `totalTime`: How long the run takes in total to complete [seconds]
-  """
+  "Name for a run"
   name: String!
+  "List of steps describing what occurs during the run"
   steps: [RunConfigStepInput!]
+  """
+  Priority for the slow control worker to process a RunConfig
+
+  lower value = higher priority (Default 0)
+  """
   priority: Int
-  status: RunConfigStatusEnum
+  "Status of the RunConfig + error messages"
+  runConfigStatus: RunConfigStatusInput
+  "How long the run takes in total to complete [seconds]"
   totalTime: Int!
 }
-
+"""
+Updates the properties of a run with unique identifier `id`
+"""
 input RunConfigUpdateInput {
-  """
-  Updates the properties of a run with unique identifier `id`
-  - `name`: Name for a run
-  - `priority`: larger value = higher priority (Default 0).
-  - `status`: Describes whether slow control worker has run the job
-  - `totalTime`: How long the run takes in total to complete [seconds]
-  """
+  "Unique identifier of the run to update"
   id: ID!
+  "Update the `name` of a RunConfig"
   name: String
+  "Update the `steps` of a RunConfig"
   steps: [RunConfigStepInput!]
+  """
+  Update the `priority` of a RunConfig.
+  Larger value = higher priority (Default 0)
+  """
   priority: Int
-  status: RunConfigStatusEnum
+  "Update the status and error messages of the RunConfig"
+  runConfigStatus: RunConfigStatusInput
+  "Update the total run time of the RunConfig"
   totalTime: Int
 }
 
+"Status and associated error messages of a RunConfig"
+type RunConfigStatus {
+  status: RunConfigStatusEnum!
+  messages: [String]
+}
+
+"Status and associated error messages of a RunConfig"
+input RunConfigStatusInput {
+  status: RunConfigStatusEnum!
+  messages: [String]!
+}
+
+"Describes one step in an experiment for the slow control to run"
 type RunConfigStep {
-  """
-  Describes when a step occurs, with what device, and what occurs to
-  said device
-  """
+  "Describes what stage in the experiment for which this step occurs"
   timeFrameOptionType: TimeFrameOptionEnum!
+  "Describes the device involved in this step"
   deviceName: String!
+  "Describes the setting the device is set to during this step"
   deviceOption: DeviceOption!
+  "What time [s] at which this step occurs"
   time: Float!
+  "Additional information not passed to the slow control"
   description: String
 }
 
+"Create one step in an experiment for the slow control to run"
 input RunConfigStepInput {
-  """
-  Describes when a step occurs, with what device, and what occurs to
-  said device
-  """
+  "Describes what stage in the experiment for which this step occurs"
   timeFrameOptionType: TimeFrameOptionEnum!
+  "Describes the device involved in this step"
   deviceName: String!
+  "Describes the setting the device is set to during this step"
   deviceOption: DeviceOptionInput!
+  "What time [s] at which this step occurs"
   time: Float!
+  "Additional information not passed to the slow control"
   description: String
 }
 
 type DeviceOption {
+  "Name of the DeviceOption"
+  optionName: String!
   """
-  Describes the properties of an option for a device
-
-  `deviceOptionType` specifies whether the `userInput`,
+  Specifies whether the `userInput`,
   `selectOne`, or `selectMany` field should be filled
   """
-  optionName: String!
   deviceOptionType: DeviceOptionEnum!
+  """
+  List of possible options for selectOne or selectMany.
+  Empty if deviceOptionType is userInput
+  """
   options: [String!]
+  "Sets the device option to a float"
   userInput: Float
+  "Select one option out of the list of `options`"
   selectOne: String
+  "Select multiple settings out of the list of `options`"
   selectMany: [String!]
 }
 
 input DeviceOptionInput {
+  "Name of the DeviceOption"
+  optionName: String!
   """
-  Describes the properties of an option for a device
-
-  `deviceOptionType` specifies whether the `userInput`,
+  Specifies whether the `userInput`,
   `selectOne`, or `selectMany` field should be filled
   """
-  optionName: String!
   deviceOptionType: DeviceOptionEnum!
+  """
+  List of possible options for selectOne or selectMany.
+  Empty if deviceOptionType is userInput
+  """
   options: [String!]
+  "Sets the device option to a float"
   userInput: Float
+  "Select one option out of the list of `options`"
   selectOne: String
+  "Select multiple settings out of the list of `options`"
   selectMany: [String!]
 }
 
+"""
+Return value of a mutation affecting RunConfigs
+"""
 type RunConfigPayload {
-  """
-  Return value of a mutation affecting RunConfigs
-  """
   message: String!
   success: Boolean!
+  """
+  Returns the RunConfig that was the mutation target
+  (for cache updating purposes)
+  """
   modifiedRunConfig: RunConfig!
 }
 
+"""
+Return value of a mutation involving communications
+with the slow control worker
+"""
 type SlowControlPayload {
-  """
-  Return value of a mutation involving communications
-  with the slow control worker
-  """
   message: String!
   success: Boolean!
 }
 
 enum DeviceOptionEnum {
-  """
-  - `SELECT_MANY`: Of options presented, user may select mulitple
-  - `SELECT_ONE`: Of options presented, expects only one
-  - `USER_INPUT`: Expects a float input from user
-  """
+  "Of options presented, user may select mulitple"
   SELECT_ONE
+  "Of options presented, user may select mulitple"
   SELECT_MANY
+  "Expects a float input from user"
   USER_INPUT
 }
 
+"Different phases of the experiment to run a RunConfig step"
 enum TimeFrameOptionEnum {
-  """
-  Different phases of the runs
-  - `BEFORE`: The step is to prep the run
-  - `DURING`: The step occurs during the run
-  - `AFTER`: A cleanup step after a run
-  """
+  "The step is to prep the run"
   BEFORE
+  "The step occurs during the run"
   DURING
+  "A cleanup step after a run"
   AFTER
 }
 
+"""
+Describes the status of a run config file
+"""
 enum RunConfigStatusEnum {
   """
   Describes the status of a run config file
   """
-  NONE
+  READY
+  INVALID
   QUEUED
   RUNNING
   COMPLETED
-  ERROR
+  RUNTIME_ERROR
   STOPPED
 }

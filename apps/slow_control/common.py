@@ -6,7 +6,7 @@ MAX_RUN_CONFIGS = 20  # Max number of run configs allowed in the DB
 
 # Fields as defined in the graphql schema as inputs for mutations
 
-runConfigInputField = ['name', 'steps', 'priority', 'status', 'totalTime', 'lastLoaded', 'lastSaved']
+runConfigInputField = ['name', 'steps', 'priority', 'runConfigStatus', 'totalTime', 'lastLoaded', 'lastSaved']
 
 deviceInputField = ['name', 'deviceOptions', 'isOnline']
 
@@ -14,9 +14,10 @@ RunState = {
     "QUEUED": "Queued",
     "RUNNING": "Running",
     "COMPLETED": "Completed",
-    "NONE": "None",
-    "ERROR": "Error",
+    "READY": "Ready",
+    "RUNTIME_ERROR": "RuntimeError",
     "STOPPED": "Stopped",
+    "INVALID": "Invalid",
 }
 
 TimeFrame = {
@@ -70,8 +71,14 @@ def clean_run_config_input(run, update=False):
 
     if (runInput['priority'] is None) and not update:
         runInput['priority'] = 0
-    if (runInput['status'] is None) and not update:
-        runInput['status'] = RunState['NONE']
+    if (runInput['runConfigStatus'] is None) and not update:
+        if runInput['steps']:
+            runInput['runConfigStatus'] = {'status': RunState['READY'], 'messages': []}
+        else:
+            runInput['runConfigStatus'] = {
+                'status': RunState['INVALID'],
+                'messages': ['Invalid RunConfig: missing "steps". To add "steps," edit the RunConfig'],
+            }
 
     runInput['lastSaved'] = timezone.now()
 

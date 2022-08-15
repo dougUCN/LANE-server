@@ -282,7 +282,7 @@ class TestRunConfig:
                 "lastLoaded": None,
                 "lastSaved": None,
                 "priority": 0,
-                "status": "NONE",
+                "runConfigStatus": {"status": "READY", "messages": []},
             }
 
             response = self.post_to_test_client(
@@ -324,7 +324,7 @@ class TestRunConfig:
         toUpdate = {
             "id": int(self.runConfigFakeExpected[name]["id"]),
             "priority": 1,
-            "status": "QUEUED",
+            "runConfigStatus": {"status": "QUEUED", "messages": ["Unit test queue"]},
         }
         for key, value in toUpdate.items():
             if key is "id":
@@ -367,7 +367,8 @@ class TestRunConfig:
         assert isinstance(data['canCreateNewRun'], bool)
 
         configStillExists = []
-        for configQueried in data['runConfigs']:
-            if configQueried['id'] in configIDs:
-                configStillExists.append(configQueried['id'])
+        if data['runConfigs'] is not None:
+            for configQueried in data['runConfigs']:
+                if configQueried['id'] in configIDs:
+                    configStillExists.append(configQueried['id'])
         assert not configStillExists
