@@ -123,10 +123,10 @@ async def load_run_config(*_, id):
     existingPriority = []
     for conf in inDatabase:
         try:
-            if conf['runConfigStatus']['status'] == RunState['QUEUED']:
+            if conf.runConfigStatus['status'] == RunState['QUEUED']:
                 existingIDs.append(conf.id)
                 existingPriority.append(conf.priority)
-        except KeyError:
+        except AttributeError:
             pass
 
     if existingIDs:
@@ -136,9 +136,13 @@ async def load_run_config(*_, id):
     else:
         queuedRunConfig['priority'] = 0
 
-    _, _, status = await _update_run_config(id, queuedRunConfig)
+    updated_run_config, _, _, status = await _update_run_config(id, queuedRunConfig)
 
-    return slow_control_payload(message=f'Set RunConfig {id} to {RunState["QUEUED"]} at priority {queuedRunConfig["priority"]}', success=status)
+    return {
+        'message': f'Set RunConfig {id} to {RunState["QUEUED"]} at priority {queuedRunConfig["priority"]}',
+        'success': status,
+        'loadedRunConfig': updated_run_config,
+    }
 
 
 """

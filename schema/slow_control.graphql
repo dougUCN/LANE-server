@@ -221,6 +221,19 @@ type SlowControlPayload {
   success: Boolean!
 }
 
+"""
+Return value of a loadRunConfig mutation
+"""
+type LoadConfigPayload {
+  message: String!
+  success: Boolean!
+  """
+  Returns the RunConfig that was the mutation target
+  (for cache updating purposes)
+  """
+  loadedRunConfig: RunConfig!
+}
+
 enum DeviceOptionEnum {
   "Of options presented, user may select mulitple"
   SELECT_ONE
@@ -244,14 +257,18 @@ enum TimeFrameOptionEnum {
 Describes the status of a run config file
 """
 enum RunConfigStatusEnum {
-  """
-  Describes the status of a run config file
-  """
+  "RunConfig is valid and ready to be loaded"
   READY
+  "Something is wrong with the settings in the RunConfig"
   INVALID
+  "RunConfig has been loaded and is waiting for the Slow Control to run"
   QUEUED
+  "The Slow Control has started this RunConfig"
   RUNNING
+  "The Slow Control has finished running the RunConfig without error"
   COMPLETED
+  "The Slow Control encountered an issue while running the RunConfig"
   RUNTIME_ERROR
+  "A stop command was issued to the slow control and has interrupted the run"
   STOPPED
 }
