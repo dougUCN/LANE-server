@@ -2,7 +2,7 @@ from ariadne import QueryType
 from .models import Histogram, HistTable
 from channels.db import database_sync_to_async
 from cursor_pagination import CursorPaginator
-from .common import chooseDatabase, STATIC_DATABASE
+from .common import chooseDatabase, STATIC_DATABASE, DEFAULT_TABLE_FIRST
 
 """ Asynchronous generator for database access 
 Note that we cannot pass querysets out from the generator, 
@@ -88,5 +88,5 @@ async def resolve_histograms(*_, ids=None, names=None, types=None, minDate=None,
 
 
 @query.field("getHistTableEntries")
-async def resolve_hist_table_entries(*_, first=100, after=None):
+async def resolve_hist_table_entries(*_, first=DEFAULT_TABLE_FIRST, after=None):
     return await _paginate_hist_table(first, after)
