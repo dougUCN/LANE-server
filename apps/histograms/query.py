@@ -34,9 +34,16 @@ def _filter_histograms(ids, names, types, minDate, maxDate, isLive):
 
 
 @database_sync_to_async
-def _paginate_hist_table(first, after):
+def _paginate_hist_table(first, after, minDate, maxDate):
     """Paginates HistTable entries"""
     queryset = HistTable.objects.using(STATIC_DATABASE).all()
+
+    # Apply any datefilters to the queryset
+    if minDate:
+        queryset = queryset.filter(created__gte=minDate)
+    if maxDate:
+        queryset = queryset.filter(created__lte=maxDate)
+
     # Order entries by descending order of creation date
     # (hence the `-` character)
     paginator = CursorPaginator(queryset, ordering=('-created',))
@@ -88,5 +95,5 @@ async def resolve_histograms(*_, ids=None, names=None, types=None, minDate=None,
 
 
 @query.field("getHistTableEntries")
-async def resolve_hist_table_entries(*_, first=DEFAULT_TABLE_FIRST, after=None):
-    return await _paginate_hist_table(first, after)
+async def resolve_hist_table_entries(*_, first=DEFAULT_TABLE_FIRST, after=None, minDate=None, maxDate=None):
+    return await _paginate_hist_table(first, after, minDate, maxDate)
