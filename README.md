@@ -77,4 +77,4 @@ See the live demo [here](https://lane-server.herokuapp.com/graphql/)!
 
 # Contributing
 
-See the [contribution guidelines](CONTRIBUTING.md)
+See the [contribution guidelines](docs/CONTRIBUTING.md)
