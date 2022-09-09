@@ -143,6 +143,22 @@ type Mutation {
   Deletes a device
   """
   deleteDevice(name: String!): DevicePayload!
+
+  # """
+  # Validates whether a valid JWT token was provided
+  # """
+  # verifyToken(token: String!): VerifyTokenPayload
+
+  # """
+  # Given a valid JWT token, gives a new one with a
+  # refreshed expiration period
+  # """
+  # refreshToken(token: String!): RefreshTokenPayload
+
+  # """
+  # Obtains a JWT token given a valid username and password
+  # """
+  # tokenAuth(username: String!, password: String!): TokenAuthPayload
 }
 
 type Subscription {
