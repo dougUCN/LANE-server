@@ -24,15 +24,6 @@ DEBUG = strtobool(os.environ.get("LANE_DEBUG"))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("LANE_SECRET_KEY")
 
-# JWT Authentication settings
-JWT_SETTINGS = {
-    # Timedelta added to utcnow() to set the expiration time
-    'EXPIRATION_DELTA': timedelta(seconds=3600),
-    # Authorization header name. (e.g. `Authorization: Bearer JWT_TOKEN` )
-    # Follows recommendations of [RFC6750](https://www.rfc-editor.org/rfc/rfc6750)
-    'AUTH_HEADER': 'Bearer',
-}
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 

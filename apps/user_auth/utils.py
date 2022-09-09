@@ -1,7 +1,5 @@
-import os
-from django.conf import settings
 from graphql import GraphQLResolveInfo
-
+from .settings import get_jwt_settings
 import jwt
 
 
@@ -14,8 +12,11 @@ class requires_auth(object):
     """
 
     def __init__(self, func):
-        """Decorator initialization"""
-        self.settings = getattr(settings, 'JWT_SETTINGS')
+        """
+        Decorator initialization
+        Obtains settings from Django settings.py
+        """
+        self.settings = get_jwt_settings()
         self.func = func
 
     def __call__(self, *args, **kwargs):
