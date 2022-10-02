@@ -1,4 +1,4 @@
-from django.conf import settings
+from django.conf import settings as django_settings
 from datetime import timedelta
 
 # Defaults are overridden by a dictionary JWT_SETTINGS in the Django server settings.py
@@ -12,7 +12,7 @@ DEFAULTS = {
 
 
 def get_jwt_settings():
-    user_defined_settings = getattr(settings, 'JWT_SETTINGS', None)
+    user_defined_settings = getattr(django_settings, 'JWT_SETTINGS', None)
     settings = DEFAULTS
     if user_defined_settings and isinstance(user_defined_settings, dict):
         for key, value in user_defined_settings.items():

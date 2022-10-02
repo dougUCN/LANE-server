@@ -38,3 +38,11 @@ class requires_auth(object):
             return info.context.get('request').get('headers')
         except AttributeError:
             return None
+
+
+class AuthError(Exception):
+    """Error Handler"""
+
+    def __init__(self, error, status_code):
+        self.error = error
+        self.status_code = status_code
