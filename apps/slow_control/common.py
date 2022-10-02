@@ -85,7 +85,7 @@ def clean_run_config_input(run, update=False):
     if runInput['steps']:
         # Ensure that each runconfig step has a uuid
         for step in runInput['steps']:
-            step.setdefault('uuid', str(uuid.uuid4()))
+            step.setdefault('id', str(uuid.uuid4()))
 
     # Update lastSaved metadata
     runInput['lastSaved'] = timezone.now()

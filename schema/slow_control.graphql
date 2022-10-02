@@ -132,7 +132,7 @@ input RunConfigStatusInput {
 "Describes one step in an experiment for the slow control to run"
 type RunConfigStep {
   "Unique identifier"
-  uuid: String!
+  id: ID!
   "Describes what stage in the experiment for which this step occurs"
   timeFrameOptionType: TimeFrameOptionEnum!
   "Describes the device involved in this step"
