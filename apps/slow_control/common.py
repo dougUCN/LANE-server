@@ -1,4 +1,5 @@
 from django.utils import timezone
+import uuid
 
 DATABASE = "live"  # Devices and RunConfigs should be stored to the live database
 
@@ -70,8 +71,10 @@ def clean_run_config_input(run, update=False):
         raise ValueError('totalTime cannot be negative')
 
     if (runInput['priority'] is None) and not update:
+        # On creation, Ensure each run config has a default priority of 0
         runInput['priority'] = 0
     if (runInput['runConfigStatus'] is None) and not update:
+        # On creation, assign runConfigStatus INVALID or READY depending on if steps exist
         if runInput['steps']:
             runInput['runConfigStatus'] = {'status': RunState['READY'], 'messages': []}
         else:
@@ -79,7 +82,12 @@ def clean_run_config_input(run, update=False):
                 'status': RunState['INVALID'],
                 'messages': ['Invalid RunConfig: missing "steps". To add "steps," edit the RunConfig'],
             }
+    if runInput['steps']:
+        # Ensure that each runconfig step has a uuid
+        for step in runInput['steps']:
+            step.setdefault('uuid', str(uuid.uuid4()))
 
+    # Update lastSaved metadata
     runInput['lastSaved'] = timezone.now()
 
     return runInput

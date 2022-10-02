@@ -21,7 +21,7 @@ DEVICE_OPTIONS = [
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('-nrc', '--numRunConfigs', type=int, default=NUM_RUN_CONFIGS, help=f'Add this many run configs to the database (default={NUM_RUN_CONFIGS})')
+    parser.add_argument('-nrc', '--numRunConfigs', type=int, default=NUM_RUN_CONFIGS, help=f'Add this many run configs to the database (default={NUM_RUN_CONFIGS}). Assumes db is empty')
     parser.add_argument('-ns', '--numSteps', type=int, default=NUM_STEPS, help=f'Number of steps per run config (default={NUM_STEPS})')
     parser.add_argument('-nd', '--numDevices', type=int, default=NUM_DEVICES, help=f'Number of devices to spoof (default={NUM_DEVICES})')
     args = parser.parse_args()
