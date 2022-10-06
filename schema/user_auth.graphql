@@ -3,15 +3,11 @@
 #   token: String!
 # }
 
-# type RefreshTokenPayload {
-#   token: String!
-#   payload: TokenPayload!
-# }
-
 # type VerifyTokenPayload {
 #   payload: TokenPayload!
 # }
 
 # type TokenPayload {
 #   username: String!
+#   expiration: Datetime!
 # }

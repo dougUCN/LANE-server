@@ -6,7 +6,7 @@ User data is stored in `db/users.sqlite3`
 
 ## Settings
 
-JWT token setting may be adjusted in `LANE_server/settings.py` by modifying the `JWT_SETTINGS` dict. Defaults found in `user_auth/settings.py`
+JWT token settings may be adjusted in `user_auth/settings.py`
 
 ## Usage
 
