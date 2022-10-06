@@ -27,6 +27,10 @@ async def resolve_query(*_):
 
 ## Using Json Web Token (JWT) Authentication
 
+### GraphQL mutations
+
+### Authorization header
+
 Whenever the user wants to access a protected graphql api call, the user agent should send the JWT, typically in the Authorization header using the Bearer schema. The content of the header should look like the following:
 
 ```
