@@ -39,7 +39,24 @@ class TestDevice:
 
     deviceNames = ["test_device0", "test_device1"]  # Names of the fake devices to create
 
-    def fake_device(self, deviceName):
+    expected_device = {}  # For validation of return value
+
+    def compare_dict(self, expected, received):
+        """
+        Not a test
+
+        Checks if the values of keys in `expected` match those of `received`
+        returns: true if histograms match
+        """
+        for key, expectedValue in expected.items():
+            if received[key] != expectedValue:
+                print(f'Mismatch for key "{key}"')
+                print(f'expected\n{expectedValue}')
+                print(f'received\n{received[key]}')
+                return False
+        return True
+
+    def spoof_fake_device(self, deviceName):
         """
         Hardcodes a fake device
         """
@@ -47,27 +64,11 @@ class TestDevice:
             "name": deviceName,
             "isOnline": True,
             "deviceOptions": [
-                {"optionName": "toggle", "deviceOptionType": "SELECT_ONE", "options": ["ON", "OFF"]},
-                {"optionName": "dropDownMenu", "deviceOptionType": "SELECT_ONE", "options": ["dropdown0", "dropdown1", "dropdown2"]},
-                {"optionName": "checkboxes", "deviceOptionType": "SELECT_MANY", "options": ["checkbox0", "checkbox1", "checkbox2"]},
-                {"optionName": "floatInput0", "deviceOptionType": "USER_INPUT"},
-                {"optionName": "floatInput1", "deviceOptionType": "USER_INPUT"},
-            ],
-        }
-
-    def expected_device(self, deviceName):
-        """
-        Hardcodes the expected return format of a device query
-        """
-        return {
-            "name": deviceName,
-            "isOnline": True,
-            "deviceOptions": [
-                {"optionName": "toggle", "deviceOptionType": "SELECT_ONE", "userInput": None, "selectOne": None, "selectMany": None, "options": ["ON", "OFF"]},
-                {"optionName": "dropDownMenu", "deviceOptionType": "SELECT_ONE", "userInput": None, "selectOne": None, "selectMany": None, "options": ["dropdown0", "dropdown1", "dropdown2"]},
-                {"optionName": "checkboxes", "deviceOptionType": "SELECT_MANY", "userInput": None, "selectOne": None, "selectMany": None, "options": ["checkbox0", "checkbox1", "checkbox2"]},
-                {"optionName": "floatInput0", "deviceOptionType": "USER_INPUT", "userInput": None, "selectOne": None, "selectMany": None, "options": None},
-                {"optionName": "floatInput1", "deviceOptionType": "USER_INPUT", "userInput": None, "selectOne": None, "selectMany": None, "options": None},
+                {"optionName": "toggle", "deviceOptionType": "SELECT_ONE", "options": ["On", "Off"], 'selected': None},
+                {"optionName": "dropDownMenu", "deviceOptionType": "SELECT_ONE", "options": ["dropdown0", "dropdown1", "dropdown2"], 'selected': None},
+                {"optionName": "checkboxes", "deviceOptionType": "SELECT_MANY", "options": ["checkbox0", "checkbox1", "checkbox2"], 'selected': None},
+                {"optionName": "floatInput0", "deviceOptionType": "USER_INPUT", "options": None, 'selected': None},
+                {"optionName": "floatInput1", "deviceOptionType": "USER_INPUT", "options": None, 'selected': None},
             ],
         }
 
@@ -93,19 +94,22 @@ class TestDevice:
         """
 
         for deviceName in self.deviceNames:
+            fake_device = self.spoof_fake_device(deviceName)
+            self.expected_device[deviceName] = fake_device.copy()
+            self.expected_device['selected'] = None
             response = self.post_to_test_client(
                 query=CREATE_DEVICE,
-                variables={"device": self.fake_device(deviceName)},
+                variables={"device": fake_device},
             )
             data = response["data"]["createDevice"]
-            assert data["success"] and data["modifiedDevice"] == self.expected_device(deviceName)
+            assert data["success"] and self.compare_dict(self.expected_device[deviceName], data["modifiedDevice"])
 
             response = self.post_to_test_client(
                 query=GET_DEVICE,
                 variables={"name": deviceName},
             )
             data = response["data"]["getDevice"]
-            assert data == self.expected_device(deviceName)
+            assert self.compare_dict(self.expected_device[deviceName], data)
 
     def test_get_devices(self):
         """
@@ -118,7 +122,7 @@ class TestDevice:
         for deviceQueried in data:
             if deviceQueried['name'] not in self.deviceNames:  # skip devices already in db that are not part of this test
                 continue
-            matchesExpected.append(deviceQueried == self.expected_device(deviceQueried['name']))
+            matchesExpected.append(self.compare_dict(self.expected_device[deviceQueried['name']], deviceQueried))
         assert all(matchesExpected) and len(matchesExpected) == len(self.deviceNames)
 
     def test_update_device(self):
@@ -129,29 +133,30 @@ class TestDevice:
             "name": self.deviceNames[0],
             "isOnline": False,
             "deviceOptions": [
-                {"optionName": "toggle2", "deviceOptionType": "SELECT_ONE", "options": ["ON", "OFF"]},
+                {
+                    "optionName": "toggle2",
+                    "deviceOptionType": "SELECT_ONE",
+                    "options": ["On", "Off"],
+                    "selected": None,
+                },
             ],
         }
-        expected_updated_device = {
-            "name": self.deviceNames[0],
-            "isOnline": False,
-            "deviceOptions": [
-                {"optionName": "toggle2", "deviceOptionType": "SELECT_ONE", "userInput": None, "selectOne": None, "selectMany": None, "options": ["ON", "OFF"]},
-            ],
-        }
+        for key, value in updated_device.items():
+            self.expected_device[self.deviceNames[0]][key] = value
+
         response = self.post_to_test_client(
             query=UPDATE_DEVICE,
             variables={"device": updated_device},
         )
         data = response["data"]["updateDevice"]
-        assert data["success"] and data["modifiedDevice"] == expected_updated_device
+        assert data["success"] and self.compare_dict(self.expected_device[self.deviceNames[0]], data["modifiedDevice"])
 
         response = self.post_to_test_client(
             query=GET_DEVICE,
             variables={"name": self.deviceNames[0]},
         )
         data = response["data"]["getDevice"]
-        assert data == expected_updated_device
+        assert self.compare_dict(self.expected_device[self.deviceNames[0]], data)
 
     def test_delete_device(self):
         """
@@ -217,29 +222,16 @@ class TestRunConfig:
     def generate_steps(self, numsteps):
         """
         Generates a list `steps_input` for a runconfig with random settings
-
-        returns (`steps_input`, `steps_expected`)
-
-        `steps_input` is suitable for a mutation input, `steps_expected` is what is
-        expected by a query
         """
         steps_input = []
-        steps_expected = []
 
         possibleDevices = ['device0', 'device1']
         possibleOptions = [
-            {"optionName": "toggle", "deviceOptionType": "SELECT_ONE", "options": ["ON", "OFF"]},
+            {"optionName": "toggle", "deviceOptionType": "SELECT_ONE", "options": ["On", "Off"]},
             {"optionName": "dropDownMenu", "deviceOptionType": "SELECT_ONE", "options": ["dropdown0", "dropdown1", "dropdown2"]},
             {"optionName": "checkboxes", "deviceOptionType": "SELECT_MANY", "options": ["checkbox0", "checkbox1", "checkbox2"]},
-            {"optionName": "floatInput0", "deviceOptionType": "USER_INPUT"},
-            {"optionName": "floatInput1", "deviceOptionType": "USER_INPUT"},
-        ]
-        possibleOptionsExpected = [
-            {"optionName": "toggle", "deviceOptionType": "SELECT_ONE", "userInput": None, "selectOne": None, "selectMany": None, "options": ["ON", "OFF"]},
-            {"optionName": "dropDownMenu", "deviceOptionType": "SELECT_ONE", "userInput": None, "selectOne": None, "selectMany": None, "options": ["dropdown0", "dropdown1", "dropdown2"]},
-            {"optionName": "checkboxes", "deviceOptionType": "SELECT_MANY", "userInput": None, "selectOne": None, "selectMany": None, "options": ["checkbox0", "checkbox1", "checkbox2"]},
-            {"optionName": "floatInput0", "deviceOptionType": "USER_INPUT", "userInput": None, "selectOne": None, "selectMany": None, "options": None},
-            {"optionName": "floatInput1", "deviceOptionType": "USER_INPUT", "userInput": None, "selectOne": None, "selectMany": None, "options": None},
+            {"optionName": "floatInput0", "deviceOptionType": "USER_INPUT", "options": None},
+            {"optionName": "floatInput1", "deviceOptionType": "USER_INPUT", "options": None},
         ]
 
         for i in np.arange(numsteps):
@@ -254,12 +246,21 @@ class TestRunConfig:
             temp["description"] = f"step{i + 1}"
             temp["deviceName"] = self.rng.choice(possibleDevices)
             temp["time"] = int(i)
-            index = int(self.rng.integers(low=0, high=len(possibleOptions)))
-            temp["deviceOption"] = possibleOptions[index]
+            temp["deviceOption"] = self.rng.choice(possibleOptions)
+            # Select a random user option
+            if temp["deviceOption"]["deviceOptionType"] == "USER_INPUT":
+                temp["deviceOption"]["selected"] = ["test_string"]
+            elif temp["deviceOption"]["deviceOptionType"] == "SELECT_ONE":
+                temp["deviceOption"]["selected"] = [self.rng.choice(temp["deviceOption"]["options"])]
+            elif temp["deviceOption"]["deviceOptionType"] == "SELECT_MANY":
+                temp["deviceOption"]["selected"] = self.rng.choice(
+                    temp["deviceOption"]["options"],
+                    size=int(self.rng.integers(low=1, high=len(temp["deviceOption"]["options"]))),
+                    replace=False,
+                ).tolist()
             steps_input.append(temp)
-            temp["deviceOption"] = possibleOptionsExpected[index]
-            steps_expected.append(temp)
-        return (steps_input, steps_expected)
+
+        return steps_input
 
     def test_create_config(self):
         """
@@ -268,7 +269,7 @@ class TestRunConfig:
         Query GetRunConfig to validate device content
         """
         for name in self.runConfigNames:
-            steps_input, steps_expected = self.generate_steps(numsteps=self.numsteps)
+            steps_input = self.generate_steps(numsteps=self.numsteps)
             self.runConfigFake[name] = {
                 "name": name,
                 "totalTime": self.numsteps,
@@ -278,7 +279,7 @@ class TestRunConfig:
                 "id": None,
                 "name": name,
                 "totalTime": self.numsteps,
-                "steps": steps_expected,
+                "steps": steps_input,
                 "lastLoaded": None,
                 "lastSaved": None,
                 "priority": 0,

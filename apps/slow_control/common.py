@@ -83,10 +83,24 @@ def clean_run_config_input(run, update=False):
                 'messages': ['Invalid RunConfig: missing "steps". To add "steps," edit the RunConfig'],
             }
     if runInput['steps']:
-        # Ensure that each runconfig step has a uuid
         for step in runInput['steps']:
+            # Ensure that each runconfig step has a uuid
             step.setdefault('id', str(uuid.uuid4()))
-
+            # Input checking deviceOptions field
+            try:
+                if step['deviceOption']['deviceOptionType'] == DeviceOption['SELECT_ONE']:
+                    if len(step['deviceOption']['selected']) != 1:
+                        raise ValueError('deviceOption SELECT_ONE requires len(selected) = 1')
+                elif step['deviceOption']['deviceOptionType'] == DeviceOption['SELECT_MANY']:
+                    if len(step['deviceOption']['selected']) < 1:
+                        raise ValueError('deviceOption SELECT_MANY requires len(selected) > 1')
+                elif step['deviceOption']['deviceOptionType'] == DeviceOption['USER_INPUT']:
+                    if len(step['deviceOption']['selected']) != 1:
+                        raise ValueError('deviceOption USER_INPUT requires len(selected) = 1')
+                else:
+                    raise ValueError('deviceOption must be SELECT_ONE, SELECT_MANY, or USER_INPUT')
+            except KeyError:
+                raise KeyError(f'Step {step["id"]} requires the `selected` field to be filled')
     # Update lastSaved metadata
     runInput['lastSaved'] = timezone.now()
 

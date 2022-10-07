@@ -169,15 +169,13 @@ type DeviceOption {
   deviceOptionType: DeviceOptionEnum!
   """
   List of possible options for selectOne or selectMany.
-  Empty if deviceOptionType is userInput
   """
   options: [String!]
-  "Sets the device option to a float"
-  userInput: Float
-  "Select one option out of the list of `options`"
-  selectOne: String
-  "Select multiple settings out of the list of `options`"
-  selectMany: [String!]
+  """
+  The selected option. For userInput and selectOne,
+  the list will be of length 1.
+  """
+  selected: [String!]
 }
 
 input DeviceOptionInput {
@@ -190,15 +188,13 @@ input DeviceOptionInput {
   deviceOptionType: DeviceOptionEnum!
   """
   List of possible options for selectOne or selectMany.
-  Empty if deviceOptionType is userInput
   """
   options: [String!]
-  "Sets the device option to a float"
-  userInput: Float
-  "Select one option out of the list of `options`"
-  selectOne: String
-  "Select multiple settings out of the list of `options`"
-  selectMany: [String!]
+  """
+  The selected option. For userInput and selectOne,
+  the list must be length 1.
+  """
+  selected: [String!]
 }
 
 """

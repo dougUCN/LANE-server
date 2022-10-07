@@ -247,9 +247,7 @@ query getDevices {
         deviceOptions{
             optionName
             deviceOptionType
-            userInput
-            selectOne
-            selectMany
+            selected
             options
         }
     }
@@ -295,9 +293,7 @@ CREATE_DEVICE = """mutation createDevice($device: DeviceInput!){
                 deviceOptions{
                     optionName
                     deviceOptionType
-                    userInput
-                    selectOne
-                    selectMany
+                    selected
                     options
                 }
         }

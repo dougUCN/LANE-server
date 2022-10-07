@@ -129,9 +129,7 @@ query getDevice ($name: String!) {
         deviceOptions{
             optionName
             deviceOptionType
-            userInput
-            selectOne
-            selectMany
+            selected
             options
         }
     }
@@ -145,9 +143,7 @@ query getDevices {
         deviceOptions{
             optionName
             deviceOptionType
-            userInput
-            selectOne
-            selectMany
+            selected
             options
         }
     }
@@ -174,9 +170,7 @@ query getRunConfig($id: ID!){
                 deviceOption{
                     optionName
                     deviceOptionType
-                    userInput
-                    selectOne
-                    selectMany
+                    selected
                     options
                     }
             }
@@ -205,9 +199,7 @@ query getRunConfigs {
                 deviceOption{
                     optionName
                     deviceOptionType
-                    userInput
-                    selectOne
-                    selectMany
+                    selected
                     options
                 }
             }
@@ -256,9 +248,7 @@ CREATE_DEVICE = """mutation createDevice($device: DeviceInput!){
                 deviceOptions{
                     optionName
                     deviceOptionType
-                    userInput
-                    selectOne
-                    selectMany
+                    selected
                     options
                 }
         }
@@ -289,9 +279,7 @@ mutation updateDevice($device: DeviceInput!){
             deviceOptions{
                 optionName
                 deviceOptionType
-                userInput
-                selectOne
-                selectMany
+                selected
                 options
             }
         }
@@ -348,9 +336,7 @@ mutation updateRunConfig($runConfig: RunConfigUpdateInput!){
                 deviceOption{
                     optionName
                     deviceOptionType
-                    userInput
-                    selectOne
-                    selectMany
+                    selected
                     options
                     }
                 }
