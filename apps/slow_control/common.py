@@ -21,12 +21,6 @@ RunState = {
     "INVALID": "Invalid",
 }
 
-TimeFrame = {
-    "BEFORE": "Before",
-    "DURING": "During",
-    "AFTER": "After",
-}
-
 DeviceOption = {
     "SELECT_ONE": "SelectOne",
     "SELECT_MANY": "SelectMany",

@@ -133,8 +133,6 @@ input RunConfigStatusInput {
 type RunConfigStep {
   "Unique identifier"
   id: ID!
-  "Describes what stage in the experiment for which this step occurs"
-  timeFrameOptionType: TimeFrameOptionEnum!
   "Describes the device involved in this step"
   deviceName: String!
   "Describes the setting the device is set to during this step"
@@ -147,8 +145,6 @@ type RunConfigStep {
 
 "Create one step in an experiment for the slow control to run"
 input RunConfigStepInput {
-  "Describes what stage in the experiment for which this step occurs"
-  timeFrameOptionType: TimeFrameOptionEnum!
   "Describes the device involved in this step"
   deviceName: String!
   "Describes the setting the device is set to during this step"
@@ -239,16 +235,6 @@ enum DeviceOptionEnum {
   SELECT_MANY
   "Expects a float input from user"
   USER_INPUT
-}
-
-"Different phases of the experiment to run a RunConfig step"
-enum TimeFrameOptionEnum {
-  "The step is to prep the run"
-  BEFORE
-  "The step occurs during the run"
-  DURING
-  "A cleanup step after a run"
-  AFTER
 }
 
 """

@@ -166,7 +166,6 @@ query getRunConfig($id: ID!){
                 time
                 description
                 deviceName
-                timeFrameOptionType
                 deviceOption{
                     optionName
                     deviceOptionType
@@ -195,7 +194,6 @@ query getRunConfigs {
                 time
                 description
                 deviceName
-                timeFrameOptionType
                 deviceOption{
                     optionName
                     deviceOptionType
@@ -332,7 +330,6 @@ mutation updateRunConfig($runConfig: RunConfigUpdateInput!){
                 time
                 description
                 deviceName
-                timeFrameOptionType
                 deviceOption{
                     optionName
                     deviceOptionType

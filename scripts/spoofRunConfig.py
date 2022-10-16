@@ -53,13 +53,6 @@ def generate_steps(numsteps, possibleDevices):
 
     for i in np.arange(numsteps):
         temp = {}
-
-        if i < numsteps / 3:
-            temp["timeFrameOptionType"] = "BEFORE"
-        elif i > (numsteps - numsteps / 4):
-            temp["timeFrameOptionType"] = "AFTER"
-        else:
-            temp["timeFrameOptionType"] = "DURING"
         temp["description"] = f"step{i + 1}"
         temp["deviceName"] = RNG.choice(possibleDevices)
         temp["time"] = int(i)
