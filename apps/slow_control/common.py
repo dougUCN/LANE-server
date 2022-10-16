@@ -83,6 +83,8 @@ def clean_run_config_input(run, update=False):
                 'messages': ['Invalid RunConfig: missing "steps". To add "steps," edit the RunConfig'],
             }
     if runInput['steps']:
+        # Sort steps by time of execution
+        runInput['steps'] = sorted(runInput['steps'], key=lambda step: step['time'])
         for step in runInput['steps']:
             # Ensure that each runconfig step has a uuid
             step.setdefault('id', str(uuid.uuid4()))
@@ -91,9 +93,13 @@ def clean_run_config_input(run, update=False):
                 if step['deviceOption']['deviceOptionType'] == DeviceOption['SELECT_ONE']:
                     if len(step['deviceOption']['selected']) != 1:
                         raise ValueError('deviceOption SELECT_ONE requires len(selected) = 1')
+                    if not step['deviceOption']['options']:
+                        raise ValueError('deviceOption SELECT_ONE requires `options` to be specified')
                 elif step['deviceOption']['deviceOptionType'] == DeviceOption['SELECT_MANY']:
                     if len(step['deviceOption']['selected']) < 1:
                         raise ValueError('deviceOption SELECT_MANY requires len(selected) > 1')
+                    if not step['deviceOption']['options']:
+                        raise ValueError('deviceOption SELECT_MANY requires `options` to be specified')
                 elif step['deviceOption']['deviceOptionType'] == DeviceOption['USER_INPUT']:
                     if len(step['deviceOption']['selected']) != 1:
                         raise ValueError('deviceOption USER_INPUT requires len(selected) = 1')
