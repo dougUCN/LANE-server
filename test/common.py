@@ -129,9 +129,7 @@ query getDevice ($name: String!) {
         deviceOptions{
             optionName
             deviceOptionType
-            userInput
-            selectOne
-            selectMany
+            selected
             options
         }
     }
@@ -145,9 +143,7 @@ query getDevices {
         deviceOptions{
             optionName
             deviceOptionType
-            userInput
-            selectOne
-            selectMany
+            selected
             options
         }
     }
@@ -170,13 +166,10 @@ query getRunConfig($id: ID!){
                 time
                 description
                 deviceName
-                timeFrameOptionType
                 deviceOption{
                     optionName
                     deviceOptionType
-                    userInput
-                    selectOne
-                    selectMany
+                    selected
                     options
                     }
             }
@@ -201,13 +194,10 @@ query getRunConfigs {
                 time
                 description
                 deviceName
-                timeFrameOptionType
                 deviceOption{
                     optionName
                     deviceOptionType
-                    userInput
-                    selectOne
-                    selectMany
+                    selected
                     options
                 }
             }
@@ -256,9 +246,7 @@ CREATE_DEVICE = """mutation createDevice($device: DeviceInput!){
                 deviceOptions{
                     optionName
                     deviceOptionType
-                    userInput
-                    selectOne
-                    selectMany
+                    selected
                     options
                 }
         }
@@ -289,9 +277,7 @@ mutation updateDevice($device: DeviceInput!){
             deviceOptions{
                 optionName
                 deviceOptionType
-                userInput
-                selectOne
-                selectMany
+                selected
                 options
             }
         }
@@ -344,13 +330,10 @@ mutation updateRunConfig($runConfig: RunConfigUpdateInput!){
                 time
                 description
                 deviceName
-                timeFrameOptionType
                 deviceOption{
                     optionName
                     deviceOptionType
-                    userInput
-                    selectOne
-                    selectMany
+                    selected
                     options
                     }
                 }

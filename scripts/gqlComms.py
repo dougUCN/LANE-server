@@ -28,7 +28,7 @@ def check_response(response):
     return response
 
 
-def send_request(query, variables):
+def send_request(query, variables=None):
     response = requests.post(
         ENDPOINT,
         json={"query": query, "variables": variables},
@@ -124,6 +124,13 @@ def createDevice(device):
     Create a device in the live db
     '''
     return send_request(query=CREATE_DEVICE, variables={"device": device})
+
+
+def getDevices():
+    '''
+    Gets devices from the live db
+    '''
+    return send_request(query=GET_DEVICES)
 
 
 ### Queries ###
@@ -232,6 +239,20 @@ getHistograms(
     }
 }"""
 
+GET_DEVICES = """
+query getDevices {
+    getDevices{
+        name
+        isOnline
+        deviceOptions{
+            optionName
+            deviceOptionType
+            selected
+            options
+        }
+    }
+}"""
+
 ### Mutations ###
 
 CREATE_HIST = """
@@ -272,9 +293,7 @@ CREATE_DEVICE = """mutation createDevice($device: DeviceInput!){
                 deviceOptions{
                     optionName
                     deviceOptionType
-                    userInput
-                    selectOne
-                    selectMany
+                    selected
                     options
                 }
         }
