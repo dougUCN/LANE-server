@@ -11,7 +11,7 @@ NUM_STEPS = 10
 
 RNG = np.random.default_rng()
 DEVICE_OPTIONS = [
-    {"optionName": "toggle", "deviceOptionType": "SELECT_ONE", "options": ["ON", "OFF"]},
+    {"optionName": "toggle", "deviceOptionType": "SELECT_ONE", "options": ["On", "Off"]},
     {"optionName": "dropDownMenu", "deviceOptionType": "SELECT_ONE", "options": ["dropdown0", "dropdown1", "dropdown2"]},
     {"optionName": "checkboxes", "deviceOptionType": "SELECT_MANY", "options": ["checkbox0", "checkbox1", "checkbox2"]},
     {"optionName": "floatInput0", "deviceOptionType": "USER_INPUT"},
@@ -21,7 +21,7 @@ DEVICE_OPTIONS = [
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('-nrc', '--numRunConfigs', type=int, default=NUM_RUN_CONFIGS, help=f'Add this many run configs to the database (default={NUM_RUN_CONFIGS})')
+    parser.add_argument('-nrc', '--numRunConfigs', type=int, default=NUM_RUN_CONFIGS, help=f'Add this many run configs to the database (default={NUM_RUN_CONFIGS}). Assumes db is empty')
     parser.add_argument('-ns', '--numSteps', type=int, default=NUM_STEPS, help=f'Number of steps per run config (default={NUM_STEPS})')
     parser.add_argument('-nd', '--numDevices', type=int, default=NUM_DEVICES, help=f'Number of devices to spoof (default={NUM_DEVICES})')
     args = parser.parse_args()
@@ -53,18 +53,22 @@ def generate_steps(numsteps, possibleDevices):
 
     for i in np.arange(numsteps):
         temp = {}
-
-        if i < numsteps / 3:
-            temp["timeFrameOptionType"] = "BEFORE"
-        elif i > (numsteps - numsteps / 4):
-            temp["timeFrameOptionType"] = "AFTER"
-        else:
-            temp["timeFrameOptionType"] = "DURING"
         temp["description"] = f"step{i + 1}"
         temp["deviceName"] = RNG.choice(possibleDevices)
         temp["time"] = int(i)
         index = int(RNG.integers(low=0, high=len(DEVICE_OPTIONS)))
         temp["deviceOption"] = DEVICE_OPTIONS[index]
+        # Select a random user option
+        if temp["deviceOption"]["deviceOptionType"] == "USER_INPUT":
+            temp["deviceOption"]["selected"] = ["test_string"]
+        elif temp["deviceOption"]["deviceOptionType"] == "SELECT_ONE":
+            temp["deviceOption"]["selected"] = [RNG.choice(temp["deviceOption"]["options"])]
+        elif temp["deviceOption"]["deviceOptionType"] == "SELECT_MANY":
+            temp["deviceOption"]["selected"] = RNG.choice(
+                temp["deviceOption"]["options"],
+                size=int(RNG.integers(low=1, high=len(temp["deviceOption"]["options"]))),
+                replace=False,
+            ).tolist()
         steps_input.append(temp)
 
     return steps_input

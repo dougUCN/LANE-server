@@ -131,8 +131,8 @@ input RunConfigStatusInput {
 
 "Describes one step in an experiment for the slow control to run"
 type RunConfigStep {
-  "Describes what stage in the experiment for which this step occurs"
-  timeFrameOptionType: TimeFrameOptionEnum!
+  "Unique identifier"
+  id: ID!
   "Describes the device involved in this step"
   deviceName: String!
   "Describes the setting the device is set to during this step"
@@ -145,8 +145,6 @@ type RunConfigStep {
 
 "Create one step in an experiment for the slow control to run"
 input RunConfigStepInput {
-  "Describes what stage in the experiment for which this step occurs"
-  timeFrameOptionType: TimeFrameOptionEnum!
   "Describes the device involved in this step"
   deviceName: String!
   "Describes the setting the device is set to during this step"
@@ -167,15 +165,13 @@ type DeviceOption {
   deviceOptionType: DeviceOptionEnum!
   """
   List of possible options for selectOne or selectMany.
-  Empty if deviceOptionType is userInput
   """
   options: [String!]
-  "Sets the device option to a float"
-  userInput: Float
-  "Select one option out of the list of `options`"
-  selectOne: String
-  "Select multiple settings out of the list of `options`"
-  selectMany: [String!]
+  """
+  The selected option. For userInput and selectOne,
+  the list will be of length 1.
+  """
+  selected: [String!]
 }
 
 input DeviceOptionInput {
@@ -188,15 +184,13 @@ input DeviceOptionInput {
   deviceOptionType: DeviceOptionEnum!
   """
   List of possible options for selectOne or selectMany.
-  Empty if deviceOptionType is userInput
   """
   options: [String!]
-  "Sets the device option to a float"
-  userInput: Float
-  "Select one option out of the list of `options`"
-  selectOne: String
-  "Select multiple settings out of the list of `options`"
-  selectMany: [String!]
+  """
+  The selected option. For userInput and selectOne,
+  the list must be length 1.
+  """
+  selected: [String!]
 }
 
 """
@@ -241,16 +235,6 @@ enum DeviceOptionEnum {
   SELECT_MANY
   "Expects a float input from user"
   USER_INPUT
-}
-
-"Different phases of the experiment to run a RunConfig step"
-enum TimeFrameOptionEnum {
-  "The step is to prep the run"
-  BEFORE
-  "The step occurs during the run"
-  DURING
-  "A cleanup step after a run"
-  AFTER
 }
 
 """
