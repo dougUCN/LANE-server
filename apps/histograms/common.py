@@ -13,6 +13,9 @@ hist_string_field = ['name', 'type']
 LIVE_DATABASE = "live"
 STATIC_DATABASE = "data"
 
+# Default number of entries for getHistTableEntries query if `first` not specified
+DEFAULT_TABLE_FIRST = 100
+
 
 def histogram_payload(modified, message, success):
     return {

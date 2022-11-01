@@ -26,10 +26,17 @@ type Query {
   Cursor pagination arguments:
   - `first`: Number of entries to retrieve (default 100)
   - `after`: An opaque string cursor
+  - `minDate`: Optional minimum date filter
+  - `maxDate`: Optional max date filter
 
   If `after` is not specified, returns the first page
   """
-  getHistTableEntries(first: Int!, after: String): HistTablePage
+  getHistTableEntries(
+    first: Int!
+    after: String
+    minDate: Datetime
+    maxDate: Datetime
+  ): HistTablePage
 
   """
   Gets the information of a run config in the database
