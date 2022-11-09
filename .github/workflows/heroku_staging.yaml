@@ -13,7 +13,7 @@ jobs:
   builds_successfully:
     runs-on: ubuntu-20.04
     environment:
-      name: "Staging"
+      name: "Heroku Staging (Inactive)"
       url: "https://lane-server.herokuapp.com/graphql/"
 
     steps:

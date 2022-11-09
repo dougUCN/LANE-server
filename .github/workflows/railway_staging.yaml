@@ -7,7 +7,7 @@ name: Railway_Deployment
 
 on:
   push:
-    branches: [deploy-railway]
+    branches: [main]
 
 env: # Note that env variables are only accessible from within a `steps` context
   NODE_VERSION: 16.15.0
