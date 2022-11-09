@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-20.04
     environment:
       name: "Staging"
-      # url: "https://lane-server.herokuapp.com/graphql/"
+      url: "lane-staging.up.railway.app"
 
     steps:
       - name: Checkout repo
