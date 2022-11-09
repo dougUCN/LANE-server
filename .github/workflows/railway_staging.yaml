@@ -37,6 +37,5 @@ jobs:
         run: railway up
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-          DISABLE_COLLECTSTATIC: True # Disable collection of static pages for django
-          LANE_SECRET_KEY: ${{secrets.LANE_SECRET_KEY}}
-          LANE_DEBUG: False
+        # Note that environment variables LANE_SECRET_KEY, LANE_DEBUG, and DISABLE_COLLECTSTATIC
+        # have been set on the railway environment
