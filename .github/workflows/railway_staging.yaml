@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-20.04
     environment:
       name: "Staging"
-      url: "lane-staging.up.railway.app"
+      url: "https://lane-staging.up.railway.app/graphql/"
 
     steps:
       - name: Checkout repo
