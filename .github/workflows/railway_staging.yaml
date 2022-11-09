@@ -1,0 +1,42 @@
+name: Railway_Deployment
+
+# This workflow simply deploys the repo to Railway
+# Configuration on the railway end is done
+# in requirements.txt, runtime.txt, and Procfile
+# in the root directory
+
+on:
+  push:
+    branches: [deploy-railway]
+
+env: # Note that env variables are only accessible from within a `steps` context
+  NODE_VERSION: 16.15.0
+
+jobs:
+  builds_successfully:
+    runs-on: ubuntu-20.04
+    environment:
+      name: "Staging"
+      # url: "https://lane-server.herokuapp.com/graphql/"
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Set up Node js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Railway
+        run: npm i -g @railway/cli
+
+      - name: Deploy
+        run: railway up
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          DISABLE_COLLECTSTATIC: True # Disable collection of static pages for django
+          LANE_SECRET_KEY: ${{secrets.LANE_SECRET_KEY}}
+          LANE_DEBUG: False
