@@ -39,3 +39,8 @@ jobs:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         # Note that environment variables LANE_SECRET_KEY, LANE_DEBUG, and DISABLE_COLLECTSTATIC
         # have been set on the railway environment
+
+      - name: Staging health check
+        uses: jtalk/url-health-check-action@v2
+        with:
+          url: https://lane-staging.up.railway.app/graphql/
