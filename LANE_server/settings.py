@@ -31,6 +31,7 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     '.herokuapp.com',
+    '.up.railway.app',
 ]
 
 # For FE and BE hosted locally on different ports
