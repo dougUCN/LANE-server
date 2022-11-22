@@ -207,6 +207,19 @@ type RunConfigPayload {
 }
 
 """
+Return value of a mutation affection RunConfigSteps
+"""
+type RunConfigStepPayload {
+  message: String!
+  success: Boolean!
+  """
+  Returns the RunConfigSTep that was the mutation target
+  (for cache updating purposes)
+  """
+  modifiedStep: RunConfigStep!
+}
+
+"""
 Return value of a mutation involving communications
 with the slow control worker
 """
