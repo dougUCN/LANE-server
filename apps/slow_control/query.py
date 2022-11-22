@@ -2,7 +2,7 @@ from ariadne import QueryType
 from .models import RunConfig, Device
 from channels.db import database_sync_to_async
 
-from .common import DATABASE, MAX_RUN_CONFIGS
+from .common import get_step, DATABASE, MAX_RUN_CONFIGS
 
 """ Asynchronous generator for database access 
 Note that we cannot pass querysets out from the generator, 
@@ -59,7 +59,7 @@ async def resolve_run_config(*_, id):
 async def resolve_run_config_step(*_, runConfigID, stepID):
     '''Fetch RunConfig, then search the steps for stepID. Return None if step not found'''
     runConfig = await _get_run_config(runConfigID)
-    return next((step for step in runConfig["steps"] if step["name"] == stepID), None)
+    return get_step(stepID, runConfig['steps'])
 
 
 @query.field("getRunConfigs")

@@ -92,6 +92,12 @@ def clean_run_config_input(run, update=False):
     return runInput
 
 
+def get_step(id, steps):
+    '''Returns a step with a specific `id` from a list of steps.
+    Returns None if step not found'''
+    return next((step for step in steps if step["id"] == id), None)
+
+
 def clean_steps_input(steps):
     '''Sorts RunConfigSteps by time and makes sure each one has a unique runID if not already'''
     # Sort steps by time of execution
