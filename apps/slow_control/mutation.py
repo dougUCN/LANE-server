@@ -30,7 +30,7 @@ def _create_run_config(clean_run):
     '''Returns (created_run_config, run_id, success)'''
     new_run = RunConfig(**clean_run)
     new_run.save(using=DATABASE)
-    return new_run, new_run.id, True
+    return new_run, True
 
 
 @database_sync_to_async
@@ -43,7 +43,7 @@ def _update_run_config(id, clean_run):
             setattr(in_database, attr, clean_run[attr])
             updatedFields.append(attr)
     in_database.save(using=DATABASE)
-    return in_database, in_database.id, updatedFields, True
+    return in_database, updatedFields, True
 
 
 @database_sync_to_async
@@ -93,22 +93,22 @@ mutation = MutationType()
 @mutation.field('createRunConfig')
 async def create_run_config(*_, runConfig):
     clean_run_config = clean_run_config_input(runConfig)
-    modified, id, status = await _create_run_config(clean_run_config)
-    return run_config_payload(modified=modified, id=id, message=f'created run {clean_run_config["name"]}', success=status)
+    modified, status = await _create_run_config(clean_run_config)
+    return run_config_payload(modified=modified, message=f'created run {clean_run_config["name"]}', success=status)
 
 
 @mutation.field('updateRunConfig')
 async def update_run_config(*_, runConfig):
     clean_run = clean_run_config_input(runConfig, update=True)
-    modified, id, updatedFields, status = await _update_run_config(runConfig['id'], clean_run)
-    return run_config_payload(modified=modified, id=id, message=f'Updated fields {updatedFields}', success=status)
+    modified, updatedFields, status = await _update_run_config(runConfig['id'], clean_run)
+    return run_config_payload(modified=modified, message=f'Updated fields {updatedFields}', success=status)
 
 
 @mutation.field('deleteRunConfig')
 async def delete_run_config(*_, id):
     modified = await _get_run_config(id)
     status = await _delete_run_config(id)
-    return run_config_payload(modified=modified, id=id, message=f'deleted runfile with id: {id}', success=status)
+    return run_config_payload(modified=modified, message=f'deleted runfile with id: {id}', success=status)
 
 
 @mutation.field('loadRunConfig')
@@ -136,7 +136,7 @@ async def load_run_config(*_, id):
     else:
         queuedRunConfig['priority'] = 0
 
-    updated_run_config, _, _, status = await _update_run_config(id, queuedRunConfig)
+    updated_run_config, _, status = await _update_run_config(id, queuedRunConfig)
 
     return {
         'message': f'Set RunConfig {id} to {RunState["QUEUED"]} at priority {queuedRunConfig["priority"]}',
