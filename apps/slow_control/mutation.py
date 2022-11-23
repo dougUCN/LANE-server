@@ -54,18 +54,18 @@ def _update_run_config_step(runConfigID, clean_step):
     '''Returns (created_step, runConfigID, success) upon completion'''
     in_database = RunConfig.objects.using(DATABASE).get(pk=runConfigID)
     steps_to_update = getattr(in_database, 'steps')
-    step_index, step = get_step(id=clean_step['id'], steps=steps_to_update)
+    step_index, in_database_step = get_step(id=clean_step['id'], steps=steps_to_update)
 
-    for attr in runConfigStepInputField:
-        if (clean_step[attr] is not None) and hasattr(step, attr):
-            setattr(step, attr, clean_step[attr])
+    for field in runConfigStepInputField:
+        if field in clean_step.keys() and field in in_database_step.keys():
+            in_database_step[field] = clean_step[field]
 
-    steps_to_update[step_index] = step
+    steps_to_update[step_index] = in_database_step
     steps_to_update = sort_steps(steps_to_update)
     setattr(in_database, 'steps', steps_to_update)
     setattr(in_database, 'lastSaved', timezone.now())
     in_database.save(using=DATABASE)
-    return step, in_database.id, True
+    return in_database_step, in_database.id, True
 
 
 @database_sync_to_async
@@ -80,7 +80,8 @@ def _delete_run_config_step(runConfigID, stepID):
     '''Returns (deleted_step, True)'''
     in_database = RunConfig.objects.using(DATABASE).get(pk=runConfigID)
     step_index, step = get_step(id=stepID, steps=in_database.steps)
-    in_database.steps.pop(step_index)
+    del in_database.steps[step_index]
+    in_database.save(using=DATABASE)
     return step, True
 
 

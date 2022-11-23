@@ -59,7 +59,7 @@ async def resolve_run_config(*_, id):
 async def resolve_run_config_step(*_, runConfigID, stepID):
     '''Fetch RunConfig, then search the steps for stepID. Return None if step not found'''
     runConfig = await _get_run_config(runConfigID)
-    _, step = get_step(stepID, runConfig['steps'])
+    _, step = get_step(stepID, runConfig.steps)
     return step
 
 
