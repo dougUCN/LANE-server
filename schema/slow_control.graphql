@@ -136,7 +136,7 @@ type RunConfigStep {
   "Describes the device involved in this step"
   deviceName: String!
   "Describes the setting the device is set to during this step"
-  deviceOption: [DeviceOption!]
+  deviceOptions: [DeviceOption!]
   "What time [s] at which this step occurs"
   time: Float!
   "Additional information not passed to the slow control"
@@ -148,7 +148,7 @@ input RunConfigStepInput {
   "Describes the device involved in this step"
   deviceName: String!
   "Describes the setting the device is set to during this step"
-  deviceOption: [DeviceOptionInput!]
+  deviceOptions: [DeviceOptionInput!]
   "What time [s] at which this step occurs"
   time: Float!
   "Additional information not passed to the slow control"
@@ -161,7 +161,7 @@ input RunConfigStepUpdateInput {
   "Describes the device involved in this step"
   deviceName: String
   "Describes the setting the device is set to during this step"
-  deviceOption: [DeviceOptionInput!]
+  deviceOptions: [DeviceOptionInput!]
   "What time [s] at which this step occurs"
   time: Float
   "Additional information not passed to the slow control"

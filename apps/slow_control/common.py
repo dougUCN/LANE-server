@@ -8,7 +8,7 @@ MAX_RUN_CONFIGS = 20  # Max number of run configs allowed in the DB
 # Fields as defined in the graphql schema as inputs for mutations
 
 runConfigInputField = ['name', 'steps', 'priority', 'runConfigStatus', 'totalTime', 'lastLoaded', 'lastSaved']
-runConfigStepInputField = ['deviceName', 'deviceOption', 'time', 'description']
+runConfigStepInputField = ['deviceName', 'deviceOptions', 'time', 'description']
 deviceInputField = ['name', 'deviceOptions', 'isOnline']
 
 RunState = {
@@ -117,22 +117,23 @@ def check_step_validity(step):
     '''Checks the validity of a RunConfigStep'''
     try:
         # Input checking deviceOptions field
-        if hasattr(step, 'deviceOption'):
-            if step['deviceOption']['deviceOptionType'] == DeviceOption['SELECT_ONE']:
-                if len(step['deviceOption']['selected']) != 1:
-                    raise ValueError('deviceOption SELECT_ONE requires len(selected) = 1')
-                if not step['deviceOption']['options']:
-                    raise ValueError('deviceOption SELECT_ONE requires `options` to be specified')
-            elif step['deviceOption']['deviceOptionType'] == DeviceOption['SELECT_MANY']:
-                if len(step['deviceOption']['selected']) < 1:
-                    raise ValueError('deviceOption SELECT_MANY requires len(selected) > 1')
-                if not step['deviceOption']['options']:
-                    raise ValueError('deviceOption SELECT_MANY requires `options` to be specified')
-            elif step['deviceOption']['deviceOptionType'] == DeviceOption['USER_INPUT']:
-                if len(step['deviceOption']['selected']) != 1:
-                    raise ValueError('deviceOption USER_INPUT requires len(selected) = 1')
-            else:
-                raise ValueError('deviceOption must be SELECT_ONE, SELECT_MANY, or USER_INPUT')
+        if hasattr(step, 'deviceOptions'):
+            for deviceOption in step['deviceOptions']:
+                if deviceOption['deviceOptionType'] == DeviceOption['SELECT_ONE']:
+                    if len(deviceOption['selected']) != 1:
+                        raise ValueError(f'Step {step["id"]} deviceOption SELECT_ONE requires len(selected) = 1')
+                    if not deviceOption['options']:
+                        raise ValueError(f'Step {step["id"]} deviceOption SELECT_ONE requires `options` to be specified')
+                elif deviceOption['deviceOptionType'] == DeviceOption['SELECT_MANY']:
+                    if len(deviceOption['selected']) < 1:
+                        raise ValueError(f'Step {step["id"]} deviceOption SELECT_MANY requires len(selected) > 1')
+                    if not deviceOption['options']:
+                        raise ValueError(f'Step {step["id"]} deviceOption SELECT_MANY requires `options` to be specified')
+                elif deviceOption['deviceOptionType'] == DeviceOption['USER_INPUT']:
+                    if len(deviceOption['selected']) != 1:
+                        raise ValueError(f'Step {step["id"]} deviceOption USER_INPUT requires len(selected) = 1')
+                else:
+                    raise ValueError('deviceOption must be SELECT_ONE, SELECT_MANY, or USER_INPUT')
     except KeyError as error:
         raise KeyError(f'Step {step["id"]} missing expected field {error}')
 
