@@ -115,7 +115,7 @@ type Mutation {
   """
   updateRunConfigStep(
     runConfigID: ID!
-    step: RunConfigStepInput!
+    step: RunConfigStepUpdateInput!
   ): RunConfigStepPayload!
 
   """
@@ -126,10 +126,7 @@ type Mutation {
   """
   Deletes a RunConfigStep in the db
   """
-  deleteRunConfigStep(
-    runConfigID: ID!
-    step: RunConfigStepInput!
-  ): RunConfigStepPayload!
+  deleteRunConfigStep(runConfigID: ID!, stepID: ID!): RunConfigStepPayload!
 
   """
   Sets the status of a RunConfig to `Queued`

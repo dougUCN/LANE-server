@@ -8,7 +8,7 @@ MAX_RUN_CONFIGS = 20  # Max number of run configs allowed in the DB
 # Fields as defined in the graphql schema as inputs for mutations
 
 runConfigInputField = ['name', 'steps', 'priority', 'runConfigStatus', 'totalTime', 'lastLoaded', 'lastSaved']
-
+runConfigStepInputField = ['deviceName', 'deviceOption', 'time', 'description']
 deviceInputField = ['name', 'deviceOptions', 'isOnline']
 
 RunState = {
@@ -36,11 +36,12 @@ def run_config_payload(message, success, modified):
     }
 
 
-def steps_payload(message, success, modified):
+def steps_payload(message, success, modified, runConfigID):
     return {
         'message': message,
         'success': success,
         'modifiedStep': modified,
+        'runConfigID': runConfigID,
     }
 
 
@@ -84,7 +85,9 @@ def clean_run_config_input(run, update=False):
                 'messages': ['Invalid RunConfig: missing "steps". To add "steps," edit the RunConfig'],
             }
     if runInput['steps']:
-        runInput['steps'] = clean_steps_input(runInput['steps'])
+        for step in runInput['steps']:
+            step = clean_step_input(step)
+        runInput['steps'] = sort_steps(clean_steps)
 
     # Update lastSaved metadata
     runInput['lastSaved'] = timezone.now()
@@ -93,21 +96,21 @@ def clean_run_config_input(run, update=False):
 
 
 def get_step(id, steps):
-    '''Returns a step with a specific `id` from a list of steps.
-    Returns None if step not found'''
-    return next((step for step in steps if step["id"] == id), None)
+    '''Returns a (step_index, step) with a specific step `id` from a list of `steps`.
+    Raises StopIteration error if step not found'''
+    return next(((step_index, step) for step_index, step in enumerate(steps) if step["id"] == id))
 
 
-def clean_steps_input(steps):
-    '''Sorts RunConfigSteps by time and makes sure each one has a unique runID if not already'''
-    # Sort steps by time of execution
-    clean_steps = sorted(steps, key=lambda step: step['time'])
-    for step in clean_steps:
-        # Ensure that each runconfig step has a uuid
-        step.setdefault('id', str(uuid.uuid4()))
-        check_step_validity(step)
+def sort_steps(steps):
+    '''Sorts a list of dictionaries `steps` in ascending order by a key `time`'''
+    return sorted(steps, key=lambda step: step['time'])
 
-    return clean_steps
+
+def clean_step_input(step):
+    '''Ensure that each runconfig step has a uuid and a valid input'''
+    step.setdefault('id', str(uuid.uuid4()))
+    check_step_validity(step)
+    return step
 
 
 def check_step_validity(step):

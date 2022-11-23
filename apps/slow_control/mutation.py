@@ -4,17 +4,7 @@ from .models import RunConfig, Device
 from django.utils import timezone
 from channels.db import database_sync_to_async
 
-from .common import (
-    run_config_payload,
-    device_payload,
-    slow_control_payload,
-    DATABASE,
-    clean_run_config_input,
-    clean_device_input,
-    runConfigInputField,
-    deviceInputField,
-    RunState,
-)
+from .common import *
 
 from .messaging import slowControlCmd, COMMAND
 
@@ -34,6 +24,19 @@ def _create_run_config(clean_run):
 
 
 @database_sync_to_async
+def _create_run_config_step(runConfigID, clean_step):
+    '''Returns (created_step, runConfigID, success) upon completion'''
+    in_database = RunConfig.objects.using(DATABASE).get(pk=runConfigID)
+    steps_to_update = getattr(in_database, 'steps')
+    steps_to_update.append(clean_step)
+    steps_to_update = sort_steps(steps_to_update)
+    setattr(in_database, 'steps', steps_to_update)
+    setattr(in_database, 'lastSaved', timezone.now())
+    in_database.save(using=DATABASE)
+    return clean_step, in_database.id, True
+
+
+@database_sync_to_async
 def _update_run_config(id, clean_run):
     '''Returns (updated_run_config, run_id, updated fields, success)'''
     in_database = RunConfig.objects.using(DATABASE).get(pk=id)
@@ -47,10 +50,38 @@ def _update_run_config(id, clean_run):
 
 
 @database_sync_to_async
+def _update_run_config_step(runConfigID, clean_step):
+    '''Returns (created_step, runConfigID, success) upon completion'''
+    in_database = RunConfig.objects.using(DATABASE).get(pk=runConfigID)
+    steps_to_update = getattr(in_database, 'steps')
+    step_index, step = get_step(id=clean_step['id'], steps=steps_to_update)
+
+    for attr in runConfigStepInputField:
+        if (clean_step[attr] is not None) and hasattr(step, attr):
+            setattr(step, attr, clean_step[attr])
+
+    steps_to_update[step_index] = step
+    steps_to_update = sort_steps(steps_to_update)
+    setattr(in_database, 'steps', steps_to_update)
+    setattr(in_database, 'lastSaved', timezone.now())
+    in_database.save(using=DATABASE)
+    return step, in_database.id, True
+
+
+@database_sync_to_async
 def _delete_run_config(id):
     '''Returns True on success'''
     RunConfig.objects.using(DATABASE).get(pk=id).delete()
     return True
+
+
+@database_sync_to_async
+def _delete_run_config_step(runConfigID, stepID):
+    '''Returns (deleted_step, True)'''
+    in_database = RunConfig.objects.using(DATABASE).get(pk=runConfigID)
+    step_index, step = get_step(id=stepID, steps=in_database.steps)
+    in_database.steps.pop(step_index)
+    return step, True
 
 
 @database_sync_to_async
@@ -143,6 +174,47 @@ async def load_run_config(*_, id):
         'success': status,
         'loadedRunConfig': updated_run_config,
     }
+
+
+"""
+Run Config Steps Mutations
+"""
+
+
+@mutation.field('createRunConfigStep')
+async def create_run_config_step(*_, runConfigID, step):
+    '''Add step into existing runconfig'''
+    clean_step = clean_step_input(step)
+    modified, runConfigID, status = await _create_run_config_step(runConfigID, clean_step)
+    return steps_payload(
+        modified=modified,
+        message=f'created step {modified["id"]} in RunConfig {runConfigID}',
+        success=status,
+        runConfigID=runConfigID,
+    )
+
+
+@mutation.field('updateRunConfigStep')
+async def update_run_config_step(*_, runConfigID, step):
+    clean_step = clean_step_input(step)
+    modified, runConfigID, status = await _update_run_config_step(runConfigID, clean_step)
+    return steps_payload(
+        modified=modified,
+        message=f'updated step {modified["id"]} in RunConfig {runConfigID}',
+        success=status,
+        runConfigID=runConfigID,
+    )
+
+
+@mutation.field('deleteRunConfigStep')
+async def delete_run_config_step(*_, runConfigID, stepID):
+    modified, status = await _delete_run_config_step(runConfigID, stepID)
+    return steps_payload(
+        modified=modified,
+        message=f'deleted step {modified["id"]} in RunConfig {runConfigID}',
+        success=status,
+        runConfigID=runConfigID,
+    )
 
 
 """

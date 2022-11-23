@@ -155,6 +155,19 @@ input RunConfigStepInput {
   description: String
 }
 
+"Update the properties of a RunConfigStep with identifier `id`"
+input RunConfigStepUpdateInput {
+  id: ID!
+  "Describes the device involved in this step"
+  deviceName: String
+  "Describes the setting the device is set to during this step"
+  deviceOption: DeviceOptionInput
+  "What time [s] at which this step occurs"
+  time: Float
+  "Additional information not passed to the slow control"
+  description: String
+}
+
 type DeviceOption {
   "Name of the DeviceOption"
   optionName: String!
@@ -213,10 +226,11 @@ type RunConfigStepPayload {
   message: String!
   success: Boolean!
   """
-  Returns the RunConfigSTep that was the mutation target
+  Returns the RunConfigStep that was the mutation target
   (for cache updating purposes)
   """
   modifiedStep: RunConfigStep!
+  runConfigID: ID!
 }
 
 """
