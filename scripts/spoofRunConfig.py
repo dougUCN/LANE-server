@@ -11,11 +11,11 @@ NUM_STEPS = 10
 
 RNG = np.random.default_rng()
 DEVICE_OPTIONS = [
-    {"optionName": "toggle", "deviceOptionType": "SELECT_ONE", "options": ["On", "Off"]},
-    {"optionName": "dropDownMenu", "deviceOptionType": "SELECT_ONE", "options": ["dropdown0", "dropdown1", "dropdown2"]},
-    {"optionName": "checkboxes", "deviceOptionType": "SELECT_MANY", "options": ["checkbox0", "checkbox1", "checkbox2"]},
-    {"optionName": "floatInput0", "deviceOptionType": "USER_INPUT"},
-    {"optionName": "floatInput1", "deviceOptionType": "USER_INPUT"},
+    {"optionName": "Toggle", "deviceOptionType": "SELECT_ONE", "options": ["On", "Off"]},
+    {"optionName": "Waveform", "deviceOptionType": "SELECT_ONE", "options": ["Square", "Triangle", "Sine"]},
+    {"optionName": "Modifiers", "deviceOptionType": "SELECT_MANY", "options": ["Enable logging", "Wait for trigger", "Ext Clock"]},
+    {"optionName": "Frequency", "deviceOptionType": "USER_INPUT"},
+    {"optionName": "Amplitude", "deviceOptionType": "USER_INPUT"},
 ]
 
 
@@ -26,7 +26,7 @@ def main():
     parser.add_argument('-nd', '--numDevices', type=int, default=NUM_DEVICES, help=f'Number of devices to spoof (default={NUM_DEVICES})')
     args = parser.parse_args()
 
-    possibleDevices = [f'device{i}' for i in np.arange(args.numDevices)]
+    possibleDevices = [f'Signal Generator{i}' for i in np.arange(args.numDevices)]
 
     print('Creating fake devices')
     for deviceName in possibleDevices:
@@ -56,19 +56,20 @@ def generate_steps(numsteps, possibleDevices):
         temp["description"] = f"step{i + 1}"
         temp["deviceName"] = RNG.choice(possibleDevices)
         temp["time"] = int(i)
-        index = int(RNG.integers(low=0, high=len(DEVICE_OPTIONS)))
-        temp["deviceOption"] = DEVICE_OPTIONS[index]
-        # Select a random user option
-        if temp["deviceOption"]["deviceOptionType"] == "USER_INPUT":
-            temp["deviceOption"]["selected"] = ["test_string"]
-        elif temp["deviceOption"]["deviceOptionType"] == "SELECT_ONE":
-            temp["deviceOption"]["selected"] = [RNG.choice(temp["deviceOption"]["options"])]
-        elif temp["deviceOption"]["deviceOptionType"] == "SELECT_MANY":
-            temp["deviceOption"]["selected"] = RNG.choice(
-                temp["deviceOption"]["options"],
-                size=int(RNG.integers(low=1, high=len(temp["deviceOption"]["options"]))),
-                replace=False,
-            ).tolist()
+        index = int(RNG.integers(low=1, high=len(DEVICE_OPTIONS), endpoint=True))
+        temp["deviceOptions"] = DEVICE_OPTIONS[:index]
+        # Select a random user option per device option
+        for deviceOption in temp["deviceOptions"]:
+            if deviceOption["deviceOptionType"] == "USER_INPUT":
+                deviceOption["selected"] = ["test_string_value"]
+            elif deviceOption["deviceOptionType"] == "SELECT_ONE":
+                deviceOption["selected"] = [RNG.choice(deviceOption["options"])]
+            elif deviceOption["deviceOptionType"] == "SELECT_MANY":
+                deviceOption["selected"] = RNG.choice(
+                    deviceOption["options"],
+                    size=int(RNG.integers(low=1, high=len(deviceOption["options"]))),
+                    replace=False,
+                ).tolist()
         steps_input.append(temp)
 
     return steps_input
