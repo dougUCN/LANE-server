@@ -98,7 +98,10 @@ def clean_run_config_input(run, update=False):
 def get_step(id, steps):
     '''Returns a (step_index, step) with a specific step `id` from a list of `steps`.
     Raises StopIteration error if step not found'''
-    return next(((step_index, step) for step_index, step in enumerate(steps) if step["id"] == id))
+    try:
+        return next(((step_index, step) for step_index, step in enumerate(steps) if step["id"] == id))
+    except StopIteration:
+        raise ValueError(f'Step with id {id} not found')
 
 
 def sort_steps(steps):
