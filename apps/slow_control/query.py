@@ -29,7 +29,10 @@ def _filter_runs(names=None, minLoadDate=None, maxLoadDate=None):
 
 @database_sync_to_async
 def _get_device(name):
-    return Device.objects.using(DATABASE).get(name=name)
+    try:
+        return Device.objects.using(DATABASE).get(name=name)
+    except Exception as e:
+        raise Exception(f'Error for device name "{name}"\n{e}')
 
 
 @database_sync_to_async
