@@ -18,6 +18,11 @@ DEVICE_OPTIONS = [
     {"optionName": "Amplitude", "deviceOptionType": "USER_INPUT"},
 ]
 
+ADDITIONAL_DEVICE_OPTIONS = [
+    {"optionName": "Toggle", "deviceOptionType": "SELECT_ONE", "options": ["Open", "Close"]},
+    {"optionName": "Voltage", "deviceOptionType": "SELECT_ONE", "options": ["0", "5", "10"]},
+]
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
@@ -31,6 +36,12 @@ def main():
     print('Creating fake devices')
     for deviceName in possibleDevices:
         device = {"name": deviceName, "isOnline": True, "deviceOptions": DEVICE_OPTIONS}
+        gql.createDevice(device)
+
+    print('Creating additional fake devices')
+    possibleDevices2 = ['West Gate Valve', 'North Gate Valve']
+    for deviceName in possibleDevices2:
+        device = {"name": deviceName, "isOnline": True, "deviceOptions": ADDITIONAL_DEVICE_OPTIONS}
         gql.createDevice(device)
 
     print('Creating fake runConfigs')
