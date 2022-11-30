@@ -24,7 +24,7 @@ class RunConfig(models.Model):
     lastLoaded = models.DateTimeField(null=True)
     priority = models.IntegerField(default=0)
     totalTime = models.FloatField(default=0)
-    steps = models.ForeignKey(
+    runconfigstep = models.ForeignKey(
         RunConfigStep,
         on_delete=models.CASCADE,
         null=True,
