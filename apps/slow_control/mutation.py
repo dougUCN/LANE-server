@@ -69,7 +69,7 @@ def _update_run_config_step(clean_step):
             setattr(in_database, attr, clean_step[attr])
 
     in_database.save(using=DATABASE)
-    return in_database, in_database.runconfig, True
+    return in_database, in_database.runconfig.id, True
 
 
 @database_sync_to_async
