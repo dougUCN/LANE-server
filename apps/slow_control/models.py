@@ -25,7 +25,6 @@ class RunConfigStep(models.Model):
     RunConfig = models.ForeignKey(
         RunConfig,
         on_delete=models.CASCADE,
-        related_name='steps',
     )
 
     class Meta:
