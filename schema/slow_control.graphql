@@ -98,6 +98,8 @@ input RunConfigInput {
 }
 """
 Updates the properties of a run with unique identifier `id`
+
+if `steps` is not null, overrides all existing steps
 """
 input RunConfigUpdateInput {
   "Unique identifier of the run to update"

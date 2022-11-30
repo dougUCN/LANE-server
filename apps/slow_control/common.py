@@ -1,9 +1,8 @@
 from django.utils import timezone
-import uuid
 
-DATABASE = "live"  # Devices and RunConfigs should be stored to the live database
+DATABASE = "data"  # Devices and RunConfigs should be stored to the static db
 
-MAX_RUN_CONFIGS = 20  # Max number of run configs allowed in the DB
+MAX_RUN_CONFIGS = 50  # Max number of run configs allowed in the DB
 
 # Fields as defined in the graphql schema as inputs for mutations
 
@@ -87,7 +86,6 @@ def clean_run_config_input(run, update=False):
     if runInput['steps']:
         for step in runInput['steps']:
             step = clean_step_input(step)
-        runInput['steps'] = sort_steps(runInput['steps'])
 
     # Update lastSaved metadata
     runInput['lastSaved'] = timezone.now()
@@ -95,23 +93,8 @@ def clean_run_config_input(run, update=False):
     return runInput
 
 
-def get_step(id, steps):
-    '''Returns a (step_index, step) with a specific step `id` from a list of `steps`.
-    Raises ValueError if step not found'''
-    try:
-        return next(((step_index, step) for step_index, step in enumerate(steps) if step["id"] == id))
-    except StopIteration:
-        raise ValueError(f'Step with id {id} not found')
-
-
-def sort_steps(steps):
-    '''Sorts a list of dictionaries `steps` in ascending order by a key `time`'''
-    return sorted(steps, key=lambda step: step['time'])
-
-
 def clean_step_input(step):
     '''Ensure that each runconfig step has a uuid and a valid input'''
-    step.setdefault('id', str(uuid.uuid4()))
     check_step_validity(step)
     return step
 

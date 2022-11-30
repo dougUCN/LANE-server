@@ -1,5 +1,5 @@
 from ariadne import MutationType
-from .models import RunConfig, Device
+from .models import RunConfig, RunConfigStep, Device
 
 from django.utils import timezone
 from channels.db import database_sync_to_async
@@ -8,7 +8,7 @@ from .common import *
 
 from .messaging import slowControlCmd, COMMAND
 
-from .query import _filter_runs, _get_device, _get_run_config
+from .query import _filter_runs, _get_device, _get_run_config, _get_step
 
 """
 Asynchronous database access 
@@ -17,55 +17,58 @@ Asynchronous database access
 
 @database_sync_to_async
 def _create_run_config(clean_run):
-    '''Returns (created_run_config, run_id, success)'''
+    '''Returns (created_run_config, success)'''
+    try:
+        clean_steps = clean_run.pop('steps')
+    except KeyError:
+        clean_steps = []
     new_run = RunConfig(**clean_run)
     new_run.save(using=DATABASE)
+    if clean_steps:
+        new_steps = [RunConfigStep(runconfig=new_run.id, **step) for step in clean_steps]
+        RunConfigStep.objects.using(DATABASE).bulk_create(new_steps)
     return new_run, True
 
 
 @database_sync_to_async
 def _create_run_config_step(runConfigID, clean_step):
     '''Returns (created_step, runConfigID, success) upon completion'''
-    in_database = RunConfig.objects.using(DATABASE).get(pk=runConfigID)
-    steps_to_update = getattr(in_database, 'steps')
-    steps_to_update.append(clean_step)
-    steps_to_update = sort_steps(steps_to_update)
-    setattr(in_database, 'steps', steps_to_update)
-    setattr(in_database, 'lastSaved', timezone.now())
-    in_database.save(using=DATABASE)
-    return clean_step, in_database.id, True
+    new_step = RunConfigStep(runconfig=runConfigID, **clean_step)
+    new_step.save(using=DATABASE)
+    return new_step, new_step.runconfig.id, True
 
 
 @database_sync_to_async
 def _update_run_config(id, clean_run):
     '''Returns (updated_run_config, run_id, updated fields, success)'''
     in_database = RunConfig.objects.using(DATABASE).get(pk=id)
+
     updatedFields = []
     for attr in runConfigInputField:
-        if (clean_run[attr] is not None) and hasattr(in_database, attr):
-            setattr(in_database, attr, clean_run[attr])
+        if clean_run[attr] is not None:
+            if attr is 'steps':  # Since steps is foreign key, updating is different
+                # Delete all old steps in the RunConfig and recreate new ones entirely
+                RunConfigStep.objects.using(DATABASE).filter(runconfig__id__exact=id).delete()
+                new_steps = [RunConfigStep(runconfig=id, **step) for step in clean_run['steps']]
+                RunConfigStep.objects.using(DATABASE).bulk_create(new_steps)
+            else:
+                setattr(in_database, attr, clean_run[attr])
             updatedFields.append(attr)
     in_database.save(using=DATABASE)
     return in_database, updatedFields, True
 
 
 @database_sync_to_async
-def _update_run_config_step(runConfigID, clean_step):
-    '''Returns (created_step, runConfigID, success) upon completion'''
-    in_database = RunConfig.objects.using(DATABASE).get(pk=runConfigID)
-    steps_to_update = getattr(in_database, 'steps')
-    step_index, in_database_step = get_step(id=clean_step['id'], steps=steps_to_update)
+def _update_run_config_step(clean_step):
+    '''Returns (created_step, success) upon completion'''
+    in_database = RunConfigStep.objects.using(DATABASE).get(pk=clean_step['id'])
 
-    for field in runConfigStepInputField:
-        if field in clean_step.keys() and field in in_database_step.keys():
-            in_database_step[field] = clean_step[field]
+    for attr in runConfigStepInputField:
+        if clean_step[attr] is not None:
+            setattr(in_database, attr, clean_step[attr])
 
-    steps_to_update[step_index] = in_database_step
-    steps_to_update = sort_steps(steps_to_update)
-    setattr(in_database, 'steps', steps_to_update)
-    setattr(in_database, 'lastSaved', timezone.now())
     in_database.save(using=DATABASE)
-    return in_database_step, in_database.id, True
+    return in_database, True
 
 
 @database_sync_to_async
@@ -76,13 +79,10 @@ def _delete_run_config(id):
 
 
 @database_sync_to_async
-def _delete_run_config_step(runConfigID, stepID):
-    '''Returns (deleted_step, True)'''
-    in_database = RunConfig.objects.using(DATABASE).get(pk=runConfigID)
-    step_index, step = get_step(id=stepID, steps=in_database.steps)
-    del in_database.steps[step_index]
-    in_database.save(using=DATABASE)
-    return step, True
+def _delete_run_config_step(id):
+    '''Returns True on success'''
+    RunConfigStep.objects.using(DATABASE).get(pk=id).delete()
+    return True
 
 
 @database_sync_to_async
@@ -198,23 +198,24 @@ async def create_run_config_step(*_, runConfigID, step):
 @mutation.field('updateRunConfigStep')
 async def update_run_config_step(*_, runConfigID, step):
     clean_step = clean_step_input(step)
-    modified, runConfigID, status = await _update_run_config_step(runConfigID, clean_step)
+    modified, status = await _update_run_config_step(runConfigID, clean_step)
     return steps_payload(
         modified=modified,
-        message=f'updated step {modified["id"]} in RunConfig {runConfigID}',
+        message=f'updated step {modified.id} in RunConfig {modified.runConfig.id}',
         success=status,
-        runConfigID=runConfigID,
+        runConfigID=modified.runConfig.id,
     )
 
 
 @mutation.field('deleteRunConfigStep')
 async def delete_run_config_step(*_, runConfigID, stepID):
-    modified, status = await _delete_run_config_step(runConfigID, stepID)
+    modified = await _get_step(stepID)
+    status = await _delete_run_config_step(stepID)
     return steps_payload(
         modified=modified,
-        message=f'deleted step {modified["id"]} in RunConfig {runConfigID}',
+        message=f'deleted step {modified.id} in RunConfig {modified.runConfig.id}',
         success=status,
-        runConfigID=runConfigID,
+        runConfigID=modified.runConfig.id,
     )
 
 

@@ -46,7 +46,11 @@ type Query {
   """
   Gets the information of a specific step from a runconfig
   """
-  getRunConfigStep(runConfigID: ID!, stepID: ID!): RunConfigStep
+  getRunConfigStep(
+    "Deprecated argument"
+    runConfigID: ID
+    stepID: ID!
+  ): RunConfigStep
 
   """
   Retrieves all run configs in the database
@@ -107,6 +111,8 @@ type Mutation {
 
   """
   Updates the properties of a run in the db
+
+  if `steps` is not null, overrides all existing steps
   """
   updateRunConfig(runConfig: RunConfigUpdateInput!): RunConfigPayload!
 
@@ -114,7 +120,8 @@ type Mutation {
   Updates the properties of a RunConfigStep in a run config in the db
   """
   updateRunConfigStep(
-    runConfigID: ID!
+    "Deprecated argument"
+    runConfigID: ID
     step: RunConfigStepUpdateInput!
   ): RunConfigStepPayload!
 
@@ -126,7 +133,11 @@ type Mutation {
   """
   Deletes a RunConfigStep in the db
   """
-  deleteRunConfigStep(runConfigID: ID!, stepID: ID!): RunConfigStepPayload!
+  deleteRunConfigStep(
+    "Deprecated argument"
+    runConfigID: ID
+    stepID: ID!
+  ): RunConfigStepPayload!
 
   """
   Sets the status of a RunConfig to `Queued`
