@@ -25,7 +25,7 @@ def _create_run_config(clean_run):
     new_run = RunConfig(**clean_run)
     new_run.save(using=DATABASE)
     if clean_steps:
-        new_steps = [RunConfigStep(runconfig=new_run.id, **step) for step in clean_steps]
+        new_steps = [RunConfigStep(runconfig=new_run, **step) for step in clean_steps]
         RunConfigStep.objects.using(DATABASE).bulk_create(new_steps)
     return new_run, True
 
@@ -33,9 +33,10 @@ def _create_run_config(clean_run):
 @database_sync_to_async
 def _create_run_config_step(runConfigID, clean_step):
     '''Returns (created_step, runConfigID, success) upon completion'''
-    new_step = RunConfigStep(runconfig=runConfigID, **clean_step)
+    run_config = RunConfig.objects.using(DATABASE).get(pk=runConfigID)
+    new_step = RunConfigStep(runconfig=run_config, **clean_step)
     new_step.save(using=DATABASE)
-    return new_step, new_step.runconfig, True
+    return new_step, new_step.runconfig.id, True
 
 
 @database_sync_to_async
