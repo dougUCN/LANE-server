@@ -22,7 +22,7 @@ class RunConfigStep(models.Model):
     deviceName = models.CharField(max_length=500)
     deviceOptions = models.JSONField(null=True)
     time = models.IntegerField()
-    RunConfig = models.ForeignKey(
+    runconfig = models.ForeignKey(
         RunConfig,
         on_delete=models.CASCADE,
     )

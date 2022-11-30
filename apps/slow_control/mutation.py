@@ -25,7 +25,7 @@ def _create_run_config(clean_run):
     new_run = RunConfig(**clean_run)
     new_run.save(using=DATABASE)
     if clean_steps:
-        new_steps = [RunConfigStep(runconfig=new_run, **step) for step in clean_steps]
+        new_steps = [RunConfigStep(**step, runconfig=new_run) for step in clean_steps]
         RunConfigStep.objects.using(DATABASE).bulk_create(new_steps)
     return new_run, True
 
@@ -34,7 +34,7 @@ def _create_run_config(clean_run):
 def _create_run_config_step(runConfigID, clean_step):
     '''Returns (created_step, runConfigID, success) upon completion'''
     run_config = RunConfig.objects.using(DATABASE).get(pk=runConfigID)
-    new_step = RunConfigStep(runconfig=run_config, **clean_step)
+    new_step = RunConfigStep(**clean_step, runconfig=run_config)
     new_step.save(using=DATABASE)
     return new_step, new_step.runconfig.id, True
 
@@ -50,7 +50,7 @@ def _update_run_config(id, clean_run):
             if attr is 'steps':  # Since steps is foreign key, updating is different
                 # Delete all old steps in the RunConfig and recreate new ones entirely
                 RunConfigStep.objects.using(DATABASE).filter(runconfig__id__exact=id).delete()
-                new_steps = [RunConfigStep(runconfig=id, **step) for step in clean_run['steps']]
+                new_steps = [RunConfigStep(**step, runconfig=in_database) for step in clean_run['steps']]
                 RunConfigStep.objects.using(DATABASE).bulk_create(new_steps)
             else:
                 setattr(in_database, attr, clean_run[attr])
