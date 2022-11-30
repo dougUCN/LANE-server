@@ -35,7 +35,7 @@ def _create_run_config_step(runConfigID, clean_step):
     '''Returns (created_step, runConfigID, success) upon completion'''
     new_step = RunConfigStep(runconfig=runConfigID, **clean_step)
     new_step.save(using=DATABASE)
-    return new_step, new_step.runconfig.id, True
+    return new_step, new_step.runconfig, True
 
 
 @database_sync_to_async
@@ -60,7 +60,7 @@ def _update_run_config(id, clean_run):
 
 @database_sync_to_async
 def _update_run_config_step(clean_step):
-    '''Returns (created_step, success) upon completion'''
+    '''Returns (created_step, runConfigID, success) upon completion'''
     in_database = RunConfigStep.objects.using(DATABASE).get(pk=clean_step['id'])
 
     for attr in runConfigStepInputField:
@@ -68,7 +68,7 @@ def _update_run_config_step(clean_step):
             setattr(in_database, attr, clean_step[attr])
 
     in_database.save(using=DATABASE)
-    return in_database, True
+    return in_database, in_database.runconfig, True
 
 
 @database_sync_to_async
@@ -189,7 +189,7 @@ async def create_run_config_step(*_, runConfigID, step):
     modified, runConfigID, status = await _create_run_config_step(runConfigID, clean_step)
     return steps_payload(
         modified=modified,
-        message=f'created step {modified["id"]} in RunConfig {runConfigID}',
+        message=f'created step {modified.id} in RunConfig {runConfigID}',
         success=status,
         runConfigID=runConfigID,
     )
@@ -198,12 +198,12 @@ async def create_run_config_step(*_, runConfigID, step):
 @mutation.field('updateRunConfigStep')
 async def update_run_config_step(*_, runConfigID, step):
     clean_step = clean_step_input(step)
-    modified, status = await _update_run_config_step(runConfigID, clean_step)
+    modified, runConfigID, status = await _update_run_config_step(clean_step)
     return steps_payload(
         modified=modified,
-        message=f'updated step {modified.id} in RunConfig {modified.runConfig.id}',
+        message=f'created step {modified.id} in RunConfig {runConfigID}',
         success=status,
-        runConfigID=modified.runConfig.id,
+        runConfigID=runConfigID,
     )
 
 

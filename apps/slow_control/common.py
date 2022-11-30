@@ -7,7 +7,7 @@ MAX_RUN_CONFIGS = 50  # Max number of run configs allowed in the DB
 # Fields as defined in the graphql schema as inputs for mutations
 
 runConfigInputField = ['name', 'steps', 'priority', 'runConfigStatus', 'totalTime', 'lastLoaded', 'lastSaved']
-runConfigStepInputField = ['deviceName', 'deviceOptions', 'time', 'description']
+runConfigStepInputField = ['id', 'deviceName', 'deviceOptions', 'time', 'description']
 deviceInputField = ['name', 'deviceOptions', 'isOnline']
 
 RunState = {
@@ -94,9 +94,13 @@ def clean_run_config_input(run, update=False):
 
 
 def clean_step_input(step):
-    '''Ensure that each runconfig step has a uuid and a valid input'''
+    '''Ensure that each runconfig step has a uuid and a valid input
+    Returns clean_step'''
+    clean_step = {}
+    for field in runConfigStepInputField:
+        clean_step[field] = step.get(field)
     check_step_validity(step)
-    return step
+    return clean_step
 
 
 def check_step_validity(step):
