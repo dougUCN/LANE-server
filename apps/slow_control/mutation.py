@@ -8,7 +8,12 @@ from .common import *
 
 from .messaging import slowControlCmd, COMMAND
 
-from .query import _filter_runs, _get_device, _get_run_config, _get_step
+from .query import (
+    _filter_runs,
+    _get_device,
+    _get_run_config,
+    _get_step,
+)
 
 """
 Asynchronous database access 
@@ -27,6 +32,7 @@ def _create_run_config(clean_run):
     if clean_steps:
         new_steps = [RunConfigStep(**step, runconfig=new_run) for step in clean_steps]
         RunConfigStep.objects.using(DATABASE).bulk_create(new_steps)
+    new_run.steps = list(new_run.runconfigstep_set.all())
     return new_run, True
 
 
@@ -56,6 +62,7 @@ def _update_run_config(id, clean_run):
                 setattr(in_database, attr, clean_run[attr])
             updatedFields.append(attr)
     in_database.save(using=DATABASE)
+    in_database.steps = list(in_database.runconfigstep_set.all())
     return in_database, updatedFields, True
 
 

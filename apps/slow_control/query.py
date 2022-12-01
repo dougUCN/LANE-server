@@ -12,7 +12,9 @@ so we must evaluate the query set before returning
 
 @database_sync_to_async
 def _get_run_config(id):
-    return RunConfig.objects.using(DATABASE).get(pk=id)
+    run_config = RunConfig.objects.using(DATABASE).get(pk=id)
+    run_config.steps = list(run_config.runconfigstep_set.all())
+    return run_config
 
 
 @database_sync_to_async
@@ -29,7 +31,10 @@ def _filter_runs(names=None, minLoadDate=None, maxLoadDate=None):
         queryset = queryset.filter(lastLoaded__gte=minLoadDate)
     if maxLoadDate:
         queryset = queryset.filter(lastLoaded__lte=maxLoadDate)
-    return list(queryset)
+    queryset = list(queryset)
+    for run_config in queryset:
+        run_config.steps = list(run_config.runconfigstep_set.all())
+    return queryset
 
 
 @database_sync_to_async
