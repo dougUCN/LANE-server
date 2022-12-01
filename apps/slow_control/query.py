@@ -31,10 +31,9 @@ def _filter_runs(names=None, minLoadDate=None, maxLoadDate=None):
         queryset = queryset.filter(lastLoaded__gte=minLoadDate)
     if maxLoadDate:
         queryset = queryset.filter(lastLoaded__lte=maxLoadDate)
-    queryset = list(queryset)
     for run_config in queryset:
         run_config.steps = list(run_config.runconfigstep_set.all())
-    return queryset
+    return list(queryset)
 
 
 @database_sync_to_async
