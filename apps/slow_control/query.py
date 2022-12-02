@@ -1,5 +1,5 @@
 from ariadne import QueryType
-from .models import RunConfig, Device
+from .models import RunConfig, RunConfigStep, Device
 from channels.db import database_sync_to_async
 
 from .common import DATABASE, MAX_RUN_CONFIGS
@@ -12,7 +12,14 @@ so we must evaluate the query set before returning
 
 @database_sync_to_async
 def _get_run_config(id):
-    return RunConfig.objects.using(DATABASE).get(pk=id)
+    run_config = RunConfig.objects.using(DATABASE).get(pk=id)
+    run_config.steps = list(run_config.runconfigstep_set.all())
+    return run_config
+
+
+@database_sync_to_async
+def _get_step(id):
+    return RunConfigStep.objects.using(DATABASE).get(pk=id)
 
 
 @database_sync_to_async
@@ -24,12 +31,17 @@ def _filter_runs(names=None, minLoadDate=None, maxLoadDate=None):
         queryset = queryset.filter(lastLoaded__gte=minLoadDate)
     if maxLoadDate:
         queryset = queryset.filter(lastLoaded__lte=maxLoadDate)
+    for run_config in queryset:
+        run_config.steps = list(run_config.runconfigstep_set.all())
     return list(queryset)
 
 
 @database_sync_to_async
 def _get_device(name):
-    return Device.objects.using(DATABASE).get(name=name)
+    try:
+        return Device.objects.using(DATABASE).get(name=name)
+    except Exception as e:
+        raise Exception(f'Error for device name "{name}"\n{e}')
 
 
 @database_sync_to_async
@@ -53,6 +65,12 @@ query = QueryType()
 @query.field("getRunConfig")
 async def resolve_run_config(*_, id):
     return await _get_run_config(id)
+
+
+@query.field("getRunConfigStep")
+async def resolve_run_config_step(*_, stepID, runConfigID=None):
+    '''Fetch RunConfig, then search the steps for stepID. Return None if step not found'''
+    return await _get_step(stepID)
 
 
 @query.field("getRunConfigs")

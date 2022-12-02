@@ -98,6 +98,8 @@ input RunConfigInput {
 }
 """
 Updates the properties of a run with unique identifier `id`
+
+if `steps` is not null, overrides all existing steps
 """
 input RunConfigUpdateInput {
   "Unique identifier of the run to update"
@@ -136,7 +138,7 @@ type RunConfigStep {
   "Describes the device involved in this step"
   deviceName: String!
   "Describes the setting the device is set to during this step"
-  deviceOption: DeviceOption!
+  deviceOptions: [DeviceOption!]
   "What time [s] at which this step occurs"
   time: Float!
   "Additional information not passed to the slow control"
@@ -148,9 +150,22 @@ input RunConfigStepInput {
   "Describes the device involved in this step"
   deviceName: String!
   "Describes the setting the device is set to during this step"
-  deviceOption: DeviceOptionInput!
+  deviceOptions: [DeviceOptionInput!]
   "What time [s] at which this step occurs"
   time: Float!
+  "Additional information not passed to the slow control"
+  description: String
+}
+
+"Update the properties of a RunConfigStep with identifier `id`"
+input RunConfigStepUpdateInput {
+  id: ID!
+  "Describes the device involved in this step"
+  deviceName: String
+  "Describes the setting the device is set to during this step"
+  deviceOptions: [DeviceOptionInput!]
+  "What time [s] at which this step occurs"
+  time: Float
   "Additional information not passed to the slow control"
   description: String
 }
@@ -204,6 +219,20 @@ type RunConfigPayload {
   (for cache updating purposes)
   """
   modifiedRunConfig: RunConfig!
+}
+
+"""
+Return value of a mutation affection RunConfigSteps
+"""
+type RunConfigStepPayload {
+  message: String!
+  success: Boolean!
+  """
+  Returns the RunConfigStep that was the mutation target
+  (for cache updating purposes)
+  """
+  modifiedStep: RunConfigStep!
+  runConfigID: ID!
 }
 
 """

@@ -1,24 +1,19 @@
 from ariadne import MutationType
-from .models import RunConfig, Device
+from .models import RunConfig, RunConfigStep, Device
 
 from django.utils import timezone
 from channels.db import database_sync_to_async
 
-from .common import (
-    run_config_payload,
-    device_payload,
-    slow_control_payload,
-    DATABASE,
-    clean_run_config_input,
-    clean_device_input,
-    runConfigInputField,
-    deviceInputField,
-    RunState,
-)
+from .common import *
 
 from .messaging import slowControlCmd, COMMAND
 
-from .query import _filter_runs, _get_device, _get_run_config
+from .query import (
+    _filter_runs,
+    _get_device,
+    _get_run_config,
+    _get_step,
+)
 
 """
 Asynchronous database access 
@@ -27,29 +22,74 @@ Asynchronous database access
 
 @database_sync_to_async
 def _create_run_config(clean_run):
-    '''Returns (created_run_config, run_id, success)'''
+    '''Returns (created_run_config, success)'''
+    try:
+        clean_steps = clean_run.pop('steps')
+    except KeyError:
+        clean_steps = []
     new_run = RunConfig(**clean_run)
     new_run.save(using=DATABASE)
-    return new_run, new_run.id, True
+    if clean_steps:
+        new_steps = [RunConfigStep(**step, runconfig=new_run) for step in clean_steps]
+        RunConfigStep.objects.using(DATABASE).bulk_create(new_steps)
+    new_run.steps = list(new_run.runconfigstep_set.all())
+    return new_run, True
+
+
+@database_sync_to_async
+def _create_run_config_step(runConfigID, clean_step):
+    '''Returns (created_step, runConfigID, success) upon completion'''
+    run_config = RunConfig.objects.using(DATABASE).get(pk=runConfigID)
+    new_step = RunConfigStep(**clean_step, runconfig=run_config)
+    new_step.save(using=DATABASE)
+    return new_step, new_step.runconfig.id, True
 
 
 @database_sync_to_async
 def _update_run_config(id, clean_run):
     '''Returns (updated_run_config, run_id, updated fields, success)'''
     in_database = RunConfig.objects.using(DATABASE).get(pk=id)
+
     updatedFields = []
     for attr in runConfigInputField:
-        if (clean_run[attr] is not None) and hasattr(in_database, attr):
-            setattr(in_database, attr, clean_run[attr])
+        if clean_run[attr] is not None:
+            if attr is 'steps':  # Since steps is foreign key, updating is different
+                # Delete all old steps in the RunConfig and recreate new ones entirely
+                RunConfigStep.objects.using(DATABASE).filter(runconfig__id__exact=id).delete()
+                new_steps = [RunConfigStep(**step, runconfig=in_database) for step in clean_run['steps']]
+                RunConfigStep.objects.using(DATABASE).bulk_create(new_steps)
+            else:
+                setattr(in_database, attr, clean_run[attr])
             updatedFields.append(attr)
     in_database.save(using=DATABASE)
-    return in_database, in_database.id, updatedFields, True
+    in_database.steps = list(in_database.runconfigstep_set.all())
+    return in_database, updatedFields, True
+
+
+@database_sync_to_async
+def _update_run_config_step(clean_step):
+    '''Returns (created_step, runConfigID, success) upon completion'''
+    in_database = RunConfigStep.objects.using(DATABASE).get(pk=clean_step['id'])
+
+    for attr in runConfigStepInputField:
+        if clean_step[attr] is not None:
+            setattr(in_database, attr, clean_step[attr])
+
+    in_database.save(using=DATABASE)
+    return in_database, in_database.runconfig.id, True
 
 
 @database_sync_to_async
 def _delete_run_config(id):
     '''Returns True on success'''
     RunConfig.objects.using(DATABASE).get(pk=id).delete()
+    return True
+
+
+@database_sync_to_async
+def _delete_run_config_step(id):
+    '''Returns True on success'''
+    RunConfigStep.objects.using(DATABASE).get(pk=id).delete()
     return True
 
 
@@ -93,22 +133,22 @@ mutation = MutationType()
 @mutation.field('createRunConfig')
 async def create_run_config(*_, runConfig):
     clean_run_config = clean_run_config_input(runConfig)
-    modified, id, status = await _create_run_config(clean_run_config)
-    return run_config_payload(modified=modified, id=id, message=f'created run {clean_run_config["name"]}', success=status)
+    modified, status = await _create_run_config(clean_run_config)
+    return run_config_payload(modified=modified, message=f'created run {clean_run_config["name"]}', success=status)
 
 
 @mutation.field('updateRunConfig')
 async def update_run_config(*_, runConfig):
     clean_run = clean_run_config_input(runConfig, update=True)
-    modified, id, updatedFields, status = await _update_run_config(runConfig['id'], clean_run)
-    return run_config_payload(modified=modified, id=id, message=f'Updated fields {updatedFields}', success=status)
+    modified, updatedFields, status = await _update_run_config(runConfig['id'], clean_run)
+    return run_config_payload(modified=modified, message=f'Updated fields {updatedFields}', success=status)
 
 
 @mutation.field('deleteRunConfig')
 async def delete_run_config(*_, id):
     modified = await _get_run_config(id)
     status = await _delete_run_config(id)
-    return run_config_payload(modified=modified, id=id, message=f'deleted runfile with id: {id}', success=status)
+    return run_config_payload(modified=modified, message=f'deleted runfile with id: {id}', success=status)
 
 
 @mutation.field('loadRunConfig')
@@ -136,13 +176,55 @@ async def load_run_config(*_, id):
     else:
         queuedRunConfig['priority'] = 0
 
-    updated_run_config, _, _, status = await _update_run_config(id, queuedRunConfig)
+    updated_run_config, _, status = await _update_run_config(id, queuedRunConfig)
 
     return {
         'message': f'Set RunConfig {id} to {RunState["QUEUED"]} at priority {queuedRunConfig["priority"]}',
         'success': status,
         'loadedRunConfig': updated_run_config,
     }
+
+
+"""
+Run Config Steps Mutations
+"""
+
+
+@mutation.field('createRunConfigStep')
+async def create_run_config_step(*_, runConfigID, step):
+    '''Add step into existing runconfig'''
+    clean_step = clean_step_input(step)
+    modified, runConfigID, status = await _create_run_config_step(runConfigID, clean_step)
+    return steps_payload(
+        modified=modified,
+        message=f'created step {modified.id} in RunConfig {runConfigID}',
+        success=status,
+        runConfigID=runConfigID,
+    )
+
+
+@mutation.field('updateRunConfigStep')
+async def update_run_config_step(*_, runConfigID, step):
+    clean_step = clean_step_input(step)
+    modified, runConfigID, status = await _update_run_config_step(clean_step)
+    return steps_payload(
+        modified=modified,
+        message=f'created step {modified.id} in RunConfig {runConfigID}',
+        success=status,
+        runConfigID=runConfigID,
+    )
+
+
+@mutation.field('deleteRunConfigStep')
+async def delete_run_config_step(*_, runConfigID, stepID):
+    modified = await _get_step(stepID)
+    status = await _delete_run_config_step(stepID)
+    return steps_payload(
+        modified=modified,
+        message=f'deleted step {modified.id} in RunConfig {modified.runConfig.id}',
+        success=status,
+        runConfigID=modified.runConfig.id,
+    )
 
 
 """

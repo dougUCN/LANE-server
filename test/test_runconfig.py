@@ -239,18 +239,20 @@ class TestRunConfig:
             temp["description"] = f"step{i + 1}"
             temp["deviceName"] = self.rng.choice(possibleDevices)
             temp["time"] = int(i)
-            temp["deviceOption"] = self.rng.choice(possibleOptions)
-            # Select a random user option
-            if temp["deviceOption"]["deviceOptionType"] == "USER_INPUT":
-                temp["deviceOption"]["selected"] = ["test_string"]
-            elif temp["deviceOption"]["deviceOptionType"] == "SELECT_ONE":
-                temp["deviceOption"]["selected"] = [self.rng.choice(temp["deviceOption"]["options"])]
-            elif temp["deviceOption"]["deviceOptionType"] == "SELECT_MANY":
-                temp["deviceOption"]["selected"] = self.rng.choice(
-                    temp["deviceOption"]["options"],
-                    size=int(self.rng.integers(low=1, high=len(temp["deviceOption"]["options"]))),
-                    replace=False,
-                ).tolist()
+            index = int(self.rng.integers(low=1, high=len(possibleOptions), endpoint=True))
+            temp["deviceOptions"] = possibleOptions[:index]
+            # Select a random user option per device Option
+            for deviceOption in temp["deviceOptions"]:
+                if deviceOption["deviceOptionType"] == "USER_INPUT":
+                    deviceOption["selected"] = ["test_string"]
+                elif deviceOption["deviceOptionType"] == "SELECT_ONE":
+                    deviceOption["selected"] = [self.rng.choice(deviceOption["options"])]
+                elif deviceOption["deviceOptionType"] == "SELECT_MANY":
+                    deviceOption["selected"] = self.rng.choice(
+                        deviceOption["options"],
+                        size=int(self.rng.integers(low=1, high=len(deviceOption["options"]))),
+                        replace=False,
+                    ).tolist()
             steps_input.append(temp)
 
         return steps_input
