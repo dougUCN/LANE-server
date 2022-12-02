@@ -53,7 +53,7 @@ def _update_run_config(id, clean_run):
     updatedFields = []
     for attr in runConfigInputField:
         if clean_run[attr] is not None:
-            if attr is 'steps':  # Since steps is foreign key, updating is different
+            if attr == 'steps':  # Since steps is foreign key, updating is different
                 # Delete all old steps in the RunConfig and recreate new ones entirely
                 RunConfigStep.objects.using(DATABASE).filter(runconfig__id__exact=id).delete()
                 new_steps = [RunConfigStep(**step, runconfig=in_database) for step in clean_run['steps']]
