@@ -198,7 +198,6 @@ class TestRunConfig:
     client = TestClient(application)  # starlette Test Client instance
 
     runConfigNames = ["test_config0", "test_config1"]
-    runConfigIDs = []
     runConfigFake = {name: None for name in runConfigNames}
     runConfigFakeExpected = {name: None for name in runConfigNames}
     numsteps = 20  # Number of steps per run config

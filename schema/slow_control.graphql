@@ -232,7 +232,7 @@ type RunConfigStepPayload {
   (for cache updating purposes)
   """
   modifiedStep: RunConfigStep!
-  runConfigID: ID!
+  runConfigId: ID!
 }
 
 """
