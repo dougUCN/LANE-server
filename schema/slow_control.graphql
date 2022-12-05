@@ -63,7 +63,7 @@ type RunConfig {
   "Last datetime [UTC] the runfile was modified and saved"
   lastSaved: Datetime
   "List of steps describing what occurs during the run"
-  steps: [RunConfigStep!]
+  steps: [RunConfigStep]!
   """
   Priority for the slow control worker to process a RunConfig
 
