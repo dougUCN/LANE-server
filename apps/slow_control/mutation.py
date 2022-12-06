@@ -21,6 +21,12 @@ Asynchronous database access
 
 
 @database_sync_to_async
+def _get_runconfig_via_step(id):
+    '''Returns the runconfig associated with a step'''
+    return RunConfigStep.objects.using(DATABASE).get(pk=id).runconfig
+
+
+@database_sync_to_async
 def _create_run_config(clean_run):
     '''Returns (created_run_config, success)'''
     try:
@@ -218,12 +224,13 @@ async def update_run_config_step(*_, runConfigId, step):
 @mutation.field('deleteRunConfigStep')
 async def delete_run_config_step(*_, runConfigId, stepID):
     modified = await _get_step(stepID)
+    runConfig = await _get_runconfig_via_step(stepID)
     status = await _delete_run_config_step(stepID)
     return steps_payload(
         modified=modified,
-        message=f'deleted step {modified.id} in RunConfig {modified.runConfig.id}',
+        message=f'deleted step {modified.id} in RunConfig {runConfig.id}',
         success=status,
-        runConfigId=modified.runConfig.id,
+        runConfigId=runConfig.id,
     )
 
 
