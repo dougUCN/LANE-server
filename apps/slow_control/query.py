@@ -68,9 +68,9 @@ async def resolve_run_config(*_, id):
 
 
 @query.field("getRunConfigStep")
-async def resolve_run_config_step(*_, stepID, runConfigId=None):
-    '''Fetch RunConfig, then search the steps for stepID. Return None if step not found'''
-    return await _get_step(stepID)
+async def resolve_run_config_step(*_, stepId, runConfigId=None):
+    '''Fetch RunConfig, then search the steps for stepId. Return None if step not found'''
+    return await _get_step(stepId)
 
 
 @query.field("getRunConfigs")

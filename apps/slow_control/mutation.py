@@ -222,10 +222,10 @@ async def update_run_config_step(*_, runConfigId=None, step):
 
 
 @mutation.field('deleteRunConfigStep')
-async def delete_run_config_step(*_, runConfigId=None, stepID):
-    modified = await _get_step(stepID)
-    runConfig = await _get_runconfig_via_step(stepID)
-    status = await _delete_run_config_step(stepID)
+async def delete_run_config_step(*_, runConfigId=None, stepId):
+    modified = await _get_step(stepId)
+    runConfig = await _get_runconfig_via_step(stepId)
+    status = await _delete_run_config_step(stepId)
     return steps_payload(
         modified=modified,
         message=f'deleted step {modified.id} in RunConfig {runConfig.id}',
