@@ -210,7 +210,7 @@ async def create_run_config_step(*_, runConfigId, step):
 
 
 @mutation.field('updateRunConfigStep')
-async def update_run_config_step(*_, runConfigId, step):
+async def update_run_config_step(*_, runConfigId=None, step):
     clean_step = clean_step_input(step)
     modified, runConfigId, status = await _update_run_config_step(clean_step)
     return steps_payload(
@@ -222,7 +222,7 @@ async def update_run_config_step(*_, runConfigId, step):
 
 
 @mutation.field('deleteRunConfigStep')
-async def delete_run_config_step(*_, runConfigId, stepID):
+async def delete_run_config_step(*_, runConfigId=None, stepID):
     modified = await _get_step(stepID)
     runConfig = await _get_runconfig_via_step(stepID)
     status = await _delete_run_config_step(stepID)
