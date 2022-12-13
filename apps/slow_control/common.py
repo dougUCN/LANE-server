@@ -35,12 +35,12 @@ def run_config_payload(message, success, modified):
     }
 
 
-def steps_payload(message, success, modified, runConfigID):
+def steps_payload(message, success, modified, runConfigId):
     return {
         'message': message,
         'success': success,
         'modifiedStep': modified,
-        'runConfigID': runConfigID,
+        'runConfigId': runConfigId,
     }
 
 

@@ -48,7 +48,7 @@ type Query {
   """
   getRunConfigStep(
     "Deprecated argument"
-    runConfigID: ID
+    runConfigId: ID
     stepID: ID!
   ): RunConfigStep
 
@@ -102,10 +102,10 @@ type Mutation {
   createRunConfig(runConfig: RunConfigInput!): RunConfigPayload!
 
   """
-  Adds a new step to a run config (designated by runConfigID)
+  Adds a new step to a run config (designated by runConfigId)
   """
   createRunConfigStep(
-    runConfigID: ID!
+    runConfigId: ID!
     step: RunConfigStepInput!
   ): RunConfigStepPayload!
 
@@ -121,7 +121,7 @@ type Mutation {
   """
   updateRunConfigStep(
     "Deprecated argument"
-    runConfigID: ID
+    runConfigId: ID
     step: RunConfigStepUpdateInput!
   ): RunConfigStepPayload!
 
@@ -135,7 +135,7 @@ type Mutation {
   """
   deleteRunConfigStep(
     "Deprecated argument"
-    runConfigID: ID
+    runConfigId: ID
     stepID: ID!
   ): RunConfigStepPayload!
 

@@ -63,7 +63,7 @@ type RunConfig {
   "Last datetime [UTC] the runfile was modified and saved"
   lastSaved: Datetime
   "List of steps describing what occurs during the run"
-  steps: [RunConfigStep!]
+  steps: [RunConfigStep!]!
   """
   Priority for the slow control worker to process a RunConfig
 
@@ -73,7 +73,7 @@ type RunConfig {
   "Status of the RunConfig + error messages"
   runConfigStatus: RunConfigStatus
   "How long the run takes in total to complete [seconds]"
-  totalTime: Int!
+  totalTime: Float!
 }
 
 """
@@ -94,7 +94,7 @@ input RunConfigInput {
   "Status of the RunConfig + error messages"
   runConfigStatus: RunConfigStatusInput
   "How long the run takes in total to complete [seconds]"
-  totalTime: Int!
+  totalTime: Float!
 }
 """
 Updates the properties of a run with unique identifier `id`
@@ -116,7 +116,7 @@ input RunConfigUpdateInput {
   "Update the status and error messages of the RunConfig"
   runConfigStatus: RunConfigStatusInput
   "Update the total run time of the RunConfig"
-  totalTime: Int
+  totalTime: Float
 }
 
 "Status and associated error messages of a RunConfig"
@@ -232,7 +232,7 @@ type RunConfigStepPayload {
   (for cache updating purposes)
   """
   modifiedStep: RunConfigStep!
-  runConfigID: ID!
+  runConfigId: ID!
 }
 
 """
