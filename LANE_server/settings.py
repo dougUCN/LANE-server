@@ -31,13 +31,11 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '.herokuapp.com',
     '.up.railway.app',
+    '.lanl.gov',
 ]
 
 # For FE and BE hosted locally on different ports
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://ec2-44-202-29-2.compute-1.amazonaws.com",
-]
+CORS_ALLOWED_ORIGINS = ['*']
 
 # Application definition
 
