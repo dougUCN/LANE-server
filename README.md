@@ -73,7 +73,7 @@ http://127.0.0.1:8000/graphql/
 
 # Live Demo
 
-See the live demo [here](https://lane-server.herokuapp.com/graphql/)!
+See the live demo [here](https://lane-staging.up.railway.app/graphql/)!
 
 # Contributing
 
