@@ -10,7 +10,7 @@ git clone https://github.com/dougUCN/LANE-server.git
 
 ### 2. Setting up a virtual environment:
 
-In the project directory
+In the LANE-server directory
 
 ```
 python3 -m venv venv
@@ -33,7 +33,7 @@ python3 -m pip install -r requirements.txt
 
 ### 3. Generating a secret key
 
-In the project directory, with venv enabled, run
+In the LANE-server directory, with venv enabled, run
 
 ```
 python scripts/genSecurityFile.py # --debug True <-- Only use this flag if in development!
@@ -52,7 +52,7 @@ if [ -f ${path_to_LANE_server}/LANE_server/.security ]; then
 fi
 ```
 
-Then, to propagate these changes and reactivate the venv, in the project directory run
+Then, to propagate these changes and reactivate the venv, in the LANE-server directory run
 
 ```
 source ~/.bashrc
@@ -61,7 +61,7 @@ source venv/bin/activate
 
 ### 4. Running the server
 
-In the project directory, with venv enabled, run the following command to start the server:
+In the LANE-server directory, with venv enabled, run the following command to start the server:
 
 ```
 daphne LANE_server.asgi:application
