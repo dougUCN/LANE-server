@@ -1,0 +1,13 @@
+# Don't forget to uncomment corresponding mutations in schema.graphql
+# type TokenAuthPayload {
+#   token: String!
+# }
+
+# type VerifyTokenPayload {
+#   payload: TokenPayload!
+# }
+
+# type TokenPayload {
+#   username: String!
+#   expiration: Datetime!
+# }

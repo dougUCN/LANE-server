@@ -1,18 +1,31 @@
 # Switchers
 
+This documents use of the python switcher interface code
+in `worker_threads/slow_control_worker/switcher`
+
 Switcher 1 serial no: "A105HOY5"
 
 Switcher 2 serial no: "A5052RD1"
 
-Upon disconnecting/powering off the switchers, run ./SETUP_SWITCHERS for the computer to reconnect
+Upon disconnecting/powering off the switchers from the computer,
+run ./SETUP_SWITCHERS to automatically detect what serial ports the
+switchers are on and to set up symbolic links automatically
 
 Using a switcher should be as simple as
 
 ```
-from switcher import dxlS500R
+from switcher import dxlS500R # Assuming you are in the same directory as the switcher package
 motor = dxlS500R(PORT='/path/to/symbolic/link',VERBOSE=True)
 motor.ping() # or any other command in the library documentation below
 ```
+
+## Note on motor model
+
+This code is for interfacing with the Dynamixel Pro h54-200-s500-r.
+(Note that the switchers for the UCNA experiment at LANL use different motors)
+
+For a different model of motor you will likely need to alter the register values
+in `switcher/globals.py` according to the online manual for the corresponding motor
 
 ## Switcher library documentation
 
