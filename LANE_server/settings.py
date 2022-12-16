@@ -35,7 +35,11 @@ ALLOWED_HOSTS = [
 ]
 
 # For FE and BE hosted locally on different ports
-CORS_ALLOWED_ORIGINS = ['*']
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://ec2-44-202-29-2.compute-1.amazonaws.com",
+    "http://nedm-macpro.lanl.gov",
+]
 
 # Application definition
 
