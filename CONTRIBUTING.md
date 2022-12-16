@@ -54,7 +54,7 @@ To update LANE-server on production, perform the following:
 ```bash
 # Assuming you are in the $HOME/LANE/LANE-server directory
 chmod u+x deploy-prod/deploy.sh
-./deploy-prod/deploy.sh # Doesn't matter which directory from which you call deploy.sh
+./deploy-prod/deploy.sh
 ```
 
 This will pause the production server, check for updates, and redeploy.
@@ -148,5 +148,3 @@ To run the test suite in development, simply start the venv and in the root dire
 ```bash
 pytest test
 ```
-
-###
