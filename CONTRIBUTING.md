@@ -33,9 +33,9 @@ The Ariadne-asgi application is a Starlette object, which breaks several depende
 
 ### 4. GraphQL Endpoints
 
-The websocket endpoint (for GraphQL Subscriptions) is located at `ws://localhost:8000/graphql/`
+The local websocket endpoint (for GraphQL Subscriptions) is located at `ws://localhost:8000/graphql/`
 
-The http endpoint (for Queries and Mutations) is located at `http://localhost:8000/graphql/`
+The local http endpoint (for Queries and Mutations) is located at `http://localhost:8000/graphql/`
 
 Django default settings are such that the `/` at the end of the above urls is _mandatory_
 
@@ -46,6 +46,42 @@ Ariadne implements [subscriptions-transport-ws](https://github.com/apollographql
 ### 5. Production server
 
 The production server has Python 3.6.9 and Node js 16.15.1
+
+To update the server on production, perform the following:
+
+```bash
+# Assuming you are in the LANE-server directory
+chmod u+x deploy-prod/deploy.sh
+./deploy-prod/deploy.sh # Doesn't matter which directory from which you call deploy.sh
+```
+
+To deploy to production for the first time, perform the following:
+
+1. In the folder `$HOME/LANE`, run `git clone https://github.com/dougUCN/LANE-server.git`. (The client repo should be cloned into the same folder). Your directory structure should look as follows:
+
+```
+LANE
+├── LANE-client
+└── LANE-server
+```
+
+2. Follow the installation directions for the server as per steps 1 -> 3 in the [README](README.md)
+3. Install supervisord
+
+```
+sudo apt install supervisor
+```
+
+4. Copy the contents of the file `/deploy-prod/lane.conf` to `/etc/supervisor/conf.d/lane.conf`
+5. Create a directory with `sudo mkdir /run/daphne/`
+6. Create the file `/usr/lib/tmpfiles.d/daphne.conf` with contents `/run/daphne 0755 root root`
+7. Launch supervisord
+
+```bash
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo systemctl status supervisor
+```
 
 ### 6. Staging
 
@@ -104,3 +140,5 @@ To run the test suite in development, simply start the venv and in the root dire
 ```bash
 pytest test
 ```
+
+###
