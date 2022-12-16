@@ -45,15 +45,21 @@ Ariadne implements [subscriptions-transport-ws](https://github.com/apollographql
 
 ### 5. Production server
 
+As of 12/15/2022, the production LANE-server may only be accessed on the LANL OCE network at http://nedm-macpro.lanl.gov/graphql/
+
 The production server has Python 3.6.9 and Node js 16.15.1
 
-To update the server on production, perform the following:
+To update LANE-server on production, perform the following:
 
 ```bash
-# Assuming you are in the LANE-server directory
+# Assuming you are in the $HOME/LANE/LANE-server directory
 chmod u+x deploy-prod/deploy.sh
 ./deploy-prod/deploy.sh # Doesn't matter which directory from which you call deploy.sh
 ```
+
+This will pause the production server, check for updates, and redeploy.
+
+**Note:** Changes to the `deploy-prod/lane.conf` file will not propagate to the actual supervisord config file located in production. This needs to be done manually
 
 To deploy to production for the first time, perform the following:
 
@@ -72,8 +78,8 @@ LANE
 sudo apt install supervisor
 ```
 
-4. Copy the contents of the file `/deploy-prod/lane.conf` to `/etc/supervisor/conf.d/lane.conf`
-5. Create a directory with `sudo mkdir /run/daphne/`
+4. Copy the contents of the file `/deploy-prod/lane.conf` to a new file `/etc/supervisor/conf.d/lane.conf`
+5. Create a directory with `sudo mkdir /run/daphne/` for use by supervisord
 6. Create the file `/usr/lib/tmpfiles.d/daphne.conf` with contents `/run/daphne 0755 root root`
 7. Launch supervisord
 
@@ -82,6 +88,8 @@ sudo supervisorctl reread
 sudo supervisorctl update
 sudo systemctl status supervisor
 ```
+
+**Note:** To access the LANE-server at http://nedm-macpro.lanl.gov/graphql/, the LANE-client repository will need to be deployed as per the `CONTRIBUTING.md` file [here](https://github.com/dougUCN/LANE-client), as the Nginx configuration file is located in the LANE-client repository
 
 ### 6. Staging
 
