@@ -49,13 +49,11 @@ The production server has Python 3.6.9 and Node js 16.15.1
 
 ### 6. Staging
 
-Heroku is utilized as a staging area test. When a PR is merged into `main`, github actions pushes the repo to Heroku for a build and then attempts to ping the graphql endpoint for a health check.
+Railway is utilized as a staging area for quality control. When a PR is merged into `main`, github actions pushes the repo to Railway for a build
 
-The staging endpoint is located at https://lane-server.herokuapp.com/graphql/
+The staging endpoint is located at https://lane-staging.up.railway.app/graphql/
 
-Heroku's file system is "ephemeral", which essentially means any file untracked by github does not persist on the Heroku side. This means that migrations applied to sqlite databases are not saved, data added/removed from sqlite databases via API interactions are not saved, a static security.py file does not persist, etc.
-
-Files related to configuration of Heroku deployment are `Procfile`, `requirements.txt`, `runtime.txt`. The github actions file related to staging deployment primarily just pushes the repo to Heroku (with some environment variables) and runs a health check.
+Files related to configuration of Railway deployment are `Procfile`, `requirements.txt`, `runtime.txt`. Railway uses [Nixpacks](https://nixpacks.com/docs/getting-started) for deployment (the same package that Heroku uses)
 
 ### 7. Databases
 
