@@ -33,9 +33,9 @@ The Ariadne-asgi application is a Starlette object, which breaks several depende
 
 ### 4. GraphQL Endpoints
 
-The websocket endpoint (for GraphQL Subscriptions) is located at `ws://localhost:8000/graphql/`
+The local websocket endpoint (for GraphQL Subscriptions) is located at `ws://localhost:8000/graphql/`
 
-The http endpoint (for Queries and Mutations) is located at `http://localhost:8000/graphql/`
+The local http endpoint (for Queries and Mutations) is located at `http://localhost:8000/graphql/`
 
 Django default settings are such that the `/` at the end of the above urls is _mandatory_
 
@@ -45,17 +45,59 @@ Ariadne implements [subscriptions-transport-ws](https://github.com/apollographql
 
 ### 5. Production server
 
+As of 12/15/2022, the production LANE-server may only be accessed on the LANL OCE network at http://nedm-macpro.lanl.gov/graphql/
+
 The production server has Python 3.6.9 and Node js 16.15.1
+
+To update LANE-server on production, perform the following:
+
+```bash
+# Assuming you are in the $HOME/LANE/LANE-server directory
+chmod u+x deploy-prod/deploy.sh
+./deploy-prod/deploy.sh
+```
+
+This will pause the production server, check for updates, and redeploy.
+
+**Note:** Changes to the `deploy-prod/lane.conf` file will not propagate to the actual supervisord config file located in production. This needs to be done manually
+
+To deploy to production for the first time, perform the following:
+
+1. In the folder `$HOME/LANE`, run `git clone https://github.com/dougUCN/LANE-server.git`. (The client repo should be cloned into the same folder). Your directory structure should look as follows:
+
+```
+LANE
+├── LANE-client
+└── LANE-server
+```
+
+2. Follow the installation directions for the server as per steps 1 -> 3 in the [README](README.md)
+3. Install supervisord
+
+```
+sudo apt install supervisor
+```
+
+4. Copy the contents of the file `/deploy-prod/lane.conf` to a new file `/etc/supervisor/conf.d/lane.conf`
+5. Create a directory with `sudo mkdir /run/daphne/` for use by supervisord
+6. Create the file `/usr/lib/tmpfiles.d/daphne.conf` with contents `/run/daphne 0755 root root`
+7. Launch supervisord
+
+```bash
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo systemctl status supervisor
+```
+
+**Note:** To access the LANE-server at http://nedm-macpro.lanl.gov/graphql/, the LANE-client repository will need to be deployed as per the `CONTRIBUTING.md` file [here](https://github.com/dougUCN/LANE-client), as the Nginx configuration file is located in the LANE-client repository
 
 ### 6. Staging
 
-Heroku is utilized as a staging area test. When a PR is merged into `main`, github actions pushes the repo to Heroku for a build and then attempts to ping the graphql endpoint for a health check.
+Railway is utilized as a staging area for quality control. When a PR is merged into `main`, github actions pushes the repo to Railway for a build
 
-The staging endpoint is located at https://lane-server.herokuapp.com/graphql/
+The staging endpoint is located at https://lane-staging.up.railway.app/graphql/
 
-Heroku's file system is "ephemeral", which essentially means any file untracked by github does not persist on the Heroku side. This means that migrations applied to sqlite databases are not saved, data added/removed from sqlite databases via API interactions are not saved, a static security.py file does not persist, etc.
-
-Files related to configuration of Heroku deployment are `Procfile`, `requirements.txt`, `runtime.txt`. The github actions file related to staging deployment primarily just pushes the repo to Heroku (with some environment variables) and runs a health check.
+Files related to configuration of Railway deployment are `Procfile`, `requirements.txt`, `runtime.txt`. Railway uses [Nixpacks](https://nixpacks.com/docs/getting-started) for deployment (the same package that Heroku uses)
 
 ### 7. Databases
 

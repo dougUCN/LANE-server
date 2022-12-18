@@ -10,7 +10,7 @@ git clone https://github.com/dougUCN/LANE-server.git
 
 ### 2. Setting up a virtual environment:
 
-In the root directory
+In the LANE-server directory
 
 ```
 python3 -m venv venv
@@ -33,7 +33,7 @@ python3 -m pip install -r requirements.txt
 
 ### 3. Generating a secret key
 
-In the root directory, with venv enabled, run
+In the LANE-server directory, with venv enabled, run
 
 ```
 python scripts/genSecurityFile.py # --debug True <-- Only use this flag if in development!
@@ -47,12 +47,12 @@ And add these lines to your `~/.bashrc` file
 
 ```
 ### LANE Server debug flag and secret key
-if [ -f${path_to_LANE_server}/LANE_server/.security ]; then
+if [ -f ${path_to_LANE_server}/LANE_server/.security ]; then
     . ${path_to_LANE_server}/LANE_server/.security
 fi
 ```
 
-Then, to propagate these changes and reactivate the venv, in the root directory run
+Then, to propagate these changes and reactivate the venv, in the LANE-server directory run
 
 ```
 source ~/.bashrc
@@ -61,7 +61,7 @@ source venv/bin/activate
 
 ### 4. Running the server
 
-In the root directory, with venv enabled, run the following command to start the server:
+In the LANE-server directory, with venv enabled, run the following command to start the server:
 
 ```
 daphne LANE_server.asgi:application
@@ -73,7 +73,7 @@ http://127.0.0.1:8000/graphql/
 
 # Live Demo
 
-See the live demo [here](https://lane-server.herokuapp.com/graphql/)!
+See the live demo [here](https://lane-staging.up.railway.app/graphql/)!
 
 # Contributing
 
