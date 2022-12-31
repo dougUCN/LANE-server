@@ -48,6 +48,11 @@ def _create_run_config_step(runConfigId, clean_step):
     run_config = RunConfig.objects.using(DATABASE).get(pk=runConfigId)
     new_step = RunConfigStep(**clean_step, runconfig=run_config)
     new_step.save(using=DATABASE)
+
+    steps = list(run_config.runconfigstep_set.all())
+    if (len(steps) and run_config.runConfigStatus['status'] == RunState['INVALID']):
+        setattr(run_config, 'runConfigStatus', {'status': RunState["READY"],  'message': []})
+        run_config.save(using=DATABASE)
     return new_step, new_step.runconfig.id, True
 
 
@@ -64,11 +69,11 @@ def _update_run_config(id, clean_run):
                 RunConfigStep.objects.using(DATABASE).filter(runconfig__id__exact=id).delete()
                 new_steps = [RunConfigStep(**step, runconfig=in_database) for step in clean_run['steps']]
                 RunConfigStep.objects.using(DATABASE).bulk_create(new_steps)
-            elif attr == "runConfigStatus":
+            elif attr == 'runConfigStatus':
                 current_status = clean_run[attr]
-                new_steps = getattr(clean_run, "steps", [])
-                if current_status == "INVALID" and not new_steps:
-                    setattr(in_database, "runConfigStatus", "READY")
+                new_steps = getattr(clean_run, 'steps', [])
+                if current_status['status'] == RunState['INVALID'] and not new_steps:
+                    setattr(in_database, 'runConfigStatus', {'status': RunState["READY"],  'message': []})
                 else:
                     setattr(in_database, attr, clean_run[attr])
             else:
