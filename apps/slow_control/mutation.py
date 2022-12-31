@@ -64,6 +64,13 @@ def _update_run_config(id, clean_run):
                 RunConfigStep.objects.using(DATABASE).filter(runconfig__id__exact=id).delete()
                 new_steps = [RunConfigStep(**step, runconfig=in_database) for step in clean_run['steps']]
                 RunConfigStep.objects.using(DATABASE).bulk_create(new_steps)
+            elif attr == "runConfigStatus":
+                current_status = clean_run[attr]
+                new_steps = getattr(clean_run, "steps", [])
+                if current_status == "INVALID" and not new_steps:
+                    setattr(in_database, "runConfigStatus", "READY")
+                else:
+                    setattr(in_database, attr, clean_run[attr])
             else:
                 setattr(in_database, attr, clean_run[attr])
             updatedFields.append(attr)
