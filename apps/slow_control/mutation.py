@@ -50,7 +50,7 @@ def _create_run_config_step(runConfigId, clean_step):
     new_step.save(using=DATABASE)
 
     steps = list(run_config.runconfigstep_set.all())
-    if (len(steps) and run_config.runConfigStatus['status'] == RunState['INVALID']):
+    if (steps and run_config.runConfigStatus['status'] == RunState['INVALID']):
         setattr(run_config, 'runConfigStatus', {'status': RunState["READY"],  'message': []})
         run_config.save(using=DATABASE)
     return new_step, new_step.runconfig.id, True
@@ -105,9 +105,15 @@ def _delete_run_config(id):
 
 
 @database_sync_to_async
-def _delete_run_config_step(id):
+def _delete_run_config_step(step_id):
     '''Returns True on success'''
-    RunConfigStep.objects.using(DATABASE).get(pk=id).delete()
+    run_config_id = RunConfigStep.objects.using(DATABASE).get(pk=step_id).runconfig.id
+    RunConfigStep.objects.using(DATABASE).get(pk=step_id).delete()
+    run_config = RunConfig.objects.using(DATABASE).get(pk=run_config_id)
+    steps = list(run_config.runconfigstep_set.all())
+    if (not steps and run_config.runConfigStatus['status'] == RunState['READY']):
+        setattr(run_config, 'runConfigStatus', {'status': RunState["INVALID"],  'message': ['Invalid RunConfig: missing "steps". To add "steps," edit the RunConfig']})
+        run_config.save(using=DATABASE)
     return True
 
 
